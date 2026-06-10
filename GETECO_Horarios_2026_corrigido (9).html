@@ -1,0 +1,2163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GETECO 2026 – Sistema de Horários</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --verde: #1a6b3a;
+    --verde-claro: #2d9e5b;
+    --verde-vivo: #38d47a;
+    --verde-fundo: #e8f5ee;
+    --azul: #1a4480;
+    --azul-claro: #2563c5;
+    --cinza-escuro: #1c1f26;
+    --cinza-medio: #4a5568;
+    --cinza-claro: #f0f4f8;
+    --branco: #ffffff;
+    --borda: #d1dde8;
+    --amarelo: #f59e0b;
+    --laranja: #ea580c;
+    --roxo: #7c3aed;
+    --ciano: #0891b2;
+    --rosa: #db2777;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f0f4f8;
+    color: var(--cinza-escuro);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, var(--verde) 0%, var(--azul) 100%);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  .header-top {
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-escola {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 800; color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+
+  .header-info h1 {
+    font-size: 15px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; opacity: 0.9;
+  }
+  .header-info p {
+    font-size: 12px; opacity: 0.7; margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  nav {
+    display: flex;
+    background: rgba(0,0,0,0.2);
+    padding: 0 28px;
+    overflow-x: auto;
+    gap: 4px;
+  }
+
+  nav button {
+    background: none; border: none;
+    color: rgba(255,255,255,0.7);
+    padding: 10px 18px;
+    cursor: pointer; font-size: 13px; font-weight: 600;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  nav button:hover { color: white; }
+  nav button.active {
+    color: white;
+    border-bottom-color: var(--verde-vivo);
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* MAIN */
+  main { padding: 24px 28px; max-width: 1400px; margin: 0 auto; }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARDS DO DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    display: flex; flex-direction: column; gap: 8px;
+    border-left: 4px solid var(--verde);
+    transition: transform 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card:nth-child(2) { border-color: var(--azul-claro); }
+  .stat-card:nth-child(3) { border-color: var(--amarelo); }
+  .stat-card:nth-child(4) { border-color: var(--laranja); }
+  .stat-card:nth-child(5) { border-color: var(--roxo); }
+  .stat-card:nth-child(6) { border-color: var(--ciano); }
+
+  .stat-num { font-size: 36px; font-weight: 800; color: var(--cinza-escuro); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--cinza-medio); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  .stat-icon { font-size: 20px; }
+
+  /* FILTROS */
+  .filter-bar {
+    background: white;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;
+  }
+
+  .filter-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
+  .filter-group label { font-size: 12px; font-weight: 700; color: var(--cinza-medio); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  select, input[type="text"] {
+    border: 2px solid var(--borda);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 14px;
+    color: var(--cinza-escuro);
+    background: white;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s;
+    outline: none;
+    width: 100%;
+  }
+  select:focus, input[type="text"]:focus { border-color: var(--verde-claro); }
+
+  /* TABELA HORÁRIO */
+  .timetable-wrapper {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow-x: auto;
+  }
+
+  .timetable-header-bar {
+    padding: 16px 22px;
+    background: var(--cinza-escuro);
+    color: white;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .timetable-header-bar h2 { font-size: 15px; font-weight: 700; }
+  .timetable-header-bar span { font-size: 12px; opacity: 0.6; font-family: 'DM Mono', monospace; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  thead th {
+    background: var(--cinza-escuro);
+    color: white;
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    min-width: 110px;
+  }
+  thead th:first-child { min-width: 90px; }
+
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:hover { background: var(--verde-fundo); }
+
+  tbody td {
+    padding: 10px 8px;
+    border: 1px solid #e8ecf0;
+    text-align: center;
+    vertical-align: middle;
+    min-height: 52px;
+  }
+
+  tbody td:first-child {
+    background: var(--cinza-escuro);
+    color: white;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    padding: 10px 12px;
+  }
+
+  .cell-aula {
+    display: flex; flex-direction: column;
+    gap: 2px; align-items: center;
+    padding: 4px;
+  }
+
+  .cell-subj {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--cinza-escuro);
+  }
+
+  .cell-teacher {
+    font-size: 10px; color: var(--cinza-medio);
+    font-weight: 600;
+  }
+
+  .cell-room {
+    font-size: 10px;
+    background: var(--verde-fundo);
+    color: var(--verde);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .cell-turma {
+    font-size: 10px;
+    background: #eff6ff;
+    color: var(--azul);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-weight: 700;
+  }
+
+  .intervalo-row td {
+    background: #fff9e6 !important;
+    color: var(--amarelo) !important;
+    font-weight: 800 !important;
+    font-size: 11px !important;
+    letter-spacing: 0.1em;
+  }
+
+  .intervalo-row td:first-child {
+    background: #f59e0b !important;
+    color: white !important;
+  }
+
+  /* PILL de matéria colorida */
+  .subj-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 12px;
+    color: white;
+  }
+
+  /* BOTÃO IMPRIMIR */
+  .btn {
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: none; cursor: pointer;
+    font-size: 13px; font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--verde); color: white; }
+  .btn-primary:hover { background: var(--verde-claro); }
+  .btn-secondary { background: var(--azul); color: white; }
+  .btn-secondary:hover { background: var(--azul-claro); }
+  .btn-outline { background: white; color: var(--cinza-escuro); border: 2px solid var(--borda); }
+  .btn-outline:hover { border-color: var(--verde); color: var(--verde); }
+
+  /* DASHBOARD CHARTS */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .chart-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--cinza-escuro); text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; }
+  .bar-label { width: 130px; font-size: 12px; color: var(--cinza-medio); font-weight: 600; text-align: right; flex-shrink: 0; }
+  .bar-track { flex: 1; background: #f0f4f8; border-radius: 100px; height: 22px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 100px; display: flex; align-items: center; padding-left: 8px; }
+  .bar-fill span { font-size: 11px; font-weight: 700; color: white; }
+
+  /* =============================================
+     NOVO LAYOUT: BARRA LATERAL + ÁREA PRINCIPAL
+     ============================================= */
+  .sidebar-layout {
+    display: flex;
+    gap: 0;
+    min-height: calc(100vh - 120px);
+    align-items: flex-start;
+  }
+
+  /* Barra lateral */
+  .sidebar-panel {
+    width: 220px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 16px 0 0 16px;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+  }
+
+  .sidebar-header {
+    padding: 12px 14px 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--cinza-medio);
+    border-bottom: 1px solid var(--borda);
+    background: var(--cinza-claro);
+    flex-shrink: 0;
+  }
+
+  .sidebar-search {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--borda);
+    flex-shrink: 0;
+  }
+  .sidebar-search input {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .sidebar-list {
+    overflow-y: auto;
+    flex: 1;
+    padding: 6px 0;
+  }
+  .sidebar-list::-webkit-scrollbar { width: 4px; }
+  .sidebar-list::-webkit-scrollbar-thumb { background: var(--borda); border-radius: 4px; }
+
+  /* Área de conteúdo principal */
+  .main-content-area {
+    flex: 1;
+    min-width: 0;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  /* LISTA DE PROFESSORES */
+  .teacher-grid { /* mantido para compatibilidade */ }
+  
+  .teacher-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    border-bottom: 1px solid #f5f7fa;
+  }
+  .teacher-item:hover { background: var(--verde-fundo); border-left-color: var(--verde-claro); }
+  .teacher-item.selected { background: var(--verde-fundo); border-left-color: var(--verde); }
+  
+  .teacher-avatar {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 12px; color: white;
+    flex-shrink: 0;
+  }
+  .teacher-item-info { min-width: 0; }
+  .teacher-name { font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .teacher-meta { font-size: 10px; color: var(--cinza-medio); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .teacher-tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px; }
+  .tag { font-size: 10px; padding: 1px 5px; border-radius: 4px; font-weight: 700; background: var(--verde-fundo); color: var(--verde); }
+
+  /* TURMAS SIDEBAR */
+  .turmas-grid { /* mantido para compatibilidade */ }
+
+  .turma-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid #f5f7fa;
+    transition: all 0.15s;
+  }
+  .turma-item:hover { background: #eff6ff; border-left-color: var(--azul-claro); }
+  .turma-item.selected { background: #eff6ff; border-left-color: var(--azul); }
+  .turma-badge {
+    font-size: 13px; font-weight: 900;
+    color: var(--azul);
+    min-width: 36px;
+    flex-shrink: 0;
+  }
+  .turma-room { font-size: 10px; color: var(--verde); font-weight: 700; font-family: 'DM Mono', monospace; }
+
+  /* SALAS SIDEBAR */
+  .salas-grid { /* mantido para compatibilidade */ }
+
+  .sala-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    border-bottom: 1px solid #f5f7fa;
+    transition: all 0.15s;
+  }
+  .sala-item:hover { background: #fff7ed; border-left-color: var(--laranja); }
+  .sala-item.selected { background: #fff7ed; border-left-color: var(--laranja); }
+  .sala-num { font-size: 14px; font-weight: 900; color: var(--laranja); min-width: 28px; flex-shrink: 0; }
+  .sala-turma { font-size: 10px; color: var(--cinza-medio); margin-top: 1px; font-weight: 600; }
+
+  /* Placeholder quando nada selecionado */
+  .empty-selection {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 40px; text-align: center; color: var(--cinza-medio);
+  }
+  .empty-selection .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-selection h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .empty-selection p { font-size: 13px; opacity: 0.7; }
+
+  @media (max-width: 768px) {
+    .sidebar-layout { flex-direction: column; }
+    .sidebar-panel { width: 100%; border-radius: 16px; position: static; max-height: 240px; }
+    .main-content-area { border-radius: 16px; }
+  }
+
+  /* PRINT */
+  .print-area { display: none; }
+
+  @media print {
+    /* Padrão: retrato para outros tipos */
+    @page { size: A4 portrait; margin: 10mm; }
+    /* Paisagem para turmas */
+    @page turma-page { size: A4 landscape; margin: 10mm; }
+
+    body * { visibility: hidden; }
+    .print-area, .print-area * { visibility: visible; }
+
+    .print-area {
+      display: block !important;
+      visibility: visible !important;
+      position: fixed;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+    }
+
+    /* Página paisagem de turmas: 4 cards em 2×2 */
+    .print-page-turma {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 5mm;
+      width: 277mm;
+      height: 190mm;
+      page-break-after: always;
+      break-after: page;
+      page: turma-page;
+    }
+    .print-page-turma:last-child { page-break-after: avoid; break-after: avoid; }
+
+    /* Page = 2×2 grid of cards (outros) */
+    .print-page {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 6mm;
+      width: 194mm;
+      height: 280mm;
+      page-break-after: always;
+      break-after: page;
+    }
+    .print-page:last-child { page-break-after: avoid; break-after: avoid; }
+
+    /* Individual card */
+    .pcard {
+      border: 1.5px solid #1c1f26;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Card header strip */
+    .pcard-head {
+      padding: 3.5mm 4mm 3mm;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .pcard-head-escola {
+      font-size: 6pt;
+      font-weight: 600;
+      opacity: 0.8;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 1mm;
+    }
+    .pcard-head-title {
+      font-size: 10pt;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.01em;
+      line-height: 1.1;
+    }
+    .pcard-head-sub {
+      font-size: 6.5pt;
+      color: rgba(255,255,255,0.75);
+      margin-top: 1mm;
+      font-weight: 500;
+    }
+
+    /* Card table */
+    .pcard-body {
+      flex: 1;
+      overflow: hidden;
+      padding: 2mm;
+    }
+
+    .pcard table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 6.5pt;
+      table-layout: fixed;
+    }
+
+    .pcard thead th {
+      padding: 1.5mm 1mm;
+      font-size: 6pt;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 0.5px solid #c0ccd8;
+      background: #1c1f26 !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .pcard thead th:first-child {
+      width: 14mm;
+    }
+
+    .pcard tbody td {
+      border: 0.5px solid #d8e0e8;
+      padding: 1mm 0.8mm;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 6pt;
+      line-height: 1.2;
+    }
+
+    .pcard tbody td:first-child {
+      background: #f0f4f8 !important;
+      font-weight: 800;
+      font-size: 5.5pt;
+      color: #1c1f26;
+      text-align: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .pcard .pc-subj {
+      font-weight: 900;
+      font-size: 7pt;
+      display: block;
+      line-height: 1;
+    }
+
+    .pcard .pc-info {
+      font-size: 5pt;
+      color: #555;
+      display: block;
+      margin-top: 0.3mm;
+      line-height: 1.1;
+    }
+
+    /* Intervalo row */
+    .pcard .pc-intervalo td {
+      background: #fff8e1 !important;
+      color: #b45309 !important;
+      font-weight: 800 !important;
+      font-size: 5.5pt !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .pcard .pc-intervalo td:first-child {
+      background: #f59e0b !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Footer strip */
+    .pcard-foot {
+      padding: 1.5mm 4mm;
+      background: #f0f4f8 !important;
+      border-top: 1px solid #d0dce8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .pcard-foot span {
+      font-size: 5pt;
+      color: #666;
+      font-weight: 600;
+    }
+
+    /* ── Impressão de professores: 2 por página, sem cores escuras ── */
+    .prof-print-page {
+      width: 190mm;
+      display: flex;
+      flex-direction: column;
+      gap: 6mm;
+      page-break-after: always;
+      break-after: page;
+    }
+    .prof-print-page:last-child { page-break-after: avoid; break-after: avoid; }
+
+    /* Card individual de professor (ocupa metade da página) */
+    .ppcard {
+      border: 1pt solid #000;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      flex: 1;
+    }
+    .ppcard-head {
+      padding: 2.5mm 4mm 2mm;
+      border-bottom: 1.5pt solid #000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ppcard-head-nome {
+      font-size: 11pt;
+      font-weight: 900;
+      color: #000;
+      letter-spacing: -0.01em;
+    }
+    .ppcard-head-sub {
+      font-size: 6pt;
+      color: #444;
+      text-align: right;
+    }
+    .ppcard-body { flex: 1; overflow: hidden; padding: 1.5mm 2mm; }
+    .ppcard table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 6.5pt;
+      table-layout: fixed;
+    }
+    .ppcard thead th {
+      padding: 1.5mm 1mm;
+      font-size: 6pt;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      border: 0.5pt solid #888;
+      background: #e8e8e8 !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ppcard thead th:first-child { width: 14mm; }
+    .ppcard tbody td {
+      border: 0.5pt solid #bbb;
+      padding: 1mm 0.8mm;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 6pt;
+      line-height: 1.2;
+      color: #000;
+    }
+    .ppcard tbody td:first-child {
+      background: #f2f2f2 !important;
+      font-weight: 800;
+      font-size: 5.5pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ppcard .pp-subj {
+      font-weight: 900;
+      font-size: 7pt;
+      display: block;
+      line-height: 1;
+    }
+    .ppcard .pp-info {
+      font-size: 4.5pt;
+      color: #555;
+      display: block;
+      margin-top: 0.3mm;
+    }
+    .ppcard .pp-intervalo td {
+      background: #f0f0f0 !important;
+      font-style: italic;
+      font-size: 5.5pt !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ppcard .pp-intervalo td:first-child {
+      background: #ddd !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* SUBST e ACEPAT: sem fundo colorido, apenas borda e texto */
+    .ppcard .pp-subst {
+      display: inline-block;
+      border: 1pt solid #555;
+      border-radius: 3pt;
+      padding: 0.5pt 4pt;
+      font-size: 5.5pt;
+      font-weight: 800;
+      color: #333;
+    }
+    .ppcard .pp-acepat {
+      display: inline-block;
+      border: 1pt dashed #444;
+      border-radius: 3pt;
+      padding: 0.5pt 4pt;
+      font-size: 5.5pt;
+      font-weight: 800;
+      color: #333;
+    }
+    .ppcard-foot {
+      padding: 1mm 4mm;
+      background: #f2f2f2 !important;
+      border-top: 0.5pt solid #aaa;
+      display: flex;
+      justify-content: space-between;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ppcard-foot span { font-size: 4.5pt; color: #555; font-weight: 600; }
+
+
+    .ptcard {
+      border: 1pt solid #000;
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* Cabeçalho limpo: só borda inferior */
+    .ptcard-head {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      padding: 2mm 3mm;
+      background: #fff !important;
+      border-bottom: 1pt solid #000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard-head-logo {
+      height: 11mm;
+      width: auto;
+      flex-shrink: 0;
+    }
+    .ptcard-head-divider {
+      width: 0.5pt;
+      height: 11mm;
+      background: #aaa;
+      flex-shrink: 0;
+    }
+    .ptcard-head-text { flex: 1; }
+    .ptcard-head-escola {
+      font-size: 5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #444;
+    }
+    .ptcard-head-turma {
+      font-size: 12pt;
+      font-weight: 900;
+      line-height: 1.1;
+      color: #000;
+      letter-spacing: -0.01em;
+    }
+    .ptcard-head-sub {
+      font-size: 5pt;
+      color: #666;
+      margin-top: 0.5mm;
+    }
+    .ptcard-body {
+      flex: 1;
+      overflow: hidden;
+      padding: 1.5mm 2mm;
+    }
+    .ptcard table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 6pt;
+      table-layout: fixed;
+    }
+    .ptcard thead th {
+      padding: 1.2mm 1mm;
+      font-size: 5.5pt;
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border: 0.5pt solid #888;
+      background: #e8e8e8 !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard thead th:first-child { width: 13mm; }
+    .ptcard tbody td {
+      border: 0.5pt solid #bbb;
+      padding: 0.8mm 0.5mm;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 5.5pt;
+      line-height: 1.2;
+      color: #000;
+    }
+    .ptcard tbody td:first-child {
+      background: #f2f2f2 !important;
+      font-weight: 800;
+      font-size: 5pt;
+      color: #000;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard .pt-subj {
+      font-weight: 900;
+      font-size: 6.5pt;
+      display: block;
+      line-height: 1;
+      color: #000;
+    }
+    .ptcard .pt-info {
+      font-size: 4.5pt;
+      color: #444;
+      display: block;
+      margin-top: 0.3mm;
+      line-height: 1.1;
+    }
+    .ptcard .pt-intervalo td {
+      background: #f2f2f2 !important;
+      color: #333 !important;
+      font-weight: 700 !important;
+      font-size: 5pt !important;
+      font-style: italic;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard .pt-intervalo td:first-child {
+      background: #ddd !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard-foot {
+      padding: 1mm 3mm;
+      background: #f2f2f2 !important;
+      border-top: 0.5pt solid #aaa;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .ptcard-foot span { font-size: 4.5pt; color: #444; font-weight: 600; }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    main { padding: 16px; }
+    .header-top { padding: 12px 16px; }
+    nav { padding: 0 8px; }
+    nav button { padding: 8px 12px; font-size: 12px; }
+  }
+
+  /* Timetable inside sidebar layout - no double border */
+  .main-content-area .timetable-wrapper {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--cinza-medio);
+  }
+  .empty .icon { font-size: 56px; margin-bottom: 16px; }
+  .empty h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+  .empty p { font-size: 14px; }
+
+  /* CHIP de busca */
+  .search-input-wrap { position: relative; flex: 1; min-width: 220px; }
+  .search-input-wrap input { padding-left: 36px; }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--cinza-medio); font-size: 15px; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo-escola">G</div>
+    <div class="header-info">
+      <h1>E.M. Geraldo Teixeira da Costa – GETECO</h1>
+      <p>2º Turno · Junho 2026 · Sistema de Consulta de Horários</p>
+    </div>
+  </div>
+  <nav>
+    <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
+    <button onclick="showSection('turmas')">🏫 Por Turma</button>
+    <button onclick="showSection('professores')">👩‍🏫 Por Professor</button>
+    <button onclick="showSection('salas')">🚪 Por Sala</button>
+    <button onclick="showSection('disciplinas')">📚 Por Disciplina</button>
+    <button onclick="showSection('alunos')">🎒 Consulta Aluno</button>
+    <button onclick="showSection('substituicoes')">🔄 Substituições</button>
+    <button onclick="showSection('acepat')">⭐ ACEPAT</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- DASHBOARD -->
+<div id="sec-dashboard" class="section active">
+  <div class="stats-grid" id="stats-grid"></div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>⏱ Aulas por Professor</h3>
+      <div class="bar-chart" id="chart-teachers"></div>
+    </div>
+    <div class="chart-card">
+      <h3>📚 Aulas por Disciplina</h3>
+      <div class="bar-chart" id="chart-subjects"></div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>📅 Distribuição por Dia</h3>
+      <div class="bar-chart" id="chart-days"></div>
+    </div>
+    <div class="chart-card">
+      <h3>🏫 Ocupação por Turma</h3>
+      <div class="bar-chart" id="chart-turmas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TURMAS -->
+<div id="sec-turmas" class="section">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <button class="btn btn-primary" onclick="printCurrent('turma')">🖨 Imprimir Horário</button>
+  </div>
+  <div class="sidebar-layout">
+    <div class="sidebar-panel">
+      <div class="sidebar-header">🏫 Turmas</div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="🔍 Filtrar..." oninput="filterSidebar('turma-cards', this.value)">
+      </div>
+      <div class="sidebar-list" id="turma-cards"></div>
+    </div>
+    <div class="main-content-area">
+      <div id="turma-table">
+        <div class="empty-selection">
+          <div class="icon">🏫</div>
+          <h3>Selecione uma turma</h3>
+          <p>Clique em uma turma na barra ao lado para ver o horário</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SELEÇÃO DE IMPRESSÃO -->
+<div id="print-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;padding:24px;width:480px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="font-size:16px;font-weight:800;color:#1c1f26">🖨 Selecionar Professores para Impressão</h2>
+      <button onclick="closePrintModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+    </div>
+    <p style="font-size:12px;color:#666;margin-bottom:12px">Serão impressos <strong>2 horários por página</strong>, em formato retrato A4. Selecione os professores desejados:</p>
+    <div style="margin-bottom:10px;display:flex;gap:8px">
+      <button onclick="selectAllProf(true)" style="font-size:11px;padding:4px 10px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#f0f4f8">Marcar todos</button>
+      <button onclick="selectAllProf(false)" style="font-size:11px;padding:4px 10px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#f0f4f8">Desmarcar todos</button>
+      <input type="text" placeholder="🔍 Filtrar..." oninput="filterModalProf(this.value)" style="flex:1;font-size:12px;padding:4px 10px;border:1px solid #ccc;border-radius:6px">
+    </div>
+    <div id="modal-prof-list" style="flex:1;overflow-y:auto;border:1px solid #e0e0e0;border-radius:8px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px;max-height:320px"></div>
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="closePrintModal()" class="btn btn-outline">Cancelar</button>
+      <button onclick="printSelected()" class="btn btn-primary">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFESSORES -->
+<div id="sec-professores" class="section">
+  <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+    <button class="btn btn-secondary" onclick="printCurrent('professor')">🖨 Este Professor</button>
+    <button class="btn btn-primary" onclick="openPrintModal()">🖨 Imprimir Seleção...</button>
+  </div>
+  <div class="sidebar-layout">
+    <div class="sidebar-panel">
+      <div class="sidebar-header">👩‍🏫 Professores</div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="🔍 Filtrar..." oninput="filterSidebar('prof-cards', this.value)">
+      </div>
+      <div class="sidebar-list" id="prof-cards"></div>
+    </div>
+    <div class="main-content-area">
+      <div id="prof-table">
+        <div class="empty-selection">
+          <div class="icon">👩‍🏫</div>
+          <h3>Selecione um professor</h3>
+          <p>Clique em um professor na barra ao lado para ver o horário</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SALAS -->
+<div id="sec-salas" class="section">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <button class="btn btn-outline" onclick="printCurrent('sala')">🖨 Imprimir Horário</button>
+  </div>
+  <div class="sidebar-layout">
+    <div class="sidebar-panel">
+      <div class="sidebar-header">🚪 Salas</div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="🔍 Filtrar..." oninput="filterSidebar('sala-cards', this.value)">
+      </div>
+      <div class="sidebar-list" id="sala-cards"></div>
+    </div>
+    <div class="main-content-area">
+      <div id="sala-table">
+        <div class="empty-selection">
+          <div class="icon">🚪</div>
+          <h3>Selecione uma sala</h3>
+          <p>Clique em uma sala na barra ao lado para ver o horário</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DISCIPLINAS -->
+<div id="sec-disciplinas" class="section">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>Selecione a Disciplina</label>
+      <select id="sel-disciplina" onchange="renderDisciplina()">
+        <option value="">— Escolha uma disciplina —</option>
+      </select>
+    </div>
+  </div>
+  <div id="disciplina-content"></div>
+</div>
+
+<!-- ALUNOS (consulta por turma) -->
+<div id="sec-alunos" class="section">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <button class="btn btn-primary" onclick="printCurrent('aluno')">🖨 Imprimir para Alunos</button>
+  </div>
+  <div class="sidebar-layout">
+    <div class="sidebar-panel">
+      <div class="sidebar-header">🎒 Turmas</div>
+      <div class="sidebar-search">
+        <input type="text" placeholder="🔍 Filtrar..." oninput="filterSidebar('aluno-turma-list', this.value)">
+      </div>
+      <div class="sidebar-list" id="aluno-turma-list"></div>
+    </div>
+    <div class="main-content-area">
+      <div id="aluno-table">
+        <div class="empty-selection">
+          <div class="icon">🎒</div>
+          <h3>Selecione uma turma</h3>
+          <p>Clique em uma turma para ver o horário dos alunos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- SUBSTITUIÇÕES -->
+<div id="sec-substituicoes" class="section">
+  <div id="subst-content"></div>
+</div>
+
+<!-- ACEPAT -->
+<div id="sec-acepat" class="section">
+  <div id="acepat-content"></div>
+</div>
+
+</main>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="print-area"></div>
+
+<script>
+// ============================================================
+// DADOS
+// ============================================================
+const DATA = {"institution": "E.M. Geraldo Teixeira da Costa - GETECO 2026 / 2º Turno", "days": ["SEG", "TER", "QUA", "QUI", "SEX"], "days_long": ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"], "hours": ["1ªH", "2ºH", "3ºH", "INTERV.", "4ºH", "5ºH"], "hours_long": ["13:00", "13:50", "14:40", "INTERVALO", "15:50", "16:40"], "teachers": ["GISLAINE", "FERNANDA", "ALEXANDRA", "MAGNA", "ALESSANDRA", "JOADNE", "GUILHERME", "Mª DO CARMO", "JUSCELE", "JHOW", "LEIDIANE", "MÁRCIA", "ADILSON", "JULIANA", "MARCELO", "FABIANA", "RONEI", "CLAUDETE", "MARCELO C", "GILCE"], "subjects": ["PORT", "MAT", "CIÊN", "GEO", "HIST", "EF", "ING", "ART", "G.A.", "SUB-EF"], "subjects_long": {"PORT": "Português", "MAT": "Matemática", "CIÊN": "Ciências", "GEO": "Geografia", "HIST": "História", "EF": "Ed. Física", "ING": "Inglês", "ART": "Artes", "G.A.": "Geração Ativa", "SUB-EF": "Sub. Ed. Física"}, "rooms": ["Sala 18", "Sala 20", "Sala 1", "Sala 2", "Sala 3", "Sala 4", "Sala 5", "Sala 6", "Sala 7", "Sala 8", "Sala 9"], "turmas": ["6ºA - SL18", "6ºB - SL 20", "6ºC - SL 01", "6ºD - SL 02", "6ºE - SL 03", "6ºF - SL 04", "7ºA - SL 05", "7ºB - SL 06", "7ºC - SL 07", "7ºD - SL 08", "7ºE - SL 09", "8ªX - SL 10", "ACEPAT", "Anos Iniciais"], "activities": [{"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºA - SL 05", "day": "TER", "hour": "5ºH", "room": "Sala 05"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºA - SL 05", "day": "SEG", "hour": "2ºH", "room": "Sala 05"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºA - SL 05", "day": "SEX", "hour": "4ºH", "room": "Sala 05"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºB - SL 06", "day": "QUI", "hour": "4ºH", "room": "Sala 06"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºB - SL 06", "day": "SEG", "hour": "3ºH", "room": "Sala 06"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºB - SL 06", "day": "TER", "hour": "3ºH", "room": "Sala 06"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºC - SL 07", "day": "TER", "hour": "4ºH", "room": "Sala 07"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºC - SL 07", "day": "QUI", "hour": "1ªH", "room": "Sala 07"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºC - SL 07", "day": "SEX", "hour": "2ºH", "room": "Sala 07"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºD - SL 08", "day": "QUI", "hour": "2ºH", "room": "Sala 08"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºD - SL 08", "day": "SEG", "hour": "4ºH", "room": "Sala 08"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºD - SL 08", "day": "TER", "hour": "1ªH", "room": "Sala 08"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºE - SL 09", "day": "SEG", "hour": "1ªH", "room": "Sala 09"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºE - SL 09", "day": "TER", "hour": "2ºH", "room": "Sala 09"}, {"teacher": "JHOW", "subject": "CIÊN", "turma": "7ºE - SL 09", "day": "SEX", "hour": "3ºH", "room": "Sala 09"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºA - SL 05", "day": "SEG", "hour": "1ªH", "room": "Sala 05"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºA - SL 05", "day": "QUA", "hour": "1ªH", "room": "Sala 05"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºA - SL 05", "day": "TER", "hour": "1ªH", "room": "Sala 05"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºB - SL 06", "day": "QUA", "hour": "2ºH", "room": "Sala 06"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºB - SL 06", "day": "SEG", "hour": "4ºH", "room": "Sala 06"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºB - SL 06", "day": "SEX", "hour": "1ªH", "room": "Sala 06"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºC - SL 07", "day": "SEG", "hour": "5ºH", "room": "Sala 07"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºC - SL 07", "day": "TER", "hour": "3ºH", "room": "Sala 07"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºC - SL 07", "day": "QUA", "hour": "3ºH", "room": "Sala 07"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºD - SL 08", "day": "SEG", "hour": "2ºH", "room": "Sala 08"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºD - SL 08", "day": "TER", "hour": "4ºH", "room": "Sala 08"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºD - SL 08", "day": "SEX", "hour": "4ºH", "room": "Sala 08"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºE - SL 09", "day": "QUA", "hour": "5ºH", "room": "Sala 09"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºE - SL 09", "day": "SEX", "hour": "5ºH", "room": "Sala 09"}, {"teacher": "MÁRCIA", "subject": "GEO", "turma": "7ºE - SL 09", "day": "SEG", "hour": "3ºH", "room": "Sala 09"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºA - SL18", "day": "TER", "hour": "1ªH", "room": "Sala 18"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºA - SL18", "day": "SEG", "hour": "2ºH", "room": "Sala 18"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºB - SL 20", "day": "TER", "hour": "2ºH", "room": "Sala 20"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºB - SL 20", "day": "SEG", "hour": "3ºH", "room": "Sala 20"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºC - SL 01", "day": "QUA", "hour": "1ªH", "room": "Sala 01"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºC - SL 01", "day": "TER", "hour": "3ºH", "room": "Sala 01"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºD - SL 02", "day": "QUI", "hour": "5ºH", "room": "Sala 02"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºD - SL 02", "day": "QUA", "hour": "5ºH", "room": "Sala 02"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºE - SL 03", "day": "QUA", "hour": "4ºH", "room": "Sala 03"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºE - SL 03", "day": "TER", "hour": "4ºH", "room": "Sala 03"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºF - SL 04", "day": "QUA", "hour": "2ºH", "room": "Sala 04"}, {"teacher": "MARCELO", "subject": "EF", "turma": "6ºF - SL 04", "day": "QUI", "hour": "4ºH", "room": "Sala 04"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºA - SL 05", "day": "QUI", "hour": "3ºH", "room": "Sala 05"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºA - SL 05", "day": "QUA", "hour": "3ºH", "room": "Sala 05"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºB - SL 06", "day": "TER", "hour": "5ºH", "room": "Sala 06"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºB - SL 06", "day": "SEG", "hour": "1ªH", "room": "Sala 06"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºC - SL 07", "day": "SEG", "hour": "4ºH", "room": "Sala 07"}, {"teacher": "MARCELO", "subject": "EF", "turma": "7ºC - SL 07", "day": "QUI", "hour": "2ºH", "room": "Sala 07"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºD - SL 08", "day": "SEG", "hour": "3ºH", "room": "Sala 08"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºD - SL 08", "day": "TER", "hour": "3ºH", "room": "Sala 08"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºE - SL 09", "day": "QUI", "hour": "4ºH", "room": "Sala 09"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºE - SL 09", "day": "TER", "hour": "1ªH", "room": "Sala 09"}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "7ºD - SL 08", "day": "SEG", "hour": "1ªH", "room": "Sala 08"}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "7ºD - SL 08", "day": "TER", "hour": "5ºH", "room": "Sala 08"}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "7ºE - SL 09", "day": "SEG", "hour": "5ºH", "room": "Sala 09"}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "7ºE - SL 09", "day": "TER", "hour": "3ºH", "room": "Sala 09"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºA - SL18", "day": "SEG", "hour": "5ºH", "room": "Sala 18"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºA - SL18", "day": "QUA", "hour": "1ªH", "room": "Sala 18"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºA - SL18", "day": "SEX", "hour": "5ºH", "room": "Sala 18"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºA - SL18", "day": "QUI", "hour": "3ºH", "room": "Sala 18"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºB - SL 20", "day": "QUI", "hour": "1ªH", "room": "Sala 20"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºB - SL 20", "day": "SEX", "hour": "1ªH", "room": "Sala 20"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºB - SL 20", "day": "QUA", "hour": "5ºH", "room": "Sala 20"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºB - SL 20", "day": "SEG", "hour": "1ªH", "room": "Sala 20"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºC - SL 01", "day": "SEX", "hour": "3ºH", "room": "Sala 01"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºC - SL 01", "day": "SEG", "hour": "3ºH", "room": "Sala 01"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºC - SL 01", "day": "QUI", "hour": "2ºH", "room": "Sala 01"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºC - SL 01", "day": "QUA", "hour": "2ºH", "room": "Sala 01"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºD - SL 02", "day": "SEG", "hour": "4ºH", "room": "Sala 02"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºD - SL 02", "day": "SEX", "hour": "3ºH", "room": "Sala 02"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºD - SL 02", "day": "QUA", "hour": "1ªH", "room": "Sala 02"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºD - SL 02", "day": "QUI", "hour": "3ºH", "room": "Sala 02"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºE - SL 03", "day": "QUI", "hour": "5ºH", "room": "Sala 03"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºE - SL 03", "day": "QUA", "hour": "3ºH", "room": "Sala 03"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºE - SL 03", "day": "SEG", "hour": "5ºH", "room": "Sala 03"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºE - SL 03", "day": "SEX", "hour": "5ºH", "room": "Sala 03"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºF - SL 04", "day": "SEX", "hour": "4ºH", "room": "Sala 04"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºF - SL 04", "day": "SEG", "hour": "3ºH", "room": "Sala 04"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºF - SL 04", "day": "QUI", "hour": "1ªH", "room": "Sala 04"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºF - SL 04", "day": "QUA", "hour": "4ºH", "room": "Sala 04"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºA - SL 05", "day": "QUA", "hour": "2ºH", "room": "Sala 05"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºA - SL 05", "day": "SEG", "hour": "3ºH", "room": "Sala 05"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºA - SL 05", "day": "QUI", "hour": "1ªH", "room": "Sala 05"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºA - SL 05", "day": "SEX", "hour": "2ºH", "room": "Sala 05"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºB - SL 06", "day": "SEG", "hour": "2ºH", "room": "Sala 06"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºB - SL 06", "day": "QUI", "hour": "5ºH", "room": "Sala 06"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºB - SL 06", "day": "QUA", "hour": "4ºH", "room": "Sala 06"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºB - SL 06", "day": "SEX", "hour": "3ºH", "room": "Sala 06"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºC - SL 07", "day": "SEG", "hour": "1ªH", "room": "Sala 07"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºC - SL 07", "day": "QUA", "hour": "5ºH", "room": "Sala 07"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºC - SL 07", "day": "QUI", "hour": "4ºH", "room": "Sala 07"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºC - SL 07", "day": "SEX", "hour": "5ºH", "room": "Sala 07"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºA - SL18", "day": "QUA", "hour": "3ºH", "room": "Sala 18"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºB - SL 20", "day": "SEX", "hour": "4ºH", "room": "Sala 20"}, {"teacher": "GISLAINE", "subject": "MAT", "turma": "6ºC - SL 01", "day": "QUI", "hour": "4ºH", "room": "Sala 01"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºD - SL 02", "day": "SEX", "hour": "1ªH", "room": "Sala 02"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºE - SL 03", "day": "QUA", "hour": "5ºH", "room": "Sala 03"}, {"teacher": "FERNANDA", "subject": "MAT", "turma": "6ºF - SL 04", "day": "SEG", "hour": "1ªH", "room": "Sala 04"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºA - SL 05", "day": "SEG", "hour": "5ºH", "room": "Sala 05"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºB - SL 06", "day": "SEX", "hour": "4ºH", "room": "Sala 06"}, {"teacher": "ALEXANDRA", "subject": "MAT", "turma": "7ºC - SL 07", "day": "QUA", "hour": "1ªH", "room": "Sala 07"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºA - SL18", "day": "TER", "hour": "4ºH", "room": "Sala 18"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºA - SL18", "day": "SEX", "hour": "1ªH", "room": "Sala 18"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºA - SL18", "day": "QUI", "hour": "5ºH", "room": "Sala 18"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºA - SL18", "day": "QUA", "hour": "2ºH", "room": "Sala 18"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºB - SL 20", "day": "QUA", "hour": "3ºH", "room": "Sala 20"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºB - SL 20", "day": "TER", "hour": "1ªH", "room": "Sala 20"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºB - SL 20", "day": "QUI", "hour": "2ºH", "room": "Sala 20"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºB - SL 20", "day": "SEX", "hour": "5ºH", "room": "Sala 20"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºC - SL 01", "day": "SEX", "hour": "2ºH", "room": "Sala 01"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºC - SL 01", "day": "QUA", "hour": "4ºH", "room": "Sala 01"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºC - SL 01", "day": "QUI", "hour": "3ºH", "room": "Sala 01"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºC - SL 01", "day": "TER", "hour": "5ºH", "room": "Sala 01"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºD - SL 02", "day": "SEG", "hour": "5ºH", "room": "Sala 02"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºD - SL 02", "day": "QUI", "hour": "2ºH", "room": "Sala 02"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºD - SL 02", "day": "TER", "hour": "5ºH", "room": "Sala 02"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºD - SL 02", "day": "SEX", "hour": "5ºH", "room": "Sala 02"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºE - SL 03", "day": "TER", "hour": "1ªH", "room": "Sala 03"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºE - SL 03", "day": "QUI", "hour": "3ºH", "room": "Sala 03"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºE - SL 03", "day": "SEX", "hour": "4ºH", "room": "Sala 03"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºE - SL 03", "day": "SEG", "hour": "2ºH", "room": "Sala 03"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºF - SL 04", "day": "TER", "hour": "3ºH", "room": "Sala 04"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºF - SL 04", "day": "QUI", "hour": "5ºH", "room": "Sala 04"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºF - SL 04", "day": "SEG", "hour": "4ºH", "room": "Sala 04"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºF - SL 04", "day": "SEX", "hour": "3ºH", "room": "Sala 04"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºA - SL 05", "day": "TER", "hour": "3ºH", "room": "Sala 05"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºA - SL 05", "day": "QUA", "hour": "4ºH", "room": "Sala 05"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºA - SL 05", "day": "SEX", "hour": "3ºH", "room": "Sala 05"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºA - SL 05", "day": "QUI", "hour": "2ºH", "room": "Sala 05"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºB - SL 06", "day": "QUI", "hour": "3ºH", "room": "Sala 06"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºB - SL 06", "day": "SEX", "hour": "2ºH", "room": "Sala 06"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºB - SL 06", "day": "QUA", "hour": "1ªH", "room": "Sala 06"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºB - SL 06", "day": "TER", "hour": "2ºH", "room": "Sala 06"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºC - SL 07", "day": "QUI", "hour": "5ºH", "room": "Sala 07"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºC - SL 07", "day": "TER", "hour": "1ªH", "room": "Sala 07"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºC - SL 07", "day": "SEX", "hour": "4ºH", "room": "Sala 07"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºC - SL 07", "day": "QUA", "hour": "2ºH", "room": "Sala 07"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºD - SL 08", "day": "QUI", "hour": "3ºH", "room": "Sala 08"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºD - SL 08", "day": "QUA", "hour": "1ªH", "room": "Sala 08"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºD - SL 08", "day": "TER", "hour": "2ºH", "room": "Sala 08"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºD - SL 08", "day": "SEX", "hour": "1ªH", "room": "Sala 08"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºE - SL 09", "day": "QUI", "hour": "2ºH", "room": "Sala 09"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºE - SL 09", "day": "QUA", "hour": "2ºH", "room": "Sala 09"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºE - SL 09", "day": "TER", "hour": "4ºH", "room": "Sala 09"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºE - SL 09", "day": "SEX", "hour": "4ºH", "room": "Sala 09"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºA - SL18", "day": "QUA", "hour": "5ºH", "room": "Sala 18"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºB - SL 20", "day": "QUI", "hour": "4ºH", "room": "Sala 20"}, {"teacher": "ALESSANDRA", "subject": "PORT", "turma": "6ºC - SL 01", "day": "TER", "hour": "2ºH", "room": "Sala 01"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºD - SL 02", "day": "SEX", "hour": "2ºH", "room": "Sala 02"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºE - SL 03", "day": "QUI", "hour": "1ªH", "room": "Sala 03"}, {"teacher": "JOADNE", "subject": "PORT", "turma": "6ºF - SL 04", "day": "SEX", "hour": "1ªH", "room": "Sala 04"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºA - SL 05", "day": "SEX", "hour": "5ºH", "room": "Sala 05"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºB - SL 06", "day": "QUA", "hour": "5ºH", "room": "Sala 06"}, {"teacher": "GUILHERME", "subject": "PORT", "turma": "7ºC - SL 07", "day": "TER", "hour": "5ºH", "room": "Sala 07"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºE - SL 09", "day": "SEX", "hour": "2ºH", "room": "Sala 09"}, {"teacher": "Mª DO CARMO", "subject": "PORT", "turma": "7ºD - SL 08", "day": "QUI", "hour": "1ªH", "room": "Sala 08"}, {"teacher": "GILCE", "subject": "EF", "turma": "8ªX - SL 10", "day": "QUI", "hour": "5ºH", "room": "Sala 10"}, {"teacher": "GILCE", "subject": "EF", "turma": "8ªX - SL 10", "day": "QUA", "hour": "5ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUA", "hour": "1ªH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEX", "hour": "5ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEG", "hour": "2ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUA", "hour": "2ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUA", "hour": "4ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEX", "hour": "2ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEX", "hour": "4ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEG", "hour": "5ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEG", "hour": "3ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUI", "hour": "1ªH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUA", "hour": "3ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEG", "hour": "4ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEG", "hour": "1ªH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUI", "hour": "3ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUI", "hour": "4ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "QUI", "hour": "2ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEX", "hour": "3ºH", "room": "Sala 10"}, {"teacher": "MARCELO C", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "SEX", "hour": "1ªH", "room": "Sala 10"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºA - SL18", "day": "SEG", "hour": "1ªH", "room": "Sala 18"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºA - SL18", "day": "QUI", "hour": "2ºH", "room": "Sala 18"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºB - SL 20", "day": "QUA", "hour": "4ºH", "room": "Sala 20"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºB - SL 20", "day": "SEG", "hour": "2ºH", "room": "Sala 20"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºC - SL 01", "day": "TER", "hour": "4ºH", "room": "Sala 01"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºC - SL 01", "day": "SEG", "hour": "4ºH", "room": "Sala 01"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºD - SL 02", "day": "QUA", "hour": "2ºH", "room": "Sala 02"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºD - SL 02", "day": "TER", "hour": "2ºH", "room": "Sala 02"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºE - SL 03", "day": "QUA", "hour": "1ªH", "room": "Sala 03"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºE - SL 03", "day": "SEX", "hour": "2ºH", "room": "Sala 03"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºF - SL 04", "day": "TER", "hour": "5ºH", "room": "Sala 04"}, {"teacher": "FABIANA", "subject": "ART", "turma": "6ºF - SL 04", "day": "QUA", "hour": "3ºH", "room": "Sala 04"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºA - SL 05", "day": "QUA", "hour": "5ºH", "room": "Sala 05"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºA - SL 05", "day": "SEX", "hour": "1ªH", "room": "Sala 05"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºB - SL 06", "day": "SEG", "hour": "5ºH", "room": "Sala 06"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºB - SL 06", "day": "QUI", "hour": "1ªH", "room": "Sala 06"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºC - SL 07", "day": "SEX", "hour": "3ºH", "room": "Sala 07"}, {"teacher": "FABIANA", "subject": "ART", "turma": "7ºC - SL 07", "day": "QUI", "hour": "3ºH", "room": "Sala 07"}, {"teacher": "MÁRCIA", "subject": "SUB-EF", "turma": "7ºD - SL 08", "day": "QUA", "hour": "4ºH", "room": "Sala 08"}, {"teacher": "MÁRCIA", "subject": "SUB-EF", "turma": "7ºD - SL 08", "day": "SEX", "hour": "3ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºD - SL 08", "day": "SEX", "hour": "2ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºD - SL 08", "day": "QUI", "hour": "4ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºD - SL 08", "day": "QUA", "hour": "3ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºD - SL 08", "day": "SEX", "hour": "5ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºD - SL 08", "day": "QUA", "hour": "5ºH", "room": "Sala 08"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºE - SL 09", "day": "SEX", "hour": "1ªH", "room": "Sala 09"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºE - SL 09", "day": "QUA", "hour": "1ªH", "room": "Sala 09"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºE - SL 09", "day": "QUA", "hour": "4ºH", "room": "Sala 09"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºE - SL 09", "day": "QUI", "hour": "5ºH", "room": "Sala 09"}, {"teacher": "MAGNA", "subject": "MAT", "turma": "7ºE - SL 09", "day": "QUI", "hour": "1ªH", "room": "Sala 09"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºA - SL18", "day": "QUI", "hour": "1ªH", "room": "Sala 18"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºA - SL18", "day": "SEG", "hour": "3ºH", "room": "Sala 18"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºA - SL18", "day": "SEX", "hour": "4ºH", "room": "Sala 18"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºB - SL 20", "day": "TER", "hour": "5ºH", "room": "Sala 20"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºB - SL 20", "day": "QUI", "hour": "5ºH", "room": "Sala 20"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºB - SL 20", "day": "SEX", "hour": "3ºH", "room": "Sala 20"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºC - SL 01", "day": "SEX", "hour": "5ºH", "room": "Sala 01"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºC - SL 01", "day": "SEG", "hour": "5ºH", "room": "Sala 01"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºC - SL 01", "day": "TER", "hour": "1ªH", "room": "Sala 01"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºD - SL 02", "day": "TER", "hour": "3ºH", "room": "Sala 02"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºD - SL 02", "day": "QUI", "hour": "4ºH", "room": "Sala 02"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºD - SL 02", "day": "SEG", "hour": "2ºH", "room": "Sala 02"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºE - SL 03", "day": "SEX", "hour": "1ªH", "room": "Sala 03"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºE - SL 03", "day": "SEG", "hour": "4ºH", "room": "Sala 03"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºE - SL 03", "day": "TER", "hour": "2ºH", "room": "Sala 03"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºF - SL 04", "day": "QUI", "hour": "2ºH", "room": "Sala 04"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºF - SL 04", "day": "SEX", "hour": "2ºH", "room": "Sala 04"}, {"teacher": "JUSCELE", "subject": "CIÊN", "turma": "6ºF - SL 04", "day": "TER", "hour": "4ºH", "room": "Sala 04"}, {"teacher": "ALEXANDRA", "subject": "SUB-EF", "turma": "7ºE - SL 09", "day": "QUA", "hour": "3ºH", "room": "Sala 09"}, {"teacher": "ALEXANDRA", "subject": "SUB-EF", "turma": "7ºE - SL 09", "day": "SEG", "hour": "4ºH", "room": "Sala 09"}, {"teacher": "MAGNA", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "TER", "hour": "2ºH", "room": "Sala 10"}, {"teacher": "MAGNA", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "TER", "hour": "5ºH", "room": "Sala 10"}, {"teacher": "MAGNA", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "TER", "hour": "1ªH", "room": "Sala 10"}, {"teacher": "MAGNA", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "TER", "hour": "4ºH", "room": "Sala 10"}, {"teacher": "MAGNA", "subject": "G.A.", "turma": "8ªX - SL 10", "day": "TER", "hour": "3ºH", "room": "Sala 10"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºA - SL 05", "day": "QUI", "hour": "4ºH", "room": "Sala 05"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºA - SL 05", "day": "SEG", "hour": "4ºH", "room": "Sala 05"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºA - SL 05", "day": "TER", "hour": "4ºH", "room": "Sala 05"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºB - SL 06", "day": "QUI", "hour": "2ºH", "room": "Sala 06"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºB - SL 06", "day": "TER", "hour": "1ªH", "room": "Sala 06"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºB - SL 06", "day": "QUA", "hour": "3ºH", "room": "Sala 06"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºC - SL 07", "day": "QUA", "hour": "4ºH", "room": "Sala 07"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºC - SL 07", "day": "SEG", "hour": "3ºH", "room": "Sala 07"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºC - SL 07", "day": "TER", "hour": "2ºH", "room": "Sala 07"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºD - SL 08", "day": "QUI", "hour": "5ºH", "room": "Sala 08"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºD - SL 08", "day": "SEG", "hour": "5ºH", "room": "Sala 08"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºD - SL 08", "day": "QUA", "hour": "2ºH", "room": "Sala 08"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºE - SL 09", "day": "QUI", "hour": "3ºH", "room": "Sala 09"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºE - SL 09", "day": "SEG", "hour": "2ºH", "room": "Sala 09"}, {"teacher": "JULIANA", "subject": "HIST", "turma": "7ºE - SL 09", "day": "TER", "hour": "5ºH", "room": "Sala 09"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºA - SL18", "day": "TER", "hour": "2ºH", "room": "Sala 18"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºA - SL18", "day": "SEX", "hour": "2ºH", "room": "Sala 18"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºA - SL18", "day": "QUA", "hour": "4ºH", "room": "Sala 18"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºB - SL 20", "day": "SEG", "hour": "4ºH", "room": "Sala 20"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºB - SL 20", "day": "QUA", "hour": "2ºH", "room": "Sala 20"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºB - SL 20", "day": "TER", "hour": "4ºH", "room": "Sala 20"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºC - SL 01", "day": "SEX", "hour": "1ªH", "room": "Sala 01"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºC - SL 01", "day": "SEG", "hour": "2ºH", "room": "Sala 01"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºC - SL 01", "day": "QUA", "hour": "5ºH", "room": "Sala 01"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºD - SL 02", "day": "SEX", "hour": "4ºH", "room": "Sala 02"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºD - SL 02", "day": "QUA", "hour": "3ºH", "room": "Sala 02"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºD - SL 02", "day": "SEG", "hour": "3ºH", "room": "Sala 02"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºE - SL 03", "day": "SEX", "hour": "3ºH", "room": "Sala 03"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºE - SL 03", "day": "TER", "hour": "3ºH", "room": "Sala 03"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºE - SL 03", "day": "SEG", "hour": "1ªH", "room": "Sala 03"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºF - SL 04", "day": "TER", "hour": "1ªH", "room": "Sala 04"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºF - SL 04", "day": "QUA", "hour": "1ªH", "room": "Sala 04"}, {"teacher": "LEIDIANE", "subject": "GEO", "turma": "6ºF - SL 04", "day": "SEX", "hour": "5ºH", "room": "Sala 04"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºA - SL18", "day": "SEG", "hour": "4ºH", "room": "Sala 18"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºA - SL18", "day": "QUI", "hour": "4ºH", "room": "Sala 18"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºA - SL18", "day": "TER", "hour": "3ºH", "room": "Sala 18"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºB - SL 20", "day": "QUA", "hour": "1ªH", "room": "Sala 20"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºB - SL 20", "day": "QUI", "hour": "3ºH", "room": "Sala 20"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºB - SL 20", "day": "SEG", "hour": "5ºH", "room": "Sala 20"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºC - SL 01", "day": "QUI", "hour": "5ºH", "room": "Sala 01"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºC - SL 01", "day": "QUA", "hour": "3ºH", "room": "Sala 01"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºC - SL 01", "day": "SEG", "hour": "1ªH", "room": "Sala 01"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºD - SL 02", "day": "QUI", "hour": "1ªH", "room": "Sala 02"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºD - SL 02", "day": "QUA", "hour": "4ºH", "room": "Sala 02"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºD - SL 02", "day": "TER", "hour": "4ºH", "room": "Sala 02"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºE - SL 03", "day": "TER", "hour": "5ºH", "room": "Sala 03"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºE - SL 03", "day": "QUI", "hour": "2ºH", "room": "Sala 03"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºE - SL 03", "day": "QUA", "hour": "2ºH", "room": "Sala 03"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºF - SL 04", "day": "QUA", "hour": "5ºH", "room": "Sala 04"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºF - SL 04", "day": "SEG", "hour": "2ºH", "room": "Sala 04"}, {"teacher": "ADILSON", "subject": "HIST", "turma": "6ºF - SL 04", "day": "TER", "hour": "2ºH", "room": "Sala 04"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºA - SL18", "day": "TER", "hour": "5ºH", "room": "Sala 18"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºA - SL18", "day": "SEX", "hour": "3ºH", "room": "Sala 18"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºB - SL 20", "day": "SEX", "hour": "2ºH", "room": "Sala 20"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºB - SL 20", "day": "TER", "hour": "3ºH", "room": "Sala 20"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºC - SL 01", "day": "QUI", "hour": "1ªH", "room": "Sala 01"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºC - SL 01", "day": "SEX", "hour": "4ºH", "room": "Sala 01"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºD - SL 02", "day": "SEG", "hour": "1ªH", "room": "Sala 02"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºD - SL 02", "day": "TER", "hour": "1ªH", "room": "Sala 02"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºE - SL 03", "day": "QUI", "hour": "4ºH", "room": "Sala 03"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºE - SL 03", "day": "SEG", "hour": "3ºH", "room": "Sala 03"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºF - SL 04", "day": "QUI", "hour": "3ºH", "room": "Sala 04"}, {"teacher": "RONEI", "subject": "ING", "turma": "6ºF - SL 04", "day": "SEG", "hour": "5ºH", "room": "Sala 04"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºA - SL 05", "day": "QUI", "hour": "5ºH", "room": "Sala 05"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºA - SL 05", "day": "TER", "hour": "2ºH", "room": "Sala 05"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºB - SL 06", "day": "SEX", "hour": "5ºH", "room": "Sala 06"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºB - SL 06", "day": "TER", "hour": "4ºH", "room": "Sala 06"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºC - SL 07", "day": "SEG", "hour": "2ºH", "room": "Sala 07"}, {"teacher": "RONEI", "subject": "ING", "turma": "7ºC - SL 07", "day": "SEX", "hour": "1ªH", "room": "Sala 07"}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "Anos Iniciais", "day": "TER", "hour": "1ªH", "room": ""}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "Anos Iniciais", "day": "TER", "hour": "2ºH", "room": ""}, {"teacher": "CLAUDETE", "subject": "ING", "turma": "Anos Iniciais", "day": "TER", "hour": "4ºH", "room": ""}]};
+
+// ============================================================
+// DADOS DE SUBSTITUIÇÃO E ACEPAT
+// ============================================================
+const SUBST_DATA = {
+  SEG: {
+    "1ªH": ["JOADNE"],
+    "2ºH": ["GISLAINE","FERNANDA"],
+    "3ºH": ["CLAUDETE"],
+    "4ºH": ["CLAUDETE"],
+    "5ºH": ["JHOW"]
+  },
+  TER: {
+    "1ªH": ["Mª DO CARMO"],
+    "2ºH": ["JOADNE","MÁRCIA"],
+    "3ºH": ["ALESSANDRA","JULIANA"],
+    "4ºH": ["JOADNE","GUILHERME"],
+    "5ºH": ["Mª DO CARMO"]
+  },
+  QUA: {
+    "1ªH": ["ALESSANDRA"],
+    "2ºH": ["FERNANDA","MAGNA"],
+    "3ºH": ["GUILHERME","Mª DO CARMO"],
+    "4ºH": ["GISLAINE","Mª DO CARMO"],
+    "5ºH": ["Mª DO CARMO","JULIANA"]
+  },
+  QUI: {
+    "1ªH": ["CLAUDETE","JULIANA"],
+    "2ºH": ["CLAUDETE","ALEXANDRA"],
+    "3ºH": ["CLAUDETE","MAGNA","JHOW"],
+    "4ºH": ["CLAUDETE","GUILHERME","FERNANDA"],
+    "5ºH": ["CLAUDETE","Mª DO CARMO"]
+  },
+  SEX: {
+    "1ªH": ["CLAUDETE","JHOW"],
+    "2ºH": ["CLAUDETE","GISLAINE"],
+    "3ºH": ["CLAUDETE","Mª DO CARMO"],
+    "4ºH": ["MAGNA","ALESSANDRA"],
+    "5ºH": ["CLAUDETE","Mª DO CARMO"]
+  }
+};
+
+const ACEPAT_DATA = {
+  SEG: { titular: "PORT / MAGNA" },
+  TER: { titular: "MAT / G.A." },
+  QUA: { titular: "INGLÊS / CIÊNCIAS / JOADNE" },
+  QUI: { titular: "GEO / JOÃO M." },
+  SEX: { titular: "HIST / MARCELO" }
+};
+
+// Colors per subject
+const SUBJ_COLORS = {
+  PORT: '#2563c5', MAT: '#dc2626', 'CIÊN': '#059669', GEO: '#7c3aed',
+  HIST: '#d97706', EF: '#0891b2', ING: '#db2777', ART: '#ea580c',
+  'G.A.': '#065f46', 'SUB-EF': '#78716c'
+};
+
+const TEACHER_COLORS = ['#1a6b3a','#1a4480','#7c3aed','#dc2626','#d97706','#0891b2','#db2777','#ea580c','#059669','#065f46','#4338ca','#b45309','#0e7490','#be123c','#6d28d9','#0369a1','#15803d','#92400e','#3730a3','#047857'];
+
+let currentView = null;
+
+// LOOKUP: day+hour -> activity
+function buildLookup(activities) {
+  const map = {};
+  for (const a of activities) {
+    const key = `${a.day}|${a.hour}`;
+    if (!map[key]) map[key] = [];
+    map[key].push(a);
+  }
+  return map;
+}
+
+function subjPill(subj, extraClass='') {
+  const color = SUBJ_COLORS[subj] || '#555';
+  return `<span class="subj-pill ${extraClass}" style="background:${color}">${subj}</span>`;
+}
+
+// ACEPAT_SUBST_DATA: professores no tempo ACEPAT (coluna direita do PDF, separada da substituição)
+const ACEPAT_SUBST_DATA = {
+  SEG: {
+    '1ªH': ['JUSCELE','JULIANA','MAGNA','ALESSANDRA','GUILHERME','Mª DO CARMO'],
+    '2ºH': ['CLAUDETE','MAGNA','ALESSANDRA','GUILHERME','Mª DO CARMO'],
+    '3ºH': ['JOADNE','ADILSON','MAGNA','ALESSANDRA','GUILHERME','Mª DO CARMO'],
+    '4ºH': ['GISLAINE','RONEI','MAGNA','ALESSANDRA','GUILHERME','Mª DO CARMO'],
+    '5ºH': ['LEIDIANE','MARCELO','MAGNA','ALESSANDRA','GUILHERME','Mª DO CARMO']
+  },
+  TER: {
+    '1ªH': ['ADILSON','GISLAINE','FERNANDA','ALEXANDRA','MARCELO C'],
+    '2ºH': ['GISLAINE','FERNANDA','ALEXANDRA','MARCELO C'],
+    '3ºH': ['Mª DO CARMO','GISLAINE','FERNANDA','ALEXANDRA','MARCELO C'],
+    '4ºH': ['GISLAINE','FERNANDA','ALEXANDRA','MARCELO C'],
+    '5ºH': ['LEIDIANE','MÁRCIA','GISLAINE','FERNANDA','ALEXANDRA','MARCELO C']
+  },
+  QUA: {
+    '1ªH': ['JULIANA','JOADNE','JUSCELE','JHOW','RONEI','CLAUDETE'],
+    '2ºH': ['JOADNE','JUSCELE','JHOW','RONEI','CLAUDETE'],
+    '3ºH': ['JOADNE','JUSCELE','JHOW','RONEI','CLAUDETE'],
+    '4ºH': ['JOADNE','JUSCELE','JHOW','RONEI','CLAUDETE'],
+    '5ºH': ['MARCELO C','JOADNE','JUSCELE','JHOW','RONEI','CLAUDETE']
+  },
+  QUI: {
+    '1ªH': ['GUILHERME','MARCELO','ALESSANDRA','LEIDIANE','MÁRCIA'],
+    '2ºH': ['FERNANDA','MAGNA','RONEI','LEIDIANE','MÁRCIA'],
+    '3ºH': ['ALEXANDRA','JUSCELE','LEIDIANE','MÁRCIA'],
+    '4ºH': ['JOADNE','Mª DO CARMO','LEIDIANE','MÁRCIA'],
+    '5ºH': ['GISLAINE','JHOW','FABIANA','MARCELO C','LEIDIANE','MÁRCIA']
+  },
+  SEX: {
+    '1ªH': ['ALEXANDRA','GUILHERME','ADILSON','JULIANA','MARCELO'],
+    '2ºH': ['FERNANDA','MÁRCIA','ADILSON','JULIANA','MARCELO'],
+    '3ºH': ['MAGNA','ALESSANDRA','ADILSON','JULIANA','MARCELO'],
+    '4ºH': ['CLAUDETE','FABIANA','ADILSON','JULIANA','MARCELO'],
+    '5ºH': ['FABIANA','JHOW','ADILSON','JULIANA','MARCELO']
+  }
+};
+
+function getCellStatus(teacherName, day, hour) {
+  // Returns 'subst', 'acepat', or null
+  // ACEPAT tem prioridade: se está na lista ACEPAT, é ACEPAT.
+  // Se está na lista SUBST_DATA mas NÃO na ACEPAT, é SUBST.
+  if (!teacherName || hour === 'INTERV.') return null;
+  const acepatList = (ACEPAT_SUBST_DATA[day] && ACEPAT_SUBST_DATA[day][hour]) || [];
+  if (acepatList.includes(teacherName)) return 'acepat';
+  const substList = (SUBST_DATA[day] && SUBST_DATA[day][hour]) || [];
+  if (substList.includes(teacherName)) return 'subst';
+  return null;
+}
+
+function buildTimetableHTML(activities, titleLabel, showField, contextTeacher) {
+  // showField: 'teacher', 'turma', 'room'
+  // contextTeacher: teacher name when showField === 'turma' (professor view)
+  const lookup = buildLookup(activities);
+  const hours = DATA.hours;
+  const days = DATA.days;
+  const daysLong = DATA.days_long;
+  const hoursLong = DATA.hours_long;
+
+  let html = `<div class="timetable-wrapper">
+    <div class="timetable-header-bar">
+      <h2>${titleLabel}</h2>
+      <span>2º Turno · 13:00 – 17:30 · Junho 2026</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Horário</th>
+        ${days.map((d,i) => `<th>${d}<br><small style="font-weight:400;opacity:0.7">${daysLong[i]}</small></th>`).join('')}
+      </tr></thead>
+      <tbody>`;
+
+  hours.forEach((h, hi) => {
+    const isIntervalo = h === 'INTERV.';
+    html += `<tr class="${isIntervalo ? 'intervalo-row' : ''}">`;
+    html += `<td><div style="font-size:13px">${h}</div><div style="font-size:11px;opacity:0.7;font-family:'DM Mono',monospace">${hoursLong[hi]}</div></td>`;
+    
+    days.forEach(day => {
+      if (isIntervalo) {
+        html += `<td style="text-align:center;color:#b45309;font-weight:700;font-size:11px">☕ INTERVALO</td>`;
+      } else {
+        const key = `${day}|${h}`;
+        const cells = lookup[key] || [];
+        if (cells.length === 0) {
+          // Check if this blank slot is SUBST or ACEPAT
+          const status = getCellStatus(contextTeacher, day, h);
+          if (status === 'subst') {
+            html += `<td style="background:#fef9ee;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px">
+                <span style="background:#d97706;color:white;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.03em;-webkit-print-color-adjust:exact;print-color-adjust:exact">🔄 SUBST.</span>
+                <span style="font-size:10px;color:#92400e;font-weight:600">Disponível</span>
+              </div>
+            </td>`;
+          } else if (status === 'acepat') {
+            html += `<td style="background:#f0f7ff;-webkit-print-color-adjust:exact;print-color-adjust:exact">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px">
+                <span style="background:#1a4480;color:white;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:800;letter-spacing:.03em;-webkit-print-color-adjust:exact;print-color-adjust:exact">⭐ ACEPAT</span>
+                <span style="font-size:10px;color:#1a4480;font-weight:600">Complementar</span>
+              </div>
+            </td>`;
+          } else {
+            html += `<td><span style="color:#ddd;font-size:18px">—</span></td>`;
+          }
+        } else {
+          html += `<td>`;
+          cells.forEach(c => {
+            html += `<div class="cell-aula">
+              ${subjPill(c.subject)}`;
+            if (showField === 'teacher') html += `<span class="cell-teacher">👤 ${c.teacher}</span>`;
+            if (showField === 'turma') html += `<span class="cell-turma">🏫 ${c.turma.split(' - ')[0]}</span>`;
+            if (showField === 'room') {
+              html += `<span class="cell-teacher">👤 ${c.teacher}</span>`;
+              html += `<span class="cell-turma">🏫 ${c.turma.split(' - ')[0]}</span>`;
+            }
+            html += `</div>`;
+          });
+          html += `</td>`;
+        }
+      }
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function showSection(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`sec-${name}`).classList.add('active');
+  event.target.classList.add('active');
+  currentView = name;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function initDashboard() {
+  const acts = DATA.activities;
+  const statsEl = document.getElementById('stats-grid');
+  const stats = [
+    { num: DATA.turmas.length, label: 'Turmas', icon: '🏫' },
+    { num: DATA.teachers.length, label: 'Professores', icon: '👩‍🏫' },
+    { num: DATA.subjects.length, label: 'Disciplinas', icon: '📚' },
+    { num: DATA.rooms.filter(r => r !== 'ACEPAT').length, label: 'Salas', icon: '🚪' },
+    { num: acts.length, label: 'Aulas/semana', icon: '⏱' },
+    { num: DATA.days.length, label: 'Dias letivos', icon: '📅' },
+  ];
+  statsEl.innerHTML = stats.map(s =>
+    `<div class="stat-card"><div class="stat-icon">${s.icon}</div><div class="stat-num">${s.num}</div><div class="stat-label">${s.label}</div></div>`
+  ).join('');
+
+  // Teacher chart
+  const teacherCount = {};
+  acts.forEach(a => { teacherCount[a.teacher] = (teacherCount[a.teacher] || 0) + 1; });
+  const sortedTeachers = Object.entries(teacherCount).sort((a,b) => b[1]-a[1]);
+  const maxT = sortedTeachers[0][1];
+  document.getElementById('chart-teachers').innerHTML = sortedTeachers.map(([t, c], i) =>
+    `<div class="bar-row">
+      <span class="bar-label">${t}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${c/maxT*100}%;background:${TEACHER_COLORS[i%TEACHER_COLORS.length]}">
+        <span>${c}</span></div></div>
+    </div>`
+  ).join('');
+
+  // Subject chart
+  const subjCount = {};
+  acts.forEach(a => { subjCount[a.subject] = (subjCount[a.subject] || 0) + 1; });
+  const sortedSubj = Object.entries(subjCount).sort((a,b) => b[1]-a[1]);
+  const maxS = sortedSubj[0][1];
+  document.getElementById('chart-subjects').innerHTML = sortedSubj.map(([s, c]) =>
+    `<div class="bar-row">
+      <span class="bar-label">${DATA.subjects_long[s] || s}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${c/maxS*100}%;background:${SUBJ_COLORS[s]||'#555'}">
+        <span>${c}</span></div></div>
+    </div>`
+  ).join('');
+
+  // Days chart
+  const dayCount = {};
+  acts.forEach(a => { dayCount[a.day] = (dayCount[a.day] || 0) + 1; });
+  const dayColors = ['#1a6b3a','#1a4480','#7c3aed','#dc2626','#d97706'];
+  document.getElementById('chart-days').innerHTML = DATA.days.map((d,i) =>
+    `<div class="bar-row">
+      <span class="bar-label">${DATA.days_long[i]}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${(dayCount[d]||0)/60*100}%;background:${dayColors[i]}">
+        <span>${dayCount[d]||0}</span></div></div>
+    </div>`
+  ).join('');
+
+  // Turma chart
+  const turmaCount = {};
+  acts.forEach(a => { turmaCount[a.turma] = (turmaCount[a.turma] || 0) + 1; });
+  const maxTurma = Math.max(...Object.values(turmaCount));
+  document.getElementById('chart-turmas').innerHTML = DATA.turmas.map((t, i) =>
+    `<div class="bar-row">
+      <span class="bar-label">${t.split(' - ')[0]}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${((turmaCount[t]||0)/maxTurma*100)}%;background:${TEACHER_COLORS[i%TEACHER_COLORS.length]}">
+        <span>${turmaCount[t]||0}</span></div></div>
+    </div>`
+  ).join('');
+}
+
+// ============================================================
+// TURMAS
+// ============================================================
+function initTurmas() {
+  const grid = document.getElementById('turma-cards');
+  grid.innerHTML = DATA.turmas.map(t => {
+    const label = t.split(' - ')[0];
+    const sala = t.split(' - ')[1] || '';
+    return `<div class="turma-item" onclick="selectTurma('${t}')" id="turma-card-${t.replace(/[^a-zA-Z0-9]/g,'_')}">
+      <span class="turma-badge">${label}</span>
+      <div><div class="turma-room">${sala}</div></div>
+    </div>`;
+  }).join('');
+}
+
+let _currentTurma = '';
+function selectTurma(t) {
+  _currentTurma = t;
+  document.querySelectorAll('.turma-item').forEach(c => c.classList.remove('selected'));
+  const id = 'turma-card-' + t.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('selected'); el.scrollIntoView({block:'nearest'}); }
+  renderTurma();
+}
+
+function renderTurma() {
+  const t = _currentTurma;
+  const container = document.getElementById('turma-table');
+  if (!t) { container.innerHTML = '<div class="empty-selection"><div class="icon">🏫</div><h3>Selecione uma turma</h3></div>'; return; }
+  const acts = DATA.activities.filter(a => a.turma === t);
+  container.innerHTML = buildTimetableHTML(acts, `Horário da Turma: ${t}`, 'teacher');
+  currentView = {type:'turma', value: t};
+}
+
+// ============================================================
+// PROFESSORES
+// ============================================================
+function initProfessores() {
+  const grid = document.getElementById('prof-cards');
+  const teacherSubjs = {};
+  const teacherTurmas = {};
+  DATA.activities.forEach(a => {
+    if (!teacherSubjs[a.teacher]) teacherSubjs[a.teacher] = new Set();
+    if (!teacherTurmas[a.teacher]) teacherTurmas[a.teacher] = new Set();
+    teacherSubjs[a.teacher].add(a.subject);
+    teacherTurmas[a.teacher].add(a.turma.split(' - ')[0]);
+  });
+
+  grid.innerHTML = DATA.teachers.map((t, i) => {
+    const subjs = [...(teacherSubjs[t] || [])];
+    const turmas = [...(teacherTurmas[t] || [])];
+    const count = DATA.activities.filter(a => a.teacher === t).length;
+    return `<div class="teacher-item" onclick="selectProfessor('${t}')" id="prof-card-${t.replace(/[^a-zA-Z0-9]/g,'_')}">
+      <div class="teacher-avatar" style="background:${TEACHER_COLORS[i%TEACHER_COLORS.length]}">${t[0]}</div>
+      <div class="teacher-item-info">
+        <div class="teacher-name">${t}</div>
+        <div class="teacher-meta">${count}aulas · ${turmas.length}turmas</div>
+        <div class="teacher-tags">
+          ${subjs.map(s => `<span class="tag" style="background:${SUBJ_COLORS[s]}22;color:${SUBJ_COLORS[s]}">${s}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let _currentProf = '';
+function selectProfessor(t) {
+  _currentProf = t;
+  document.querySelectorAll('.teacher-item').forEach(c => c.classList.remove('selected'));
+  const id = 'prof-card-' + t.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('selected'); el.scrollIntoView({block:'nearest'}); }
+  renderProfessor();
+}
+
+function renderProfessor() {
+  const t = _currentProf;
+  const container = document.getElementById('prof-table');
+  if (!t) { container.innerHTML = '<div class="empty-selection"><div class="icon">👩‍🏫</div><h3>Selecione um professor</h3></div>'; return; }
+  const acts = DATA.activities.filter(a => a.teacher === t);
+  container.innerHTML = buildTimetableHTML(acts, `Horário do Professor: ${t}`, 'turma', t);
+  currentView = {type:'professor', value: t};
+}
+
+// ============================================================
+// SALAS
+// ============================================================
+function initSalas() {
+  const allRooms = [...new Set(DATA.activities.map(a => a.room).filter(Boolean))].sort((a,b) => {
+    const na = parseInt(a.replace(/\D/g,'')) || 0;
+    const nb = parseInt(b.replace(/\D/g,'')) || 0;
+    return na - nb;
+  });
+
+  const grid = document.getElementById('sala-cards');
+  grid.innerHTML = allRooms.map(r => {
+    const turma = DATA.turmas.find(t => {
+      const acts = DATA.activities.filter(a => a.turma === t);
+      return acts.length && acts[0].room === r;
+    }) || '';
+    const turmaLabel = turma ? turma.split(' - ')[0] : '';
+    return `<div class="sala-item" onclick="selectSala('${r}')" id="sala-card-${r.replace(/[^a-zA-Z0-9]/g,'_')}">
+      <div class="sala-num">${r.replace('Sala ','')}</div>
+      <div><div style="font-size:10px;color:#999">${r}</div>${turmaLabel ? `<div class="sala-turma">🏫 ${turmaLabel}</div>` : ''}</div>
+    </div>`;
+  }).join('');
+}
+
+let _currentSala = '';
+function selectSala(r) {
+  _currentSala = r;
+  document.querySelectorAll('.sala-item').forEach(c => c.classList.remove('selected'));
+  const id = 'sala-card-' + r.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('selected'); el.scrollIntoView({block:'nearest'}); }
+  renderSala();
+}
+
+function renderSala() {
+  const r = _currentSala;
+  const container = document.getElementById('sala-table');
+  if (!r) { container.innerHTML = '<div class="empty-selection"><div class="icon">🚪</div><h3>Selecione uma sala</h3></div>'; return; }
+  const acts = DATA.activities.filter(a => a.room === r);
+  container.innerHTML = buildTimetableHTML(acts, `Horário da ${r}`, 'room');
+  currentView = {type:'sala', value: r};
+}
+
+// Filtro lateral
+function filterSidebar(containerId, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(`#${containerId} [id]`).forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ============================================================
+// DISCIPLINAS
+// ============================================================
+function initDisciplinas() {
+  const sel = document.getElementById('sel-disciplina');
+  DATA.subjects.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = `${s} – ${DATA.subjects_long[s] || s}`;
+    sel.appendChild(opt);
+  });
+}
+
+function renderDisciplina() {
+  const s = document.getElementById('sel-disciplina').value;
+  const container = document.getElementById('disciplina-content');
+  if (!s) { container.innerHTML = ''; return; }
+  const acts = DATA.activities.filter(a => a.subject === s);
+  const teachers = [...new Set(acts.map(a => a.teacher))];
+  const turmas = [...new Set(acts.map(a => a.turma))];
+  const color = SUBJ_COLORS[s] || '#555';
+
+  let html = `
+    <div style="background:white;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div style="font-size:32px;font-weight:900;color:${color}">${s}</div>
+        <div>
+          <div style="font-size:18px;font-weight:700">${DATA.subjects_long[s] || s}</div>
+          <div style="font-size:13px;color:#666;margin-top:4px">${acts.length} aulas/semana · ${turmas.length} turmas · ${teachers.length} professor(es)</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px">
+        <strong style="font-size:12px;color:#666">PROFESSORES:</strong>
+        ${teachers.map(t => `<span style="background:${color}22;color:${color};padding:3px 10px;border-radius:6px;font-weight:700;font-size:12px">${t}</span>`).join('')}
+      </div>
+    </div>`;
+
+  // Build table: rows=turmas, cols=days
+  html += `<div class="timetable-wrapper">
+    <div class="timetable-header-bar">
+      <h2>${DATA.subjects_long[s]||s} – Grade por Turma</h2>
+      <span>${acts.length} aulas semanais</span>
+    </div>
+    <table>
+      <thead><tr><th>Turma</th>${DATA.days.map((d,i) => `<th>${d}</th>`).join('')}</tr></thead>
+      <tbody>`;
+
+  turmas.forEach(t => {
+    html += `<tr><td style="text-align:left;padding:8px 12px;font-size:12px;font-weight:700">${t}</td>`;
+    DATA.days.forEach(d => {
+      const cell = acts.filter(a => a.turma === t && a.day === d);
+      if (cell.length) {
+        html += `<td><div class="cell-aula">
+          ${cell.map(c => `<span class="subj-pill" style="background:${color}">${c.hour}</span>
+          <span class="cell-teacher">👤 ${c.teacher}</span>`).join('')}
+        </div></td>`;
+      } else {
+        html += `<td><span style="color:#ddd">—</span></td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+}
+
+// ============================================================
+// ALUNOS
+// ============================================================
+function initAlunos() {
+  const list = document.getElementById('aluno-turma-list');
+  list.innerHTML = DATA.turmas.map(t => {
+    const label = t.split(' - ')[0];
+    const sala = t.split(' - ')[1] || '';
+    return `<div class="turma-item" onclick="selectAlunoTurma('${t}')" id="aluno-turma-${t.replace(/[^a-zA-Z0-9]/g,'_')}">
+      <span class="turma-badge">${label}</span>
+      <div><div class="turma-room">${sala}</div></div>
+    </div>`;
+  }).join('');
+}
+
+let _currentAlunoTurma = '';
+function selectAlunoTurma(t) {
+  _currentAlunoTurma = t;
+  document.querySelectorAll('#aluno-turma-list .turma-item').forEach(c => c.classList.remove('selected'));
+  const id = 'aluno-turma-' + t.replace(/[^a-zA-Z0-9]/g,'_');
+  const el = document.getElementById(id);
+  if (el) { el.classList.add('selected'); el.scrollIntoView({block:'nearest'}); }
+  renderAlunoTurma();
+}
+
+function renderAlunoTurma() {
+  const t = _currentAlunoTurma;
+  const container = document.getElementById('aluno-table');
+  if (!t) { container.innerHTML = '<div class="empty-selection"><div class="icon">🎒</div><h3>Selecione uma turma</h3></div>'; return; }
+  const acts = DATA.activities.filter(a => a.turma === t);
+  
+  // Student-friendly view: simple schedule grid
+  const hours = DATA.hours;
+  const days = DATA.days;
+  const lookup = buildLookup(acts);
+  
+  let html = `
+    <div style="padding:16px 20px 12px;border-bottom:1px solid var(--borda)">
+      <div style="font-size:18px;font-weight:900;color:var(--azul);margin-bottom:2px">📋 Horário – ${t}</div>
+      <div style="font-size:12px;color:#666">E.M. Geraldo Teixeira da Costa · 2º Turno · Junho 2026</div>
+    </div>
+    <div class="timetable-wrapper" style="border-radius:0;box-shadow:none">
+      <div class="timetable-header-bar">
+        <h2>Horário para Alunos — ${t}</h2>
+        <span>Tarde · 13:00 às 17:30</span>
+      </div>
+      <table><thead><tr>
+        <th>Hora</th>
+        ${days.map((d,i) => `<th>${d}<br><small style="font-weight:400;opacity:0.7">${DATA.days_long[i]}</small></th>`).join('')}
+      </tr></thead><tbody>`;
+
+  hours.forEach((h, hi) => {
+    const isIntervalo = h === 'INTERV.';
+    html += `<tr class="${isIntervalo ? 'intervalo-row' : ''}">`;
+    html += `<td>
+      <div style="font-weight:800;font-size:13px">${h}</div>
+      <div style="font-size:11px;opacity:0.7;font-family:'DM Mono',monospace">${DATA.hours_long[hi]}</div>
+    </td>`;
+    days.forEach(d => {
+      if (isIntervalo) {
+        html += `<td style="color:#b45309;font-weight:700">☕ Intervalo</td>`;
+      } else {
+        const key = `${d}|${h}`;
+        const cells = lookup[key] || [];
+        if (!cells.length) {
+          html += `<td>—</td>`;
+        } else {
+          html += `<td>`;
+          cells.forEach(c => {
+            const color = SUBJ_COLORS[c.subject] || '#555';
+            html += `<div style="padding:6px;text-align:center">
+              <div style="font-size:14px;font-weight:900;color:${color}">${c.subject}</div>
+              <div style="font-size:11px;color:#666;margin-top:2px">${DATA.subjects_long[c.subject]||''}</div>
+              <div style="font-size:11px;color:#999;margin-top:1px">Prof. ${c.teacher}</div>
+            </div>`;
+          });
+          html += `</td>`;
+        }
+      }
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+  currentView = {type:'aluno', value: t};
+}
+
+// ============================================================
+// PRINT PROFESSOR CARD (sem cores escuras, 2 por página)
+// ============================================================
+function buildProfPrintCard(teacherName) {
+  const acts = DATA.activities.filter(a => a.teacher === teacherName);
+  const lookup = {};
+  acts.forEach(a => {
+    const key = `${a.day}|${a.hour}`;
+    if (!lookup[key]) lookup[key] = [];
+    lookup[key].push(a);
+  });
+  const days = DATA.days;
+  const daysLong = DATA.days_long;
+  const hours = DATA.hours;
+  const hoursLong = DATA.hours_long;
+
+  let rows = '';
+  hours.forEach((h, hi) => {
+    const isInt = h === 'INTERV.';
+    if (isInt) {
+      rows += `<tr class="pp-intervalo"><td>${h}</td>${days.map(() => '<td>☕ Intervalo</td>').join('')}</tr>`;
+    } else {
+      rows += `<tr><td><div style="font-weight:800">${h}</div><div style="font-size:4.5pt;opacity:.7">${hoursLong[hi]}</div></td>`;
+      days.forEach(d => {
+        const cells = lookup[`${d}|${h}`] || [];
+        if (cells.length) {
+          rows += `<td>`;
+          cells.forEach(c => {
+            rows += `<span class="pp-subj">${c.subject}</span>`;
+            rows += `<span class="pp-info">${c.turma.split(' - ')[0]}</span>`;
+          });
+          rows += `</td>`;
+        } else {
+          const status = getCellStatus(teacherName, d, h);
+          if (status === 'subst') {
+            rows += `<td><span class="pp-subst">🔄 SUBST.</span></td>`;
+          } else if (status === 'acepat') {
+            rows += `<td><span class="pp-acepat">⭐ ACEPAT</span></td>`;
+          } else {
+            rows += `<td><span style="color:#ccc">—</span></td>`;
+          }
+        }
+      });
+      rows += `</tr>`;
+    }
+  });
+
+  return `<div class="ppcard">
+    <div class="ppcard-head">
+      <div>
+        <div style="font-size:5.5pt;text-transform:uppercase;letter-spacing:.06em;color:#555">E.M. Geraldo Teixeira da Costa · GETECO 2026</div>
+        <div class="ppcard-head-nome">👩‍🏫 ${teacherName}</div>
+      </div>
+      <div class="ppcard-head-sub">2º Turno · Junho 2026<br>13:00 – 17:30</div>
+    </div>
+    <div class="ppcard-body">
+      <table>
+        <thead><tr>
+          <th>Horário</th>
+          ${days.map((d,i) => `<th>${d}<br><span style="font-weight:400;opacity:.7">${daysLong[i].substring(0,3)}</span></th>`).join('')}
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="ppcard-foot">
+      <span>🔄 SUBST. = disponível para substituição</span>
+      <span>⭐ ACEPAT = tempo complementar</span>
+    </div>
+  </div>`;
+}
+
+// ============================================================
+// MODAL DE SELEÇÃO DE PROFESSORES
+// ============================================================
+function openPrintModal() {
+  const list = document.getElementById('modal-prof-list');
+  list.innerHTML = DATA.teachers.map((t, i) => {
+    const color = TEACHER_COLORS[i % TEACHER_COLORS.length];
+    return `<label id="modal-item-${i}" style="display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:6px;cursor:pointer;border:1px solid #e8e8e8;background:#fafafa">
+      <input type="checkbox" value="${t}" style="accent-color:${color};width:14px;height:14px">
+      <span style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t}</span>
+    </label>`;
+  }).join('');
+  const modal = document.getElementById('print-modal');
+  modal.style.display = 'flex';
+}
+
+function closePrintModal() {
+  document.getElementById('print-modal').style.display = 'none';
+}
+
+function selectAllProf(state) {
+  document.querySelectorAll('#modal-prof-list input[type=checkbox]').forEach(cb => cb.checked = state);
+}
+
+function filterModalProf(q) {
+  const lq = q.toLowerCase();
+  document.querySelectorAll('#modal-prof-list label').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(lq) ? '' : 'none';
+  });
+}
+
+function printSelected() {
+  const selected = [...document.querySelectorAll('#modal-prof-list input[type=checkbox]:checked')].map(cb => cb.value);
+  if (!selected.length) return alert('Selecione pelo menos um professor.');
+  closePrintModal();
+
+  const printEl = document.getElementById('print-area');
+  // Agrupar em pares (2 por página)
+  let pages = '';
+  for (let i = 0; i < selected.length; i += 2) {
+    const card1 = buildProfPrintCard(selected[i]);
+    const card2 = i + 1 < selected.length ? buildProfPrintCard(selected[i + 1]) : '';
+    pages += `<div class="prof-print-page">${card1}${card2}</div>`;
+  }
+  printEl.innerHTML = pages;
+  window.print();
+}
+
+// ============================================================
+// PRINT
+// ============================================================
+function printCurrent(type) {
+  const printEl = document.getElementById('print-area');
+  let t, acts, title, tableHTML;
+
+  if (type === 'turma') {
+    t = _currentTurma;
+    if (!t) return alert('Selecione uma turma primeiro.');
+    printTurmaLandscape(t);
+    return;
+  } else if (type === 'professor') {
+    t = _currentProf;
+    if (!t) return alert('Selecione um professor primeiro.');
+    // 1 professor sozinho numa página
+    printEl.innerHTML = `<div class="prof-print-page">${buildProfPrintCard(t)}</div>`;
+    window.print();
+    return;
+  } else if (type === 'sala') {
+    t = _currentSala;
+    if (!t) return alert('Selecione uma sala primeiro.');
+    acts = DATA.activities.filter(a => a.room === t);
+    title = `Horário da ${t}`;
+    tableHTML = buildTimetableHTML(acts, title, 'room');
+  } else if (type === 'aluno') {
+    t = _currentAlunoTurma;
+    if (!t) return alert('Selecione uma turma primeiro.');
+    acts = DATA.activities.filter(a => a.turma === t);
+    title = `Horário Alunos – ${t}`;
+    tableHTML = buildTimetableHTML(acts, title, 'teacher');
+  }
+
+  printEl.innerHTML = `
+    <div class="print-header" style="padding:16px;border-bottom:2px solid #222;margin-bottom:16px">
+      <h1 style="font-size:18px;font-weight:800">E.M. Geraldo Teixeira da Costa – GETECO 2026</h1>
+      <p style="font-size:13px;color:#666">${title} · 2º Turno · Junho 2026</p>
+    </div>
+    ${tableHTML}`;
+
+  window.print();
+}
+
+// ============================================================
+// PRINT TURMA PAISAGEM (4 por folha A4)
+// ============================================================
+function buildTurmaCard(turmaName) {
+  const acts = DATA.activities.filter(a => a.turma === turmaName);
+  const lookup = {};
+  acts.forEach(a => {
+    const key = `${a.day}|${a.hour}`;
+    if (!lookup[key]) lookup[key] = [];
+    lookup[key].push(a);
+  });
+  const days = DATA.days;
+  const daysLong = DATA.days_long;
+  const hours = DATA.hours;
+  const hoursLong = DATA.hours_long;
+  const SUBJ_C = SUBJ_COLORS;
+
+  let rows = '';
+  hours.forEach((h, hi) => {
+    const isInt = h === 'INTERV.';
+    if (isInt) {
+      rows += `<tr class="pt-intervalo"><td>${h}</td>${days.map(() => '<td colspan="1">☕ Intervalo</td>').join('')}</tr>`;
+    } else {
+      rows += `<tr><td><div style="font-weight:800">${h}</div><div style="font-size:4.5pt;opacity:.7">${hoursLong[hi]}</div></td>`;
+      days.forEach(d => {
+        const cells = lookup[`${d}|${h}`] || [];
+        if (!cells.length) {
+          rows += `<td><span style="color:#ddd">—</span></td>`;
+        } else {
+          rows += `<td>`;
+          cells.forEach(c => {
+            const color = SUBJ_C[c.subject] || '#555';
+            rows += `<span class="pt-subj" style="color:${color}">${c.subject}</span>`;
+            rows += `<span class="pt-info">Prof. ${c.teacher}</span>`;
+          });
+          rows += `</td>`;
+        }
+      });
+      rows += `</tr>`;
+    }
+  });
+
+  const shortName = turmaName.split(' - ')[0];
+  return `
+    <div class="ptcard">
+      <div class="ptcard-head">
+        <img class="ptcard-head-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/4QLgRXhpZgAATU0AKgAAAAgABAE7AAIAAAAHAAABSodpAAQAAAABAAABUpydAAEAAAAOAAACyuocAAcAAAEMAAAAPgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT0ZGSUNFAAAABZADAAIAAAAUAAACoJAEAAIAAAAUAAACtJKRAAIAAAADODEAAJKSAAIAAAADODEAAOocAAcAAAEMAAABlAAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAyNjowMTozMSAyMTo0NTozMgAyMDI2OjAxOjMxIDIxOjQ1OjMyAAAATwBGAEYASQBDAEUAAAD/4QQZaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj48cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0idXVpZDpmYWY1YmRkNS1iYTNkLTExZGEtYWQzMS1kMzNkNzUxODJmMWIiIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIvPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIj48eG1wOkNyZWF0ZURhdGU+MjAyNi0wMS0zMVQyMTo0NTozMi44MTE8L3htcDpDcmVhdGVEYXRlPjwvcmRmOkRlc2NyaXB0aW9uPjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSJ1dWlkOmZhZjViZGQ1LWJhM2QtMTFkYS1hZDMxLWQzM2Q3NTE4MmYxYiIgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIj48ZGM6Y3JlYXRvcj48cmRmOlNlcSB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPjxyZGY6bGk+T0ZGSUNFPC9yZGY6bGk+PC9yZGY6U2VxPg0KCQkJPC9kYzpjcmVhdG9yPjwvcmRmOkRlc2NyaXB0aW9uPjwvcmRmOlJERj48L3g6eG1wbWV0YT4NCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8P3hwYWNrZXQg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" alt="GETECO">
+        <div class="ptcard-head-text">
+          <div class="ptcard-head-escola">E.M. Geraldo Teixeira da Costa</div>
+          <div class="ptcard-head-turma">${shortName}</div>
+          <div class="ptcard-head-sub">2º Turno · Junho 2026</div>
+        </div>
+      </div>
+      <div class="ptcard-body">
+        <table>
+          <thead><tr>
+            <th>Horário</th>
+            ${days.map((d,i) => `<th>${d}<br><span style="font-weight:400;opacity:.7">${daysLong[i].substring(0,3)}</span></th>`).join('')}
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div class="ptcard-foot">
+        <span>GETECO 2026 · 2º Turno</span>
+        <span>${turmaName}</span>
+      </div>
+    </div>`;
+}
+
+function printTurmaLandscape(turmaName) {
+  // Monta uma única página paisagem com 4 cópias do card da turma
+  const card = buildTurmaCard(turmaName);
+  const printEl = document.getElementById('print-area');
+
+  // Injetar @page landscape via <style> temporário
+  let styleEl = document.getElementById('print-landscape-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'print-landscape-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `@media print { @page { size: A4 landscape; margin: 10mm; } }`;
+
+  printEl.innerHTML = `
+    <div class="print-page-turma">
+      ${card}${card}${card}${card}
+    </div>`;
+  window.print();
+
+  // Restaurar portrait para outros tipos
+  setTimeout(() => { styleEl.textContent = ''; }, 1000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initDashboard();
+initTurmas();
+initProfessores();
+initSalas();
+initDisciplinas();
+initAlunos();
+initSubstituicoes();
+initAcepat();
+
+// ============================================================
+// SUBSTITUIÇÕES
+// ============================================================
+function initSubstituicoes() {
+  const container = document.getElementById('subst-content');
+  const days = DATA.days;
+  const daysLong = DATA.days_long;
+  const hours = DATA.hours.filter(h => h !== 'INTERV.');
+  const hoursLong = DATA.hours_long;
+
+  const dayColors = {SEG:'#1a4480', TER:'#7c3aed', QUA:'#059669', QUI:'#d97706', SEX:'#be123c'};
+
+  let html = `
+    <div style="background:white;border-radius:16px;padding:20px 24px 14px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px">
+      <div style="font-size:20px;font-weight:900;color:var(--cinza-escuro);margin-bottom:4px">🔄 Quadro de Substituições</div>
+      <div style="font-size:13px;color:#666">Professores disponíveis para cobrir ausências · 2º Turno · Junho 2026</div>
+      <div style="margin-top:10px;padding:10px 14px;background:#fff9e6;border-radius:8px;border-left:4px solid var(--amarelo);font-size:12px;color:#92400e">
+        <strong>Prioridade:</strong> Professores com maior número de substituições em suas respectivas distribuições de horários. A substituição tem prioridade sobre possíveis projetos.
+      </div>
+    </div>`;
+
+  // Big table: rows = hours, cols = days
+  html += `<div class="timetable-wrapper"><div class="timetable-header-bar">
+    <h2>Disponibilidade por Dia e Horário</h2>
+    <span>Clique no nome para ver o horário do professor</span>
+  </div>
+  <table><thead><tr><th>Horário</th>
+    ${days.map((d,i) => `<th style="background:${dayColors[d]}"><div>${d}</div><small style="font-weight:400;opacity:0.8">${daysLong[i]}</small></th>`).join('')}
+  </tr></thead><tbody>`;
+
+  hours.forEach((h, hi) => {
+    const realHi = DATA.hours.indexOf(h);
+    html += `<tr><td><div style="font-weight:800;font-size:13px">${h}</div><div style="font-size:11px;opacity:0.7;font-family:'DM Mono',monospace">${DATA.hours_long[realHi]}</div></td>`;
+    days.forEach(d => {
+      const teachers = (SUBST_DATA[d] && SUBST_DATA[d][h]) || [];
+      if (teachers.length) {
+        html += `<td><div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;padding:4px">
+          ${teachers.map(t => {
+            const idx = DATA.teachers.indexOf(t);
+            const color = idx >= 0 ? TEACHER_COLORS[idx % TEACHER_COLORS.length] : '#555';
+            return `<span onclick="goToProf('${t}')" style="cursor:pointer;background:${color};color:white;border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;white-space:nowrap" title="Ver horário de ${t}">${t}</span>`;
+          }).join('')}
+        </div></td>`;
+      } else {
+        html += `<td><span style="color:#ddd">—</span></td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  // Per-teacher summary
+  html += `<div style="margin-top:24px;background:white;border-radius:16px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+    <h3 style="font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px;color:var(--cinza-escuro)">📊 Resumo por Professor</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">`;
+
+  const teacherSubstCount = {};
+  days.forEach(d => {
+    hours.forEach(h => {
+      const teachers = (SUBST_DATA[d] && SUBST_DATA[d][h]) || [];
+      teachers.forEach(t => { teacherSubstCount[t] = (teacherSubstCount[t] || 0) + 1; });
+    });
+  });
+
+  Object.entries(teacherSubstCount).sort((a,b) => b[1]-a[1]).forEach(([t, cnt]) => {
+    const idx = DATA.teachers.indexOf(t);
+    const color = idx >= 0 ? TEACHER_COLORS[idx % TEACHER_COLORS.length] : '#555';
+    html += `<div onclick="goToProf('${t}')" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:2px solid transparent;transition:all .15s" onmouseover="this.style.borderColor='${color}'" onmouseout="this.style.borderColor='transparent'">
+      <div style="width:32px;height:32px;border-radius:8px;background:${color};display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:13px;flex-shrink:0">${t[0]}</div>
+      <div><div style="font-weight:700;font-size:12px">${t}</div>
+      <div style="font-size:11px;color:#666">${cnt} substituição${cnt>1?'s':''}</div></div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+// ============================================================
+// ACEPAT
+// ============================================================
+function initAcepat() {
+  const container = document.getElementById('acepat-content');
+  const days = DATA.days;
+  const daysLong = DATA.days_long;
+  const dayColors = {SEG:'#1a4480', TER:'#7c3aed', QUA:'#059669', QUI:'#d97706', SEX:'#be123c'};
+  const acepatSubst = {
+    SEG: {h:{'1ªH':['JUSCELE','JULIANA'],'2ºH':['CLAUDETE'],'3ºH':['JOADNE','ADILSON'],'4ºH':['GISLAINE','RONEI'],'5ºH':['LEIDIANE','MARCELO']}},
+    TER: {h:{'1ªH':['ADILSON'],'2ºH':[],'3ºH':['Mª DO CARMO'],'4ºH':[],'5ºH':['LEIDIANE','MÁRCIA']}},
+    QUA: {h:{'1ªH':['JULIANA'],'2ºH':[],'3ºH':[],'4ºH':[],'5ºH':['MARCELO C']}},
+    QUI: {h:{'1ªH':['GUILHERME','MARCELO','ALESSANDRA'],'2ºH':['FERNANDA','MAGNA','RONEI'],'3ºH':['ALEXANDRA','JUSCELE'],'4ºH':['JOADNE','Mª DO CARMO'],'5ºH':['GISLAINE','JHOW','FABIANA','MARCELO C']}},
+    SEX: {h:{'1ªH':['ALEXANDRA','GUILHERME'],'2ºH':['FERNANDA','MÁRCIA'],'3ºH':['MAGNA','ALESSANDRA'],'4ºH':['CLAUDETE','FABIANA'],'5ºH':['FABIANA','JHOW']}}
+  };
+
+  let html = `
+    <div style="background:white;border-radius:16px;padding:20px 24px 14px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px">
+      <div style="font-size:20px;font-weight:900;color:var(--cinza-escuro);margin-bottom:4px">⭐ ACEPAT – Tempo Complementar</div>
+      <div style="font-size:13px;color:#666">Atividade Complementar de Ensino e Prática de Atividades Tutoriais · 2º Turno · Junho 2026</div>
+      <div style="margin-top:10px;padding:10px 14px;background:#eff6ff;border-radius:8px;border-left:4px solid var(--azul-claro);font-size:12px;color:#1e40af">
+        Cada professor possui <strong>2 horários ACEPAT</strong>, exceto <strong>FABIANA</strong> que possui 3. As colunas abaixo mostram quem faz Substituição e quem está no ACEPAT em cada horário.
+      </div>
+    </div>`;
+
+  // Cards por dia com colunas separadas SUBST | ACEPAT
+  html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;margin-bottom:24px">`;
+  days.forEach((d, di) => {
+    const info = ACEPAT_DATA[d];
+    const color = dayColors[d];
+    html += `<div style="background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+      <div style="background:${color};padding:14px 18px">
+        <div style="font-size:16px;font-weight:900;color:white">${d} – ${daysLong[di]}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-top:2px">Titular ACEPAT: <strong>${info.titular}</strong></div>
+      </div>
+      <div style="padding:14px 18px">
+        <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px;margin-bottom:8px">
+          <div></div>
+          <div style="font-size:9px;font-weight:800;color:#92400e;background:#fff3cd;padding:2px 6px;border-radius:4px;text-align:center">🔄 SUBST.</div>
+          <div style="font-size:9px;font-weight:800;color:#1e40af;background:#dbeafe;padding:2px 6px;border-radius:4px;text-align:center">⭐ ACEPAT</div>
+        </div>
+        ${DATA.hours.filter(h=>h!=='INTERV.').map(h => {
+          const subs = (SUBST_DATA[d] && SUBST_DATA[d][h]) || [];
+          const acep = (acepatSubst[d].h[h]) || [];
+          return `<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:start;padding:5px 0;border-bottom:1px solid #f0f4f8">
+            <span style="font-size:10px;font-weight:800;background:#f0f4f8;color:#555;border-radius:5px;padding:2px 6px;white-space:nowrap">${h}</span>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              ${subs.map(t => {
+                const idx = DATA.teachers.indexOf(t);
+                const tc = idx>=0 ? TEACHER_COLORS[idx%TEACHER_COLORS.length] : '#d97706';
+                return '<span onclick="goToProf(\'' + t + '\')" style="cursor:pointer;background:' + tc + ';color:white;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700">' + t + '</span>';
+              }).join('') || '<span style="color:#ddd;font-size:9px">—</span>'}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:2px">
+              ${acep.map(t => {
+                const idx = DATA.teachers.indexOf(t);
+                const tc = idx>=0 ? TEACHER_COLORS[idx%TEACHER_COLORS.length] : '#1a4480';
+                return '<span onclick="goToProf(\'' + t + '\')" style="cursor:pointer;background:' + tc + '22;color:' + tc + ';border:1px solid ' + tc + '55;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700">' + t + '</span>';
+              }).join('') || '<span style="color:#ddd;font-size:9px">—</span>'}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+function goToProf(name) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-professores').classList.add('active');
+  document.querySelectorAll('nav button')[2].classList.add('active');
+  selectProfessor(name);
+  // Scroll to the selected item
+  setTimeout(() => {
+    const el = document.getElementById('prof-card-' + name.replace(/[^a-zA-Z0-9]/g,'_'));
+    if (el) el.scrollIntoView({block:'center'});
+  }, 100);
+}
+</script>
+</body>
+</html>
