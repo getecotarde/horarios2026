@@ -486,9 +486,9 @@
     .print-area {
       display: block !important;
       visibility: visible !important;
-      position: fixed;
+      position: absolute;
       left: 0; top: 0;
-      width: 100%; height: 100%;
+      width: 100%;
     }
 
     /* Página paisagem de turmas: 4 cards em 2×2 */
@@ -658,18 +658,21 @@
       font-weight: 600;
     }
 
-    /* ── Impressão de professores: 2 por página, sem cores escuras ── */
+    /* ── Impressão de professores: paisagem A4, 4 por página (2×2) ── */
     .prof-print-page {
-      width: 190mm;
-      display: flex;
-      flex-direction: column;
-      gap: 6mm;
+      width: 277mm;
+      height: 190mm;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 3mm;
       page-break-after: always;
       break-after: page;
+      box-sizing: border-box;
     }
     .prof-print-page:last-child { page-break-after: avoid; break-after: avoid; }
 
-    /* Card individual de professor (ocupa metade da página) */
+    /* Card individual de professor */
     .ppcard {
       border: 1pt solid #000;
       border-radius: 3px;
@@ -677,78 +680,90 @@
       display: flex;
       flex-direction: column;
       background: #fff;
-      flex: 1;
+      min-height: 0;
+      container-type: size;
+      container-name: ppcard;
     }
     .ppcard-head {
-      padding: 2.5mm 4mm 2mm;
-      border-bottom: 1.5pt solid #000;
+      padding: 1cqb 2cqi 0.8cqb;
+      border-bottom: 1pt solid #000;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: #ebebeb !important;
+      flex-shrink: 0;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     .ppcard-head-nome {
-      font-size: 11pt;
+      font-size: 5cqi;
       font-weight: 900;
       color: #000;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+      line-height: 1;
     }
     .ppcard-head-sub {
-      font-size: 6pt;
-      color: #444;
+      font-size: 2.8cqi;
+      color: #555;
       text-align: right;
+      line-height: 1.3;
     }
-    .ppcard-body { flex: 1; overflow: hidden; padding: 1.5mm 2mm; }
+    .ppcard-body { flex: 1; overflow: hidden; padding: 0.5cqb 1cqi; min-height: 0; }
     .ppcard table {
       width: 100%;
+      height: 100%;
       border-collapse: collapse;
-      font-size: 6.5pt;
+      font-size: 3.2cqi;
       table-layout: fixed;
     }
     .ppcard thead th {
-      padding: 1.5mm 1mm;
-      font-size: 6pt;
+      padding: 0.5cqb 0.3cqi;
+      font-size: 2.8cqi;
       font-weight: 800;
       text-align: center;
       text-transform: uppercase;
       border: 0.5pt solid #888;
-      background: #e8e8e8 !important;
+      background: #e0e0e0 !important;
       color: #000 !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .ppcard thead th:first-child { width: 14mm; }
+    .ppcard thead th:first-child { width: 8cqi; }
     .ppcard tbody td {
-      border: 0.5pt solid #bbb;
-      padding: 1mm 0.8mm;
+      border: 0.5pt solid #ccc;
+      padding: 0.3cqb 0.2cqi;
       text-align: center;
       vertical-align: middle;
-      font-size: 6pt;
-      line-height: 1.2;
+      line-height: 1.1;
       color: #000;
     }
     .ppcard tbody td:first-child {
       background: #f2f2f2 !important;
       font-weight: 800;
-      font-size: 5.5pt;
+      font-size: 2.6cqi;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .ppcard .pp-subj {
+    /* TURMA: destaque principal */
+    .ppcard .pp-turma {
       font-weight: 900;
-      font-size: 7pt;
+      font-size: 4.2cqi;
       display: block;
       line-height: 1;
+      letter-spacing: -0.03em;
     }
-    .ppcard .pp-info {
-      font-size: 4.5pt;
-      color: #555;
+    /* DISCIPLINA: secundária, menor */
+    .ppcard .pp-disc {
+      font-size: 2.4cqi;
+      color: #666;
       display: block;
-      margin-top: 0.3mm;
+      margin-top: 0.2cqb;
+      font-style: italic;
     }
     .ppcard .pp-intervalo td {
       background: #f0f0f0 !important;
       font-style: italic;
-      font-size: 5.5pt !important;
+      font-size: 2.6cqi !important;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
@@ -757,35 +772,35 @@
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    /* SUBST e ACEPAT: sem fundo colorido, apenas borda e texto */
     .ppcard .pp-subst {
       display: inline-block;
-      border: 1pt solid #555;
-      border-radius: 3pt;
-      padding: 0.5pt 4pt;
-      font-size: 5.5pt;
+      border: 0.8pt solid #555;
+      border-radius: 2pt;
+      padding: 0.2cqb 1cqi;
+      font-size: 2.8cqi;
       font-weight: 800;
       color: #333;
     }
     .ppcard .pp-acepat {
       display: inline-block;
-      border: 1pt dashed #444;
-      border-radius: 3pt;
-      padding: 0.5pt 4pt;
-      font-size: 5.5pt;
+      border: 0.8pt dashed #444;
+      border-radius: 2pt;
+      padding: 0.2cqb 1cqi;
+      font-size: 2.8cqi;
       font-weight: 800;
       color: #333;
     }
     .ppcard-foot {
-      padding: 1mm 4mm;
+      padding: 0.5cqb 2cqi;
       background: #f2f2f2 !important;
       border-top: 0.5pt solid #aaa;
       display: flex;
       justify-content: space-between;
+      flex-shrink: 0;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    .ppcard-foot span { font-size: 4.5pt; color: #555; font-weight: 600; }
+    .ppcard-foot span { font-size: 2.2cqi; color: #666; font-weight: 600; }
 
 
     .ptcard {
@@ -1733,7 +1748,7 @@ function renderAlunoTurma() {
 }
 
 // ============================================================
-// PRINT PROFESSOR CARD (sem cores escuras, 2 por página)
+// PRINT PROFESSOR CARD (sem cores escuras, 4 por página)
 // ============================================================
 function buildProfPrintCard(teacherName) {
   const acts = DATA.activities.filter(a => a.teacher === teacherName);
@@ -1752,7 +1767,7 @@ function buildProfPrintCard(teacherName) {
   hours.forEach((h, hi) => {
     const isInt = h === 'INTERV.';
     if (isInt) {
-      rows += `<tr class="pp-intervalo"><td>${h}</td>${days.map(() => '<td>☕ Intervalo</td>').join('')}</tr>`;
+      rows += `<tr class="pp-intervalo"><td>${h}</td>${days.map(() => '<td>Intervalo</td>').join('')}</tr>`;
     } else {
       rows += `<tr><td><div style="font-weight:800">${h}</div><div style="font-size:4.5pt;opacity:.7">${hoursLong[hi]}</div></td>`;
       days.forEach(d => {
@@ -1760,16 +1775,17 @@ function buildProfPrintCard(teacherName) {
         if (cells.length) {
           rows += `<td>`;
           cells.forEach(c => {
-            rows += `<span class="pp-subj">${c.subject}</span>`;
-            rows += `<span class="pp-info">${c.turma.split(' - ')[0]}</span>`;
+            const turmaShort = c.turma.split(' - ')[0];
+            rows += `<span class="pp-turma">${turmaShort}</span>`;
+            rows += `<span class="pp-disc">${c.subject}</span>`;
           });
           rows += `</td>`;
         } else {
           const status = getCellStatus(teacherName, d, h);
           if (status === 'subst') {
-            rows += `<td><span class="pp-subst">🔄 SUBST.</span></td>`;
+            rows += `<td><span class="pp-subst">SUBST.</span></td>`;
           } else if (status === 'acepat') {
-            rows += `<td><span class="pp-acepat">⭐ ACEPAT</span></td>`;
+            rows += `<td><span class="pp-acepat">ACEPAT</span></td>`;
           } else {
             rows += `<td><span style="color:#ccc">—</span></td>`;
           }
@@ -1782,23 +1798,23 @@ function buildProfPrintCard(teacherName) {
   return `<div class="ppcard">
     <div class="ppcard-head">
       <div>
-        <div style="font-size:5.5pt;text-transform:uppercase;letter-spacing:.06em;color:#555">E.M. Geraldo Teixeira da Costa · GETECO 2026</div>
-        <div class="ppcard-head-nome">👩‍🏫 ${teacherName}</div>
+        <div style="font-size:4.5pt;text-transform:uppercase;letter-spacing:.05em;color:#666">GETECO 2026 · 2º Turno</div>
+        <div class="ppcard-head-nome">${teacherName}</div>
       </div>
-      <div class="ppcard-head-sub">2º Turno · Junho 2026<br>13:00 – 17:30</div>
+      <div class="ppcard-head-sub">Junho 2026<br>13:00–17:30</div>
     </div>
     <div class="ppcard-body">
       <table>
         <thead><tr>
-          <th>Horário</th>
+          <th>Hora</th>
           ${days.map((d,i) => `<th>${d}<br><span style="font-weight:400;opacity:.7">${daysLong[i].substring(0,3)}</span></th>`).join('')}
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
     <div class="ppcard-foot">
-      <span>🔄 SUBST. = disponível para substituição</span>
-      <span>⭐ ACEPAT = tempo complementar</span>
+      <span>SUBST. = substituição | ACEPAT = tempo complementar</span>
+      <span>E.M. Geraldo Teixeira da Costa</span>
     </div>
   </div>`;
 }
@@ -1840,15 +1856,30 @@ function printSelected() {
   closePrintModal();
 
   const printEl = document.getElementById('print-area');
-  // Agrupar em pares (2 por página)
+  // Agrupar em blocos de 4 (2×2 por página)
   let pages = '';
-  for (let i = 0; i < selected.length; i += 2) {
-    const card1 = buildProfPrintCard(selected[i]);
-    const card2 = i + 1 < selected.length ? buildProfPrintCard(selected[i + 1]) : '';
-    pages += `<div class="prof-print-page">${card1}${card2}</div>`;
+  for (let i = 0; i < selected.length; i += 4) {
+    const cards = selected.slice(i, i + 4).map(t => buildProfPrintCard(t)).join('');
+    pages += `<div class="prof-print-page">${cards}</div>`;
   }
   printEl.innerHTML = pages;
+  setPrintLandscape();
   window.print();
+  setTimeout(clearPrintLandscape, 1000);
+}
+
+function setPrintLandscape() {
+  let styleEl = document.getElementById('print-landscape-style');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'print-landscape-style';
+    document.head.appendChild(styleEl);
+  }
+  styleEl.textContent = `@media print { @page { size: A4 landscape; margin: 10mm; } }`;
+}
+function clearPrintLandscape() {
+  const styleEl = document.getElementById('print-landscape-style');
+  if (styleEl) styleEl.textContent = '';
 }
 
 // ============================================================
@@ -1866,9 +1897,10 @@ function printCurrent(type) {
   } else if (type === 'professor') {
     t = _currentProf;
     if (!t) return alert('Selecione um professor primeiro.');
-    // 1 professor sozinho numa página
     printEl.innerHTML = `<div class="prof-print-page">${buildProfPrintCard(t)}</div>`;
+    setPrintLandscape();
     window.print();
+    setTimeout(clearPrintLandscape, 1000);
     return;
   } else if (type === 'sala') {
     t = _currentSala;
@@ -1950,7 +1982,7 @@ function buildTurmaCard(turmaName) {
       <div class="ptcard-body">
         <table>
           <thead><tr>
-            <th>Horário</th>
+            <th>Hora</th>
             ${days.map((d,i) => `<th>${d}<br><span style="font-weight:400;opacity:.7">${daysLong[i].substring(0,3)}</span></th>`).join('')}
           </tr></thead>
           <tbody>${rows}</tbody>
