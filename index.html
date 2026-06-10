@@ -313,6 +313,56 @@
   }
   .chart-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--cinza-escuro); text-transform: uppercase; letter-spacing: 0.06em; }
 
+  /* ACCORDION CHARTS */
+  .accordion-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 768px) { .accordion-charts-grid { grid-template-columns: 1fr; } }
+
+  .accordion-chart-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+
+  .accordion-chart-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--cinza-escuro);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .accordion-chart-btn:hover { background: var(--verde-fundo); border-bottom-color: var(--verde-claro); }
+  .accordion-chart-btn.open { background: var(--verde-fundo); border-bottom-color: var(--verde); color: var(--verde); }
+
+  .accordion-arrow {
+    font-size: 11px;
+    transition: transform 0.25s;
+    color: var(--cinza-medio);
+  }
+  .accordion-chart-btn.open .accordion-arrow { transform: rotate(180deg); color: var(--verde); }
+
+  .accordion-chart-body {
+    padding: 18px 18px 14px;
+    animation: fadeInAcc 0.2s ease;
+  }
+  @keyframes fadeInAcc { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
   .bar-chart { display: flex; flex-direction: column; gap: 10px; }
   .bar-row { display: flex; align-items: center; gap: 10px; }
   .bar-label { width: 130px; font-size: 12px; color: var(--cinza-medio); font-weight: 600; text-align: right; flex-shrink: 0; }
@@ -998,26 +1048,69 @@
 <!-- DASHBOARD -->
 <div id="sec-dashboard" class="section active">
   <div class="stats-grid" id="stats-grid"></div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>⏱ Aulas por Professor</h3>
-      <div class="bar-chart" id="chart-teachers"></div>
+
+  <!-- ACORDEÕES DOS GRÁFICOS -->
+  <div class="accordion-charts-grid">
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>⏱ Aulas por Professor</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;">
+        <div class="bar-chart" id="chart-teachers"></div>
+      </div>
     </div>
-    <div class="chart-card">
-      <h3>📚 Aulas por Disciplina</h3>
-      <div class="bar-chart" id="chart-subjects"></div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>📚 Aulas por Disciplina</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;">
+        <div class="bar-chart" id="chart-subjects"></div>
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>📅 Distribuição por Dia</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;">
+        <div class="bar-chart" id="chart-days"></div>
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>🏫 Ocupação por Turma</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;">
+        <div class="bar-chart" id="chart-turmas"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- IMAGEM GERAL DO HORÁRIO -->
+  <div style="margin-top:28px;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+    <div style="padding:16px 22px;background:var(--cinza-escuro);color:white;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px;">🗓️</span>
+      <div>
+        <div style="font-size:15px;font-weight:700;">Quadro Geral de Horários – Junho 2026</div>
+        <div style="font-size:11px;opacity:0.6;font-family:'DM Mono',monospace;">E.M. Geraldo Teixeira da Costa · GETECO · 2º Turno</div>
+      </div>
+    </div>
+    <div style="padding:16px;overflow-x:auto;text-align:center;">
+      <img src="Junho_CORES_page-0001.jpg" alt="Quadro Geral de Horários Junho 2026"
+        style="max-width:100%;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,0.10);"
+        onerror="this.parentElement.innerHTML='<div style=padding:40px;color:#aaa;font-size:13px;>Imagem nao encontrada. Certifique-se de que o arquivo Junho_CORES_page-0001.jpg esta na mesma pasta do HTML.</div>'"
+      />
     </div>
   </div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>📅 Distribuição por Dia</h3>
-      <div class="bar-chart" id="chart-days"></div>
-    </div>
-    <div class="chart-card">
-      <h3>🏫 Ocupação por Turma</h3>
-      <div class="bar-chart" id="chart-turmas"></div>
-    </div>
-  </div>
+
 </div>
 
 <!-- TURMAS -->
@@ -1409,6 +1502,16 @@ function showSection(name) {
   document.getElementById(`sec-${name}`).classList.add('active');
   event.target.classList.add('active');
   currentView = name;
+}
+
+// ============================================================
+// ACCORDION TOGGLE
+// ============================================================
+function toggleAccordion(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
 }
 
 // ============================================================
