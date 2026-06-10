@@ -1630,7 +1630,9 @@ function initProfessores() {
     teacherTurmas[a.teacher].add(a.turma.split(' - ')[0]);
   });
 
-  grid.innerHTML = DATA.teachers.map((t, i) => {
+  const sortedTeachers = [...DATA.teachers].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  grid.innerHTML = sortedTeachers.map(t => {
+    const i = DATA.teachers.indexOf(t);
     const subjs = [...(teacherSubjs[t] || [])];
     const turmas = [...(teacherTurmas[t] || [])];
     const count = DATA.activities.filter(a => a.teacher === t).length;
