@@ -1053,28 +1053,27 @@
 
   /* Badge do usuário logado no header */
   #user-badge {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.15); border-radius: 10px;
-    padding: 6px 12px; cursor: pointer; transition: background .2s;
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.12); border-radius: 12px;
+    padding: 7px 14px; cursor: default;
     margin-left: auto; flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.15);
   }
-  #user-badge { cursor: default; }
-  #user-badge:hover { background: rgba(255,255,255,0.15); }
-  #btn-trocar-perfil {
-    background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
-    color: white; border-radius: 7px; padding: 4px 10px; font-size: 11px;
-    font-weight: 700; cursor: pointer; transition: background .2s; white-space: nowrap;
-    font-family: 'Inter', sans-serif; display: none;
-  }
-  #btn-trocar-perfil:hover { background: rgba(255,255,255,0.32); }
-  #user-badge .badge-name { font-size: 12px; font-weight: 700; color: white; }
-  #user-badge .badge-role { font-size: 10px; color: rgba(255,255,255,.7); }
+  #user-badge .badge-name { font-size: 12px; font-weight: 700; color: white; line-height: 1.3; }
+  #user-badge .badge-role { font-size: 10px; color: rgba(255,255,255,.65); }
   #user-badge .badge-avatar {
-    width: 28px; height: 28px; border-radius: 7px;
+    width: 32px; height: 32px; border-radius: 8px;
     background: rgba(255,255,255,0.25);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800; color: white;
+    font-size: 14px; font-weight: 800; color: white; flex-shrink: 0;
   }
+  #btn-trocar-perfil {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    color: white; border-radius: 8px; padding: 5px 11px; font-size: 11px;
+    font-weight: 700; cursor: pointer; transition: background .2s; white-space: nowrap;
+    font-family: 'Inter', sans-serif; display: none; margin-left: 4px;
+  }
+  #btn-trocar-perfil:hover { background: rgba(255,255,255,0.28); }
 
   /* Painel de controle de acesso (admin) */
   #sec-acesso { display: none; }
@@ -1173,12 +1172,13 @@
       <h1>E.M. Geraldo Teixeira da Costa – GETECO</h1>
       <p>2º Turno · Junho 2026 · Sistema de Consulta de Horários</p>
     </div>
-    <div id="user-badge" onclick="doLogout()" title="Clique para sair">
+    <div id="user-badge">
+      <div class="badge-avatar" id="badge-avatar">?</div>
       <div>
         <div class="badge-name" id="badge-name">—</div>
         <div class="badge-role" id="badge-role">—</div>
       </div>
-      <div class="badge-avatar" id="badge-avatar">?</div>
+      <button id="btn-trocar-perfil" onclick="doLogout()" title="Trocar perfil">🔄 Trocar perfil</button>
     </div>
   </div>
   <nav id="main-nav">
