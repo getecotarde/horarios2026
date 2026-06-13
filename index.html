@@ -997,6 +997,122 @@
     nav button { padding: 8px 12px; font-size: 12px; }
   }
 
+  /* ============================================================
+     SISTEMA DE LOGIN
+     ============================================================ */
+  #login-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #1a6b3a 0%, #1a4480 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+  }
+  #login-overlay.hidden { display: none; }
+
+  .login-card {
+    background: white; border-radius: 20px;
+    padding: 40px 36px 32px;
+    width: 100%; max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  }
+  .login-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #1a6b3a, #1a4480);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 900; color: white;
+    margin: 0 auto 18px;
+  }
+  .login-title { text-align: center; font-size: 18px; font-weight: 800; color: #1c1f26; margin-bottom: 4px; }
+  .login-sub   { text-align: center; font-size: 12px; color: #6b7280; margin-bottom: 28px; }
+
+  .login-field { margin-bottom: 16px; }
+  .login-field label { display: block; font-size: 12px; font-weight: 700; color: #4a5568; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+  .login-field input {
+    width: 100%; padding: 11px 14px; border: 2px solid #d1dde8;
+    border-radius: 9px; font-size: 14px; font-family: 'Inter', sans-serif;
+    outline: none; transition: border-color .2s; color: #1c1f26;
+  }
+  .login-field input:focus { border-color: #2d9e5b; }
+
+  .login-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 9px;
+    background: linear-gradient(135deg, #1a6b3a, #1a4480);
+    color: white; font-size: 15px; font-weight: 700;
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    margin-top: 8px; transition: opacity .2s;
+  }
+  .login-btn:hover { opacity: .88; }
+
+  .login-error {
+    background: #fef2f2; border: 1.5px solid #fca5a5; color: #b91c1c;
+    border-radius: 8px; padding: 10px 14px; font-size: 13px;
+    margin-top: 14px; display: none; text-align: center; font-weight: 600;
+  }
+  .login-error.show { display: block; }
+
+  .login-footer { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 22px; }
+
+  /* Badge do usuário logado no header */
+  #user-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15); border-radius: 10px;
+    padding: 6px 12px; cursor: pointer; transition: background .2s;
+    margin-left: auto; flex-shrink: 0;
+  }
+  #user-badge:hover { background: rgba(255,255,255,0.25); }
+  #user-badge .badge-name { font-size: 12px; font-weight: 700; color: white; }
+  #user-badge .badge-role { font-size: 10px; color: rgba(255,255,255,.7); }
+  #user-badge .badge-avatar {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; color: white;
+  }
+
+  /* Painel de controle de acesso (admin) */
+  #sec-acesso { display: none; }
+  #sec-acesso.active { display: block; }
+
+  .acesso-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 16px; }
+  .acesso-card {
+    background: white; border-radius: 16px; padding: 20px 22px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    border-left: 4px solid var(--verde);
+  }
+  .acesso-card:nth-child(2) { border-color: var(--azul-claro); }
+  .acesso-card:nth-child(3) { border-color: var(--amarelo); }
+  .acesso-card:nth-child(4) { border-color: var(--roxo); }
+
+  .acesso-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .acesso-avatar {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: var(--verde-fundo); color: var(--verde);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 800; flex-shrink: 0;
+  }
+  .acesso-nome { font-size: 15px; font-weight: 800; color: var(--cinza-escuro); }
+  .acesso-cargo { font-size: 11px; color: var(--cinza-medio); font-weight: 600; }
+
+  .acesso-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .acesso-tab-toggle {
+    display: flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    font-size: 11px; font-weight: 700; border: 2px solid transparent;
+    transition: all .15s; user-select: none;
+  }
+  .acesso-tab-toggle.on  { background: var(--verde-fundo); color: var(--verde); border-color: var(--verde-claro); }
+  .acesso-tab-toggle.off { background: #f0f4f8; color: #9ca3af; border-color: #e2e8f0; }
+  .acesso-tab-toggle .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .acesso-tab-toggle.on  .dot { background: var(--verde); }
+  .acesso-tab-toggle.off .dot { background: #cbd5e1; }
+
+  .acesso-save-btn {
+    margin-top: 14px; width: 100%; padding: 8px; border: none; border-radius: 8px;
+    background: var(--verde); color: white; font-size: 12px; font-weight: 700;
+    font-family: 'Inter', sans-serif; cursor: pointer; transition: background .2s;
+  }
+  .acesso-save-btn:hover { background: var(--verde-claro); }
+  .acesso-save-note { font-size: 11px; color: var(--cinza-medio); margin-top: 6px; text-align: center; }
+
   /* Timetable inside sidebar layout - no double border */
   .main-content-area .timetable-wrapper {
     border-radius: 0;
@@ -1022,6 +1138,26 @@
 </head>
 <body>
 
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">G</div>
+    <div class="login-title">GETECO 2026</div>
+    <div class="login-sub">E.M. Geraldo Teixeira da Costa · 2º Turno<br>Sistema de Horários — Acesso Restrito</div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="Seu nome de usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+    <div class="login-footer">GETECO · Junho 2026 · Uso interno</div>
+  </div>
+</div>
+
 <header>
   <div class="header-top">
     <div class="logo-escola">G</div>
@@ -1029,8 +1165,15 @@
       <h1>E.M. Geraldo Teixeira da Costa – GETECO</h1>
       <p>2º Turno · Junho 2026 · Sistema de Consulta de Horários</p>
     </div>
+    <div id="user-badge" onclick="doLogout()" title="Clique para sair">
+      <div>
+        <div class="badge-name" id="badge-name">—</div>
+        <div class="badge-role" id="badge-role">—</div>
+      </div>
+      <div class="badge-avatar" id="badge-avatar">?</div>
+    </div>
   </div>
-  <nav>
+  <nav id="main-nav">
     <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
     <button onclick="showSection('professores')">👩‍🏫 Por Professor</button>
     <button onclick="showSection('turmas')">🏫 Por Turma</button>
@@ -1041,6 +1184,7 @@
     <button onclick="window.open('https://copiafacil.vercel.app/', '_blank')">🖨️ Mecanografia</button>
     <button onclick="window.open('https://sites.google.com/view/getecotarde2026/geral', '_blank')">🗺️ Mapeamento</button>
     <button onclick="window.open('https://linktr.ee/geteco_tarde', '_blank')">🔗 LinkTree</button>
+    <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </header>
 
@@ -1278,6 +1422,19 @@
 <!-- ACEPAT -->
 <div id="sec-acepat" class="section">
   <div id="acepat-content"></div>
+</div>
+
+<!-- ACESSOS (admin only) -->
+<div id="sec-acesso" class="section">
+  <div style="margin-bottom:20px;background:white;border-radius:16px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,.07)">
+    <div style="font-size:20px;font-weight:900;color:var(--cinza-escuro);margin-bottom:4px">🔑 Controle de Acessos</div>
+    <div style="font-size:13px;color:#666">Defina quais abas cada perfil pode visualizar. As alterações ficam salvas neste navegador.</div>
+    <div style="margin-top:10px;padding:10px 14px;background:#eff6ff;border-radius:8px;border-left:4px solid var(--azul-claro);font-size:12px;color:#1e40af">
+      O acesso principal <strong>Everton</strong> sempre tem acesso completo e não pode ser restringido.
+    </div>
+  </div>
+  <div class="acesso-grid" id="acesso-cards"></div>
+  <div style="margin-top:8px;text-align:center;font-size:11px;color:var(--cinza-medio)">As configurações são salvas automaticamente no navegador local. Para aplicar em outros dispositivos, republique o arquivo com as senhas atualizadas.</div>
 </div>
 
 </main>
@@ -2193,16 +2350,9 @@ function printTurmaLandscape(turmaName) {
 }
 
 // ============================================================
-// INIT
+// INIT — chamado pelo login, não automaticamente
 // ============================================================
-initDashboard();
-initTurmas();
-initProfessores();
-initSalas();
-initDisciplinas();
-initAlunos();
-initSubstituicoes();
-initAcepat();
+// (initDashboard, initTurmas, etc. são chamadas em doLogin())
 
 // ============================================================
 // SUBSTITUIÇÕES
@@ -2357,12 +2507,214 @@ function goToProf(name) {
   document.getElementById('sec-professores').classList.add('active');
   document.querySelectorAll('nav button')[1].classList.add('active');
   selectProfessor(name);
-  // Scroll to the selected item
   setTimeout(() => {
     const el = document.getElementById('prof-card-' + name.replace(/[^a-zA-Z0-9]/g,'_'));
     if (el) el.scrollIntoView({block:'center'});
   }, 100);
 }
+
+// ============================================================
+// SISTEMA DE LOGIN E CONTROLE DE ACESSOS
+// ============================================================
+
+// ── Usuários cadastrados ─────────────────────────────────────
+// Senhas armazenadas como SHA-256. Para alterar:
+// 1) Gere o hash em: https://emn178.github.io/online-tools/sha256.html
+// 2) Substitua o valor do campo 'hash' e republique.
+const USERS = [
+  {
+    usuario: 'everton',
+    hash: '622ae52a8c476519f5c08e5d380becf50341f1b052403f0f9e9898baf0ce7892',
+    nome: 'Everton',
+    cargo: 'Coordenador Pedagógico',
+    perfil: 'admin'
+  },
+  {
+    usuario: 'wander',
+    hash: '0910d7400e015bf33916e4f51a1e46b1b93a3a87977f21b65d7c65b2f61cf4c7',
+    nome: 'Wander',
+    cargo: 'Coordenador de Turno',
+    perfil: 'wander'
+  },
+  {
+    usuario: 'cristina',
+    hash: '91763b9f62ea8437f1d34ec1f0e73e890f47895e87ff2f6a31e95ef8d895dced',
+    nome: 'Cristina',
+    cargo: 'Coordenadora de Turno',
+    perfil: 'cristina'
+  },
+  {
+    usuario: 'gabriela',
+    hash: 'cc82e13b24571a6608ed34924268c68426f0a38efaaa87426a59a29667b94156',
+    nome: 'Gabriela',
+    cargo: 'Apoio à Coordenação',
+    perfil: 'gabriela'
+  },
+  {
+    usuario: 'cgdir',
+    hash: '344884db65de4fbf856b2cda349f4d941fbd63cf2ef53a6a60cd99d7a4d5ee16',
+    nome: 'C.G. e Dir.',
+    cargo: 'Coordenação Geral e Direção',
+    perfil: 'cgdir'
+  }
+];
+
+// ── Permissões fixas por perfil ───────────────────────────────
+// admin (Everton) sempre tem acesso a tudo — definido em applyAccess()
+const PERFIL_ACCESS = {
+  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree'],
+  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree'],
+  gabriela: ['dashboard','turmas','disciplinas','acepat','mecano','linktree'],
+  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','mecano']
+};
+
+let currentUser = null;
+
+// ── Funções de login ─────────────────────────────────────────
+async function hashSHA256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const u = document.getElementById('login-user').value.trim().toLowerCase();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  const btn = document.querySelector('.login-btn');
+  btn.textContent = 'Verificando...';
+  btn.disabled = true;
+  const hashed = await hashSHA256(p);
+  const found = USERS.find(x => x.usuario === u && x.hash === hashed);
+  btn.textContent = 'Entrar';
+  btn.disabled = false;
+  if (!found) {
+    err.classList.add('show');
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+    return;
+  }
+  err.classList.remove('show');
+  currentUser = found;
+  document.getElementById('login-overlay').classList.add('hidden');
+  document.getElementById('badge-name').textContent = found.nome;
+  document.getElementById('badge-role').textContent = found.cargo;
+  document.getElementById('badge-avatar').textContent = found.nome[0].toUpperCase();
+  applyAccess();
+  initDashboard();
+  initTurmas();
+  initProfessores();
+  initSalas();
+  initDisciplinas();
+  initAlunos();
+  initSubstituicoes();
+  initAcepat();
+  if (found.perfil === 'admin') initAcessoPanel();
+}
+
+function doLogout() {
+  if (!confirm('Deseja sair do sistema?')) return;
+  currentUser = null;
+  document.getElementById('login-overlay').classList.remove('hidden');
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-user').focus();
+  document.getElementById('badge-name').textContent = '—';
+  document.getElementById('badge-role').textContent = '—';
+  document.getElementById('badge-avatar').textContent = '?';
+}
+
+// ── Aplicar restrições de acesso ─────────────────────────────
+function applyAccess() {
+  if (!currentUser) return;
+  const isAdmin = currentUser.perfil === 'admin';
+
+  // Aba de acessos só para admin
+  document.getElementById('nav-acesso').style.display = isAdmin ? 'inline-flex' : 'none';
+
+  if (isAdmin) return;
+
+  const allowed = PERFIL_ACCESS[currentUser.perfil] || [];
+
+  const navBtns = document.querySelectorAll('#main-nav button');
+  const btnMap = [
+    { tab: 'dashboard',     idx: 0 },
+    { tab: 'professores',   idx: 1 },
+    { tab: 'turmas',        idx: 2 },
+    { tab: 'disciplinas',   idx: 3 },
+    { tab: 'substituicoes', idx: 4 },
+    { tab: 'acepat',        idx: 5 },
+    { tab: 'gestao',        idx: 6 },
+    { tab: 'mecano',        idx: 7 },
+    { tab: 'mapeamento',    idx: 8 },
+    { tab: 'linktree',      idx: 9 }
+  ];
+  btnMap.forEach(({ tab, idx }) => {
+    if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
+  });
+
+  // Navegar para a primeira aba interna permitida
+  const internals = ['dashboard','professores','turmas','disciplinas','substituicoes','acepat'];
+  const firstInternal = allowed.find(t => internals.includes(t)) || 'dashboard';
+  showSectionDirect(firstInternal);
+}
+
+function showSectionDirect(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById('sec-' + name);
+  if (sec) sec.classList.add('active');
+}
+
+// ── Painel de informação de acessos (admin, somente leitura) ─
+function initAcessoPanel() {
+  const container = document.getElementById('acesso-cards');
+  const LABELS = {
+    dashboard: '📊 Dashboard', professores: '👩‍🏫 Por Professor',
+    turmas: '🏫 Por Turma', disciplinas: '📚 Por Disciplina',
+    substituicoes: '🔄 Substituições', acepat: '⭐ ACEPAT',
+    gestao: '📋 Gestão Ped.', mecano: '🖨️ Mecanografia',
+    mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree'
+  };
+  const secondaries = USERS.filter(u => u.perfil !== 'admin');
+  container.innerHTML = secondaries.map(u => {
+    const allowed = PERFIL_ACCESS[u.perfil] || [];
+    const tags = Object.keys(LABELS).map(id => {
+      const on = allowed.includes(id);
+      return `<span class="acesso-tab-toggle ${on ? 'on' : 'off'}">
+        <span class="dot"></span>${LABELS[id]}
+      </span>`;
+    }).join('');
+    return `<div class="acesso-card">
+      <div class="acesso-card-header">
+        <div class="acesso-avatar">${u.nome[0]}</div>
+        <div>
+          <div class="acesso-nome">${u.nome}</div>
+          <div class="acesso-cargo">${u.cargo}</div>
+        </div>
+      </div>
+      <div class="acesso-tabs">${tags}</div>
+      <div class="acesso-save-note" style="margin-top:10px">Permissões definidas no sistema · Para alterar, edite o arquivo e republique.</div>
+    </div>`;
+  }).join('');
+}
+
+// Sobrescrever showSection para verificar permissão
+const _origShowSection = showSection;
+function showSection(name) {
+  if (name === 'acesso') {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-acesso').classList.add('active');
+    document.getElementById('nav-acesso').classList.add('active');
+    return;
+  }
+  _origShowSection(name);
+}
+
+// Aguardar interação para focar no campo usuário
+window.addEventListener('load', () => {
+  setTimeout(() => { document.getElementById('login-user').focus(); }, 200);
+});
 </script>
 </body>
 </html>
