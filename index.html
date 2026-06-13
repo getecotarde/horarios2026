@@ -2585,7 +2585,7 @@ const USERS = [
 const PERFIL_ACCESS = {
   wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree'],
   cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree'],
-  gabriela: ['dashboard','turmas','disciplinas','acepat','mecano','linktree'],
+  gabriela: ['dashboard','professores','turmas','acepat','mecano','linktree'],
   cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','mecano']
 };
 
@@ -2754,6 +2754,14 @@ window.addEventListener('load', async () => {
   setTimeout(() => { document.getElementById('login-user').focus(); }, 200);
 });
 
+// Fechar modal externo ao clicar fora — executado após o DOM estar pronto
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('ext-modal-overlay');
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeExtModal();
+  });
+});
+
 // ── Redirecionamento externo com confirmação ─────────────────
 let _extUrl = '';
 function openExternal(url, titulo, credInfo) {
@@ -2772,9 +2780,6 @@ function confirmExternal() {
   closeExtModal();
 }
 // Fechar ao clicar fora
-document.getElementById('ext-modal-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeExtModal();
-});
 
 </script>
 
