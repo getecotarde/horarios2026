@@ -1656,9 +1656,19 @@ function buildTimetableHTML(activities, titleLabel, showField, contextTeacher) {
 // ============================================================
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById(`sec-${name}`).classList.add('active');
-  event.target.classList.add('active');
+  document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById(`sec-${name}`);
+  if (sec) sec.classList.add('active');
+  // Marcar o botão ativo pelo atributo onclick (funciona tanto no clique quanto na chamada programática)
+  document.querySelectorAll('#main-nav button').forEach(b => {
+    const oc = b.getAttribute('onclick') || '';
+    if (oc.includes(`'${name}'`) || oc.includes(`"${name}"`)) b.classList.add('active');
+  });
+  // Caso especial: aba de acessos tem id próprio
+  if (name === 'acesso') {
+    const navAcesso = document.getElementById('nav-acesso');
+    if (navAcesso) navAcesso.classList.add('active');
+  }
   currentView = name;
 }
 
@@ -2698,18 +2708,7 @@ function initAcessoPanel() {
   }).join('');
 }
 
-// Sobrescrever showSection para verificar permissão
-const _origShowSection = showSection;
-function showSection(name) {
-  if (name === 'acesso') {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('sec-acesso').classList.add('active');
-    document.getElementById('nav-acesso').classList.add('active');
-    return;
-  }
-  _origShowSection(name);
-}
+// showSection já unificada acima — nenhuma sobrescrita necessária
 
 // Aguardar interação para focar no campo usuário
 window.addEventListener('load', () => {
