@@ -75,16 +75,17 @@
 
   nav {
     display: flex;
+    flex-wrap: wrap;
     background: rgba(0,0,0,0.2);
-    padding: 0 28px;
+    padding: 4px 28px;
     overflow-x: auto;
-    gap: 4px;
+    gap: 2px;
   }
 
   nav button {
     background: none; border: none;
     color: rgba(255,255,255,0.7);
-    padding: 10px 18px;
+    padding: 10px 14px;
     cursor: pointer; font-size: 13px; font-weight: 600;
     border-bottom: 3px solid transparent;
     white-space: nowrap;
@@ -993,8 +994,8 @@
   @media (max-width: 600px) {
     main { padding: 16px; }
     .header-top { padding: 12px 16px; }
-    nav { padding: 0 8px; }
-    nav button { padding: 8px 12px; font-size: 12px; }
+    nav { padding: 4px 8px; }
+    nav button { padding: 8px 10px; font-size: 12px; }
   }
 
   /* ============================================================
@@ -1192,6 +1193,8 @@
     <button onclick="openExternal('https://copiafacil.vercel.app/', 'Mecanografia – Cópia Fácil', 'Acesso aberto, sem necessidade de credenciais.')">🖨️ Mecanografia</button>
     <button onclick="openExternal('https://sites.google.com/view/getecotarde2026/geral', 'Mapeamento GETECO', 'Acesso aberto via Google Sites, sem necessidade de credenciais.')">🗺️ Mapeamento</button>
     <button onclick="openExternal('https://linktr.ee/geteco_tarde', 'LinkTree GETECO Tarde', 'Acesso público, sem necessidade de credenciais.')">🔗 LinkTree</button>
+    <button onclick="openExternal('https://sistemaseducacao.pbh.gov.br/smae/default/user/login?_next=/smae/default/index', 'SMAE – Sistema de Monitoramento das Aprendizagens dos(as) Estudantes', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">📈 SMAE</button>
+    <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
     <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </header>
@@ -2677,7 +2680,9 @@ function applyAccess() {
     { tab: 'gestao',        idx: 6 },
     { tab: 'mecano',        idx: 7 },
     { tab: 'mapeamento',    idx: 8 },
-    { tab: 'linktree',      idx: 9 }
+    { tab: 'linktree',      idx: 9 },
+    { tab: 'smae',          idx: 10 },
+    { tab: 'sge',           idx: 11 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
@@ -2704,7 +2709,8 @@ function initAcessoPanel() {
     turmas: '🏫 Por Turma', disciplinas: '📚 Por Disciplina',
     substituicoes: '🔄 Substituições', acepat: '⭐ ACEPAT',
     gestao: '📋 Gestão Ped.', mecano: '🖨️ Mecanografia',
-    mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree'
+    mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree',
+    smae: '📈 SMAE', sge: '🗂️ SGE'
   };
   const secondaries = USERS.filter(u => u.perfil !== 'admin');
   container.innerHTML = secondaries.map(u => {
