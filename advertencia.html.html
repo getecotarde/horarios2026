@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comunicação aos Responsáveis – EMGTC</title>
+<style>
+  :root {
+    --azul: #1a3a6b;
+    --azul-claro: #e8edf5;
+    --cinza: #555;
+    --linha: #bbb;
+    --verde: #2e7d32;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    background: #f0f2f5;
+    min-height: 100vh;
+    padding: 24px 16px;
+    color: #222;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--azul);
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--cinza);
+    margin-bottom: 24px;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* FORMULÁRIO */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.1);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+  }
+
+  .card h2 {
+    font-size: 1rem;
+    color: var(--azul);
+    border-bottom: 2px solid var(--azul);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 120px 130px;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--cinza);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 4px;
+  }
+
+  input[type=text], input[type=date], select, textarea {
+    width: 100%;
+    border: 1.5px solid #d0d5de;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.92rem;
+    font-family: Arial, sans-serif;
+    color: #222;
+    background: #fff;
+    transition: border .2s;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--azul);
+    box-shadow: 0 0 0 3px rgba(26,58,107,.1);
+  }
+
+  .section-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--azul);
+    margin: 18px 0 10px;
+  }
+
+  .opcao-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background .15s;
+    border: 1.5px solid transparent;
+  }
+  .opcao-item:hover { background: var(--azul-claro); }
+  .opcao-item.selecionado {
+    background: var(--azul-claro);
+    border-color: var(--azul);
+  }
+  .opcao-item input[type=checkbox] {
+    width: 17px; height: 17px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--azul);
+    cursor: pointer;
+  }
+  .opcao-label {
+    font-size: 0.9rem;
+    flex: 1;
+  }
+  .opcao-extra {
+    display: none;
+    margin-top: 6px;
+  }
+
+  textarea { resize: vertical; min-height: 60px; }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 22px;
+    border-radius: 7px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--azul); color: #fff; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-secondary { background: #fff; color: var(--azul); border: 2px solid var(--azul); }
+  .btn-secondary:hover { background: var(--azul-claro); }
+  .btn-danger { background: #c0392b; color: #fff; }
+  .btn-danger:hover { opacity: .9; }
+
+  /* PRÉVIA */
+  #preview-section { display: none; }
+  #preview-section.visible { display: block; }
+
+  /* FOLHA DE IMPRESSÃO */
+  .folha {
+    background: #fff;
+    width: 210mm;
+    margin: 0 auto 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.15);
+    padding: 12mm 15mm;
+    font-size: 10pt;
+    font-family: Arial, sans-serif;
+    color: #000;
+  }
+
+  .bloco {
+    border: 1.5px solid #000;
+    margin-bottom: 8mm;
+    page-break-inside: avoid;
+  }
+
+  .cabecalho-bloco {
+    display: grid;
+    grid-template-columns: 50mm 1fr 50mm;
+    border-bottom: 1.5px solid #000;
+    min-height: 20mm;
+  }
+  .cab-logo {
+    border-right: 1.5px solid #000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 3mm;
+  }
+  .cab-logo img { max-height: 18mm; max-width: 46mm; object-fit: contain; }
+  .cab-centro {
+    text-align: center;
+    padding: 3mm 4mm;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .cab-centro .nome-escola {
+    font-size: 10pt; font-weight: 700; text-transform: uppercase;
+  }
+  .cab-centro .sub-escola { font-size: 8.5pt; }
+  .cab-centro .ano { font-size: 9pt; font-weight: 700; }
+  .cab-direito {
+    border-left: 1.5px solid #000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 3mm;
+  }
+  .cab-direito img { max-height: 18mm; max-width: 46mm; object-fit: contain; }
+
+  .titulo-comunicacao {
+    text-align: center;
+    font-size: 11pt;
+    font-weight: 700;
+    text-decoration: underline;
+    padding: 3mm 4mm 1mm;
+  }
+
+  .corpo-bloco { padding: 3mm 5mm; }
+
+  .linha-aluno {
+    margin-bottom: 3mm;
+    font-size: 9.5pt;
+    line-height: 1.6;
+  }
+
+  .campo-sublinhado {
+    display: inline-block;
+    border-bottom: 1px solid #000;
+    min-width: 60mm;
+    padding-bottom: 1px;
+    font-weight: 700;
+  }
+  .campo-sublinhado.curto { min-width: 22mm; }
+  .campo-sublinhado.medio { min-width: 38mm; }
+
+  .opcoes-lista { margin: 2mm 0; }
+  .opcao-print {
+    display: flex;
+    align-items: flex-start;
+    gap: 3mm;
+    margin-bottom: 1.5mm;
+    font-size: 9pt;
+    line-height: 1.4;
+  }
+  .box-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.2mm; height: 4.2mm;
+    border: 1.5px solid #555;
+    border-radius: 1mm;
+    flex-shrink: 0;
+    margin-top: 0.3mm;
+    position: relative;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .box-check.marcado {
+    background: #1a3a6b !important;
+    border-color: #1a3a6b !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .box-check.marcado::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    width: 2px;
+    height: 5px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: translate(-60%, -50%) rotate(45deg);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .obs-area { margin-top: 2mm; font-size: 9pt; }
+  .obs-texto { font-size: 9pt; margin-top: 1mm; }
+
+  .assinaturas {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8mm;
+    padding-top: 0;
+  }
+  .assinatura-col { width: 45%; }
+  .linha-assinatura {
+    border-bottom: 1px solid #000;
+    height: 6mm;
+    margin-bottom: 1mm;
+  }
+  .assinatura-label { font-size: 8pt; font-weight: 700; text-align: center; }
+
+  /* LOTE EDITOR */
+  .lote-linha-wrap {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f2f6;
+    min-height: 34px;
+  }
+  .lote-linha-wrap:last-child { border-bottom: none; }
+  .lote-num {
+    min-width: 28px;
+    text-align: right;
+    padding: 0 6px 0 4px;
+    font-size: 0.72rem;
+    color: #bbb;
+    user-select: none;
+    line-height: 34px;
+  }
+  .lote-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-family: Arial, sans-serif;
+    color: #222;
+    padding: 6px 8px;
+    background: transparent;
+    width: 100%;
+  }
+  .lote-input.preenchido { color: var(--azul); font-weight: 600; }
+  .lote-badge {
+    font-size: 0.7rem;
+    background: #e8edf5;
+    color: var(--azul);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-weight: 700;
+    margin-right: 6px;
+    white-space: nowrap;
+  }
+  .lote-remover {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0 6px;
+    line-height: 34px;
+  }
+  .lote-remover:hover { color: #c0392b; }
+  #lote-editor:focus-within { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(26,58,107,.1); }
+
+  /* PRINT */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .folha { box-shadow: none; margin: 0; width: 100%; }
+    #form-section, .btn-row-top, h1, .subtitle, .no-print { display: none !important; }
+    #preview-section { display: block !important; }
+    .bloco { page-break-inside: avoid; }
+    .box-check {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .box-check.marcado {
+      background: #1a3a6b !important;
+      border-color: #1a3a6b !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .box-check.marcado::after {
+      border-right-color: #fff !important;
+      border-bottom-color: #fff !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 18px 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid-2 { grid-template-columns: 1fr; }
+    .folha { width: 100%; padding: 8mm; }
+    .cabecalho-bloco { grid-template-columns: 30mm 1fr 30mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>📋 Comunicação aos Responsáveis</h1>
+  <p class="subtitle">Escola Municipal Geraldo Teixeira da Costa — Prefeitura de Belo Horizonte</p>
+
+  <!-- FORMULÁRIO -->
+  <div id="form-section">
+    <div class="card">
+      <h2>👤 Dados do(s) Aluno(s)</h2>
+      <div style="margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:0.78rem;color:#666;">📋 Listagem com <strong id="total-alunos">338</strong> alunos cadastrados</span>
+        <button type="button" onclick="abrirGerenciarAlunos()" style="padding:5px 14px;border-radius:6px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:0.78rem;font-weight:700;cursor:pointer;">✏️ Editar Alunos</button>
+        <span style="font-size:0.78rem;color:#666;margin-left:8px;">👩‍🏫 <strong id="total-professores">0</strong> professores</span>
+        <button type="button" onclick="abrirGerenciarProfessores()" style="padding:5px 14px;border-radius:6px;border:1.5px solid var(--azul);background:#fff;color:var(--azul);font-size:0.78rem;font-weight:700;cursor:pointer;">✏️ Editar Professores</button>
+      </div>
+
+      <!-- MODO -->
+      <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;" id="modos-btn">
+        <button type="button" onclick="trocarModo('individual')" id="btn-individual"
+          style="flex:1;min-width:140px;padding:10px 16px;border-radius:7px;border:2px solid var(--azul);background:var(--azul);color:#fff;font-weight:700;font-size:0.9rem;cursor:pointer;">
+          👤 Individual
+        </button>
+        <button type="button" onclick="trocarModo('lote')" id="btn-lote"
+          style="flex:1;min-width:140px;padding:10px 16px;border-radius:7px;border:2px solid var(--azul);background:#fff;color:var(--azul);font-weight:700;font-size:0.9rem;cursor:pointer;">
+          👥 Vários Alunos (Lote)
+        </button>
+      </div>
+
+      <!-- MODO INDIVIDUAL -->
+      <div id="modo-individual">
+      <div class="form-grid">
+        <div style="position:relative;">
+          <label>Nome do(a) Aluno(a) *</label>
+          <input type="text" id="nome_aluno" placeholder="Digite para buscar ou selecione..." autocomplete="off"
+            oninput="filtrarAlunos(this.value)" onfocus="filtrarAlunos(this.value)" onblur="setTimeout(()=>fecharDropdown(),200)">
+          <div id="dropdown-alunos" style="display:none;position:absolute;z-index:999;left:0;right:0;top:100%;background:#fff;border:1.5px solid var(--azul);border-top:none;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);">
+          </div>
+          <span style="font-size:0.7rem;color:#888;margin-top:2px;display:block;">Se não encontrar, <a href="#" onclick="abrirGerenciarAlunos();return false;" style="color:var(--azul);">adicione o nome na listagem</a>.</span>
+        </div>
+        <div>
+          <label>Turma *</label>
+          <select id="turma">
+            <option value="">Selecione</option>
+            <optgroup label="6º Ano">
+              <option>6ºA</option>
+              <option>6ºB</option>
+              <option>6ºC</option>
+              <option>6ºD</option>
+              <option>6ºE</option>
+              <option>6ºF</option>
+            </optgroup>
+            <optgroup label="7º Ano">
+              <option>7ºA</option>
+              <option>7ºB</option>
+              <option>7ºC</option>
+              <option>7ºD</option>
+              <option>7ºE</option>
+            </optgroup>
+            <optgroup label="8º Ano">
+              <option>8ºX</option>
+            </optgroup>
+          </select>
+        </div>
+        <div>
+          <label>Turno *</label>
+          <select id="turno">
+            <option value="">Selecione</option>
+            <option>Manhã</option>
+            <option>Tarde</option>
+            <option>Noite</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div>
+          <label>Data da Ocorrência *</label>
+          <input type="date" id="data_ocorrencia">
+        </div>
+        <div>
+          <label>Disciplina do(a) Professor(a)</label>
+          <select id="disciplina">
+            <option value="">Selecione a disciplina</option>
+            <option>Arte</option>
+            <option>Ciências</option>
+            <option>Educação Física</option>
+            <option>Ensino Religioso</option>
+            <option>Geografia</option>
+            <option>História</option>
+            <option>Inglês</option>
+            <option>Língua Portuguesa</option>
+            <option>Matemática</option>
+            <option>Música</option>
+            <option>Química</option>
+            <option>Redação</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div style="position:relative;">
+          <label>Nome do(a) Professor(a)</label>
+          <input type="text" id="professor" placeholder="Digite ou selecione o nome" autocomplete="off"
+            oninput="filtrarProfessores('professor','dropdown-professores',this.value)"
+            onfocus="filtrarProfessores('professor','dropdown-professores',this.value)"
+            onblur="setTimeout(()=>fecharDropdownProf('dropdown-professores'),200)">
+          <div id="dropdown-professores" style="display:none;position:absolute;z-index:999;left:0;right:0;top:100%;background:#fff;border:1.5px solid var(--azul);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);"></div>
+          <span style="font-size:0.7rem;color:#888;margin-top:2px;display:block;">Se não encontrar, <a href="#" onclick="abrirGerenciarProfessores();return false;" style="color:var(--azul);">adicione na listagem</a>.</span>
+        </div>
+      </div>
+      </div><!-- fim modo-individual -->
+
+      <!-- MODO LOTE -->
+      <div id="modo-lote" style="display:none;">
+        <div class="form-grid-2" style="margin-bottom:14px;">
+          <div>
+            <label>Turma (todos os alunos) *</label>
+            <select id="turma_lote">
+              <option value="">Selecione</option>
+              <optgroup label="6º Ano">
+                <option>6ºA</option><option>6ºB</option><option>6ºC</option>
+                <option>6ºD</option><option>6ºE</option><option>6ºF</option>
+              </optgroup>
+              <optgroup label="7º Ano">
+                <option>7ºA</option><option>7ºB</option><option>7ºC</option>
+                <option>7ºD</option><option>7ºE</option>
+              </optgroup>
+              <optgroup label="8º Ano">
+                <option>8ºX</option>
+              </optgroup>
+            </select>
+          </div>
+          <div>
+            <label>Turno *</label>
+            <select id="turno_lote">
+              <option value="">Selecione</option>
+              <option>Manhã</option><option>Tarde</option><option>Noite</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Data da Ocorrência *</label>
+          <input type="date" id="data_lote" style="max-width:200px;">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label>Disciplina do(a) Professor(a)</label>
+          <select id="disciplina_lote">
+            <option value="">Selecione a disciplina</option>
+            <option>Arte</option>
+            <option>Ciências</option>
+            <option>Educação Física</option>
+            <option>Ensino Religioso</option>
+            <option>Geografia</option>
+            <option>História</option>
+            <option>Inglês</option>
+            <option>Língua Portuguesa</option>
+            <option>Matemática</option>
+            <option>Música</option>
+            <option>Química</option>
+            <option>Redação</option>
+          </select>
+        </div>
+        <div style="margin-bottom:14px;position:relative;">
+          <label>Nome do(a) Professor(a)</label>
+          <input type="text" id="professor_lote" placeholder="Digite ou selecione o nome" autocomplete="off"
+            oninput="filtrarProfessores('professor_lote','dropdown-professores-lote',this.value)"
+            onfocus="filtrarProfessores('professor_lote','dropdown-professores-lote',this.value)"
+            onblur="setTimeout(()=>fecharDropdownProf('dropdown-professores-lote'),200)">
+          <div id="dropdown-professores-lote" style="display:none;position:absolute;z-index:999;left:0;right:0;top:100%;background:#fff;border:1.5px solid var(--azul);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);"></div>
+          <span style="font-size:0.7rem;color:#888;margin-top:2px;display:block;">Se não encontrar, <a href="#" onclick="abrirGerenciarProfessores();return false;" style="color:var(--azul);">adicione na listagem</a>.</span>
+        </div>
+        <div style="position:relative;">
+          <label>Nomes dos Alunos * <span style="font-weight:400;color:#888;">(um por linha)</span></label>
+          <!-- Editor inteligente: linhas com autocomplete -->
+          <div id="lote-editor" style="border:1.5px solid #d0d5de;border-radius:6px;background:#fff;overflow:hidden;min-height:180px;position:relative;" onclick="focarLinhaSelecionada()">
+            <div id="lote-linhas" style="padding:6px 4px;"></div>
+          </div>
+          <!-- Dropdown sugestões lote -->
+          <div id="dropdown-lote" style="display:none;position:absolute;z-index:1000;left:0;right:0;background:#fff;border:1.5px solid var(--azul);border-radius:8px;max-height:200px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);"></div>
+          <!-- textarea oculto para compatibilidade com gerarPrevia() -->
+          <textarea id="lista_alunos" style="display:none;"></textarea>
+          <div id="contador-alunos" style="font-size:0.78rem;color:var(--azul);margin-top:4px;font-weight:700;"></div>
+        </div>
+      </div><!-- fim modo-lote -->
+
+    </div>
+
+    <div class="card">
+      <h2>⚠️ Atitude Apresentada</h2>
+      <p style="font-size:0.82rem;color:#777;margin-bottom:14px;">Selecione uma ou mais opções:</p>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op1">
+        <div class="opcao-label">Prejudicou as atividades em sala com brincadeiras e/ou conversa excessiva.</div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op2">
+        <div class="opcao-label">
+          Chegou atrasado(a) para a aula de:
+          <div class="opcao-extra">
+            <div style="display:flex;gap:10px;margin-top:4px;">
+              <div style="flex:1"><label>Disciplina</label>
+                <select id="aula_disciplina" onclick="stopProp(event)">
+                  <option value="">Selecione</option>
+                  <option>Arte</option>
+                  <option>Ciências</option>
+                  <option>Educação Física</option>
+                  <option>Ensino Religioso</option>
+                  <option>Geografia</option>
+                  <option>História</option>
+                  <option>Inglês</option>
+                  <option>Língua Portuguesa</option>
+                  <option>Matemática</option>
+                  <option>Música</option>
+                  <option>Química</option>
+                  <option>Redação</option>
+                </select>
+              </div>
+              <div style="width:100px"><label>Horário</label><input type="text" id="aula_horario" placeholder="Ex: 2º" onclick="stopProp(event)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op3">
+        <div class="opcao-label">Saiu de sala sem autorização do(a) professor(a).</div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op4">
+        <div class="opcao-label">
+          Não realizou a atividade:
+          <div class="opcao-extra">
+            <label>Descreva a atividade</label>
+            <input type="text" id="atividade_desc" placeholder="Descreva a atividade não realizada" onclick="stopProp(event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op5">
+        <div class="opcao-label">
+          Não fez e/ou entregou o trabalho:
+          <div class="opcao-extra">
+            <label>Descreva o trabalho</label>
+            <input type="text" id="trabalho_desc" placeholder="Descreva o trabalho não entregue" onclick="stopProp(event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op6">
+        <div class="opcao-label">
+          Não trouxe o material:
+          <div class="opcao-extra" style="display:flex;gap:16px;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="mat_caderno" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Caderno
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="mat_livro" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Livro
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op7">
+        <div class="opcao-label">
+          Outros:
+          <div class="opcao-extra">
+            <label>Descreva</label>
+            <input type="text" id="outros_desc" placeholder="Descreva a ocorrência" onclick="stopProp(event)">
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px">
+        <label>Observações (opcional)</label>
+        <textarea id="observacoes" rows="3" placeholder="Informações adicionais para o responsável..."></textarea>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px 32px;">
+      <h2>🖨️ Número de Vias por Aluno</h2>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;text-transform:none;letter-spacing:0;cursor:pointer;">
+          <input type="radio" name="vias" value="2" checked style="accent-color:var(--azul);width:17px;height:17px;"> 2 vias (escola + responsável)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.9rem;text-transform:none;letter-spacing:0;cursor:pointer;">
+          <input type="radio" name="vias" value="1" style="accent-color:var(--azul);width:17px;height:17px;"> 1 via
+        </label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="gerarPrevia()">👁️ Visualizar Prévia</button>
+      <button class="btn btn-danger" onclick="limparForm()">🗑️ Limpar</button>
+    </div>
+  </div>
+
+  <!-- PRÉVIA -->
+  <div id="preview-section">
+    <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <h2 style="color:var(--azul);font-size:1rem;">📄 Prévia da Comunicação</h2>
+      <div class="btn-row" style="margin:0;">
+        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+        <button class="btn btn-secondary" onclick="voltarForm()">✏️ Editar</button>
+      </div>
+    </div>
+
+    <div class="folha" id="folha-impressao">
+      <!-- gerado via JS -->
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL GERENCIAR ALUNOS -->
+<div id="modal-alunos" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;overflow-y:auto;padding:20px 12px;">
+  <div style="background:#fff;border-radius:12px;max-width:640px;margin:0 auto;padding:28px 28px 24px;box-shadow:0 8px 40px rgba(0,0,0,.22);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="color:var(--azul);font-size:1rem;margin:0;">✏️ Gerenciar Listagem de Alunos</h2>
+      <button onclick="fecharModalAlunos()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1;">✕</button>
+    </div>
+    <p style="font-size:0.8rem;color:#666;margin-bottom:12px;">Edite, adicione ou remova alunos. A lista é salva automaticamente no navegador.</p>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input type="text" id="modal-busca" placeholder="🔍 Filtrar por nome ou turma..." oninput="filtrarModalLista(this.value)"
+        style="flex:1;border:1.5px solid #d0d5de;border-radius:6px;padding:7px 10px;font-size:0.88rem;outline:none;">
+      <button onclick="adicionarAlunoModal()" style="padding:7px 16px;border-radius:6px;background:var(--azul);color:#fff;border:none;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;">+ Adicionar</button>
+    </div>
+    <!-- Form novo aluno -->
+    <div id="form-novo-aluno" style="display:none;background:#f0f4fb;border-radius:8px;padding:14px;margin-bottom:12px;">
+      <div style="display:grid;grid-template-columns:1fr 100px;gap:8px;margin-bottom:8px;">
+        <div>
+          <label style="font-size:0.7rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:3px;">Nome completo</label>
+          <input type="text" id="novo-nome" placeholder="Nome do(a) aluno(a)" style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:7px 10px;font-size:0.88rem;outline:none;">
+        </div>
+        <div>
+          <label style="font-size:0.7rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:3px;">Turma</label>
+          <select id="novo-turma" style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:7px 6px;font-size:0.88rem;outline:none;background:#fff;">
+            <option value="">—</option>
+            <option>6ºA</option><option>6ºB</option><option>6ºC</option>
+            <option>6ºD</option><option>6ºE</option><option>6ºF</option>
+            <option>7ºA</option><option>7ºB</option><option>7ºC</option>
+            <option>7ºD</option><option>7ºE</option><option>8ºX</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="salvarNovoAluno()" style="padding:7px 18px;border-radius:6px;background:var(--verde);color:#fff;border:none;font-weight:700;font-size:0.85rem;cursor:pointer;">✓ Salvar</button>
+        <button onclick="document.getElementById('form-novo-aluno').style.display='none'" style="padding:7px 14px;border-radius:6px;background:#fff;color:#555;border:1.5px solid #ccc;font-size:0.85rem;cursor:pointer;">Cancelar</button>
+      </div>
+    </div>
+    <div id="modal-lista-alunos" style="max-height:360px;overflow-y:auto;border:1.5px solid #e0e4ec;border-radius:8px;"></div>
+    <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <span id="modal-contador" style="font-size:0.78rem;color:#888;"></span>
+      <button onclick="fecharModalAlunos()" style="padding:8px 22px;border-radius:7px;background:var(--azul);color:#fff;border:none;font-weight:700;cursor:pointer;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GERENCIAR PROFESSORES -->
+<div id="modal-professores" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;overflow-y:auto;padding:20px 12px;">
+  <div style="background:#fff;border-radius:12px;max-width:580px;margin:0 auto;padding:28px 28px 24px;box-shadow:0 8px 40px rgba(0,0,0,.22);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="color:var(--azul);font-size:1rem;margin:0;">👩‍🏫 Gerenciar Professores</h2>
+      <button onclick="fecharModalProfessores()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#888;line-height:1;">✕</button>
+    </div>
+    <p style="font-size:0.8rem;color:#666;margin-bottom:12px;">Edite, adicione ou remova professores. A lista é salva automaticamente no navegador.<br>
+    <span style="font-size:0.75rem;color:#999;">Observação: nomes marcados com <strong>(x)</strong> ou <strong>(Y)</strong> foram mantidos como estão — edite se necessário.</span></p>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input type="text" id="modal-busca-prof" placeholder="🔍 Filtrar por nome..." oninput="filtrarModalProf(this.value)"
+        style="flex:1;border:1.5px solid #d0d5de;border-radius:6px;padding:7px 10px;font-size:0.88rem;outline:none;">
+      <button onclick="adicionarProfModal()" style="padding:7px 16px;border-radius:6px;background:var(--azul);color:#fff;border:none;font-weight:700;font-size:0.85rem;cursor:pointer;white-space:nowrap;">+ Adicionar</button>
+    </div>
+    <div id="form-novo-prof" style="display:none;background:#f0f4fb;border-radius:8px;padding:14px;margin-bottom:12px;">
+      <label style="font-size:0.7rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:3px;">Nome completo</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="novo-prof-nome" placeholder="Nome do(a) professor(a)" style="flex:1;border:1.5px solid #d0d5de;border-radius:6px;padding:7px 10px;font-size:0.88rem;outline:none;">
+        <button onclick="salvarNovoProfessor()" style="padding:7px 18px;border-radius:6px;background:var(--verde);color:#fff;border:none;font-weight:700;font-size:0.85rem;cursor:pointer;">✓</button>
+        <button onclick="document.getElementById('form-novo-prof').style.display='none'" style="padding:7px 12px;border-radius:6px;background:#fff;color:#555;border:1.5px solid #ccc;font-size:0.85rem;cursor:pointer;">✕</button>
+      </div>
+    </div>
+    <div id="modal-lista-professores" style="max-height:380px;overflow-y:auto;border:1.5px solid #e0e4ec;border-radius:8px;"></div>
+    <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+      <span id="modal-contador-prof" style="font-size:0.78rem;color:#888;"></span>
+      <button onclick="fecharModalProfessores()" style="padding:8px 22px;border-radius:7px;background:var(--azul);color:#fff;border:none;font-weight:700;cursor:pointer;">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const IMG_PREFEITURA = "data:image/jpeg;base64,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";
+const IMG_GETEC = "data:image/jpeg;base64,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";
+
+function stopProp(e) { e.stopPropagation(); }
+
+// ── DADOS DOS ALUNOS ─────────────────────────────────────────────────────────
+const ALUNOS_BASE = [
+  {nome:"Agata Santos Teixeira Silva",turma:"6ºA"},
+  {nome:"Aleph Andrade Simões",turma:"6ºA"},
+  {nome:"Alice Manuella de Oliveira Felix Lima",turma:"6ºA"},
+  {nome:"Ana Julia Souza Oliveira",turma:"6ºA"},
+  {nome:"Andre Xavier da Silva Bispo",turma:"6ºA"},
+  {nome:"Bernardo Martins Emídio de Sousa",turma:"6ºA"},
+  {nome:"Bryan Felipe de Caria Teixeira",turma:"6ºA"},
+  {nome:"Catarina Penido de Souza",turma:"6ºA"},
+  {nome:"Christopher Ferreira Campos",turma:"6ºA"},
+  {nome:"Clara Alves Scaramelo Cupertino",turma:"6ºA"},
+  {nome:"Davi Nathan Silva Nascimento",turma:"6ºA"},
+  {nome:"Diulia Victoria Lima da Cruz",turma:"6ºA"},
+  {nome:"Elizabeth Cristina Ferreira Barbosa",turma:"6ºA"},
+  {nome:"Eloa Rubi Mendes de Souza",turma:"6ºA"},
+  {nome:"Esther Almeida Brito",turma:"6ºA"},
+  {nome:"Esther Soares Alcântara",turma:"6ºA"},
+  {nome:"Heloisa Caroline Rodrigues Moreira",turma:"6ºA"},
+  {nome:"Jhulia Ketellyn Moreira da Cunha",turma:"6ºA"},
+  {nome:"Kaique Eduardo de Souza Lopes",turma:"6ºA"},
+  {nome:"Kauã Castro Oliveira",turma:"6ºA"},
+  {nome:"Kaua Victor Nunes Silva",turma:"6ºA"},
+  {nome:"Kaum Robson Moreira Costa da Silva",turma:"6ºA"},
+  {nome:"Lorenzo Santos Dias Castro",turma:"6ºA"},
+  {nome:"Luara Valentina Barbosa Pinto Camilo",turma:"6ºA"},
+  {nome:"Lucas Damian Barbosa Gonçalves",turma:"6ºA"},
+  {nome:"Maria Eduarda de Jesus Souza",turma:"6ºA"},
+  {nome:"Miguel Gonçalves Freitas",turma:"6ºA"},
+  {nome:"Pedro Tiago Pinheiro",turma:"6ºA"},
+  {nome:"Rayissa de Oliveira Damasceno",turma:"6ºA"},
+  {nome:"Sarah Alves dos Santos",turma:"6ºA"},
+  {nome:"Vitor Miguel Oliveira da Silva",turma:"6ºA"},
+  {nome:"Alice Perenne de Oliveira",turma:"6ºB"},
+  {nome:"Alice Pimenta Campos Rodrigues",turma:"6ºB"},
+  {nome:"Ana Vitoria Antunes de Souza",turma:"6ºB"},
+  {nome:"Anna Victoria Nedes Vieira",turma:"6ºB"},
+  {nome:"Arthur Oliveira de Freitas",turma:"6ºB"},
+  {nome:"Barbara Victoria Quinonez Ramos",turma:"6ºB"},
+  {nome:"Beatriz Eduarda do Nascimento Amara",turma:"6ºB"},
+  {nome:"Bernard Alves Parreiras Peroni",turma:"6ºB"},
+  {nome:"Bernardo Alves de Souza",turma:"6ºB"},
+  {nome:"Christopher Alejandro Alves de Oliveira",turma:"6ºB"},
+  {nome:"Clara Inês Frias",turma:"6ºB"},
+  {nome:"Davi Vilas Boas Morais",turma:"6ºB"},
+  {nome:"Estêvão Miguel Alves dos Santos",turma:"6ºB"},
+  {nome:"Esther Brasileira Wacha",turma:"6ºB"},
+  {nome:"Heitor Vitor Silva Santos",turma:"6ºB"},
+  {nome:"Isabella Vitória Moraes Rodrigues",turma:"6ºB"},
+  {nome:"Isabelly Gabriely Freire Souza",turma:"6ºB"},
+  {nome:"Kaillany Evillyn Florençoo Laboure da Cruz",turma:"6ºB"},
+  {nome:"Lara Gularte Duarte",turma:"6ºB"},
+  {nome:"Lauane Ester Silva Martins Rosa",turma:"6ºB"},
+  {nome:"Lorenzo de Paula Santos de Almeida",turma:"6ºB"},
+  {nome:"Manuela Helena Xavier Lopes",turma:"6ºB"},
+  {nome:"Matheus Michael Ferreira Valentim",turma:"6ºB"},
+  {nome:"Nathan Henrique Coutinho Maciel",turma:"6ºB"},
+  {nome:"Rodrigo Marques Nascimento Cardoso",turma:"6ºB"},
+  {nome:"Sara Vitoria dos Anjos Silva",turma:"6ºB"},
+  {nome:"Sofia Ester Almeida de Menezes",turma:"6ºB"},
+  {nome:"Sophia Oliveira Viana",turma:"6ºB"},
+  {nome:"Thauany Ester Rodrigues Silva",turma:"6ºB"},
+  {nome:"Valentina Almeida Macalhaes",turma:"6ºB"},
+  {nome:"Agatha Rafaelly Vieira de Souza",turma:"6ºC"},
+  {nome:"Alice Yasmin Martins Silva",turma:"6ºC"},
+  {nome:"Alvaro Gabriel Silva Fernandes",turma:"6ºC"},
+  {nome:"Ana Beatriz Castro Apostolu",turma:"6ºC"},
+  {nome:"Arthur Ventura da Silva Araujo",turma:"6ºC"},
+  {nome:"Arthur Vinicius Oliveira de Paiva",turma:"6ºC"},
+  {nome:"Bernardo Bragança do Nascimento",turma:"6ºC"},
+  {nome:"Bruno William Silva da Costa",turma:"6ºC"},
+  {nome:"Davi Carvalho de Oliveira",turma:"6ºC"},
+  {nome:"Davi Victor Dias Duques",turma:"6ºC"},
+  {nome:"Emanuelle Bittencourt Soares",turma:"6ºC"},
+  {nome:"Emanuelly Vitória Pereira Feliciano",turma:"6ºC"},
+  {nome:"Enzo Neves de Souza",turma:"6ºC"},
+  {nome:"Ester Luiza Felix de Oliveira",turma:"6ºC"},
+  {nome:"Esther Lopes Rocha de Abreu",turma:"6ºC"},
+  {nome:"Gabrielle Rodrigues da Silva",turma:"6ºC"},
+  {nome:"Giovana Ventura Silva",turma:"6ºC"},
+  {nome:"Gustavo Felipe Caetano Miranda",turma:"6ºC"},
+  {nome:"Gustavo Gabriel Silva Fernandes",turma:"6ºC"},
+  {nome:"Julia Vitalino de Carvalho",turma:"6ºC"},
+  {nome:"Kaua Felipe de Oliveira Alvarenga",turma:"6ºC"},
+  {nome:"Lara Sofia Almeida Vieira",turma:"6ºC"},
+  {nome:"Lucca Campos Saldanha",turma:"6ºC"},
+  {nome:"Luis Miguel Pinheiro Moreira",turma:"6ºC"},
+  {nome:"Luiz Cláudio Silva Cunha Pereira",turma:"6ºC"},
+  {nome:"Luiza Vitória Fernandes Santos",turma:"6ºC"},
+  {nome:"Pérola Maria Pires Santana",turma:"6ºC"},
+  {nome:"Sofia Pereira de Carvalho",turma:"6ºC"},
+  {nome:"Sophia Almeida Pereira da Cruz",turma:"6ºC"},
+  {nome:"Victor Gabriel Moreira Mota",turma:"6ºC"},
+  {nome:"Yuri Cândida Medeiros",turma:"6ºC"},
+  {nome:"Zion Roberto Bandeira",turma:"6ºC"},
+  {nome:"Andre Miguel de Oliveira da Silva",turma:"6ºD"},
+  {nome:"Bryan Filipe Pires",turma:"6ºD"},
+  {nome:"Cecilia de Oliveira Tavares",turma:"6ºD"},
+  {nome:"Daniel Caetano da Cunha",turma:"6ºD"},
+  {nome:"Davi Gregio Maciel Rosa",turma:"6ºD"},
+  {nome:"Davi Kenedy do Espírito Santo Azevedo",turma:"6ºD"},
+  {nome:"Eduardo Augusto Soares Silva",turma:"6ºD"},
+  {nome:"Gabrielly Corrêa Lima",turma:"6ºD"},
+  {nome:"Giulia Nunes da Silva Macedo",turma:"6ºD"},
+  {nome:"Gustavo Junio da Silva Pereira",turma:"6ºD"},
+  {nome:"Heitor Alves Medeiros",turma:"6ºD"},
+  {nome:"Jennifer Vitória da Cruz Aguiar",turma:"6ºD"},
+  {nome:"Leticia Emanuelly Pereira de Souza",turma:"6ºD"},
+  {nome:"Levi Benjamin Costa",turma:"6ºD"},
+  {nome:"Lucas Eduardo Lima Rocha",turma:"6ºD"},
+  {nome:"Marco Antonio Gonçalves Lima",turma:"6ºD"},
+  {nome:"Maria Alice Barbosa de Souza",turma:"6ºD"},
+  {nome:"Maria Eduarda Batista de Souza",turma:"6ºD"},
+  {nome:"Matheus Ribsinds Santos",turma:"6ºD"},
+  {nome:"Miguel Reis Romulo de Oliveira",turma:"6ºD"},
+  {nome:"Milena Carolina Antunes Esteves",turma:"6ºD"},
+  {nome:"Nicolas Martins Gomes",turma:"6ºD"},
+  {nome:"Pyetro Junio Souza de Oliveira",turma:"6ºD"},
+  {nome:"Quezia Danielly Moura da Silva",turma:"6ºD"},
+  {nome:"Raul Soares Costa",turma:"6ºD"},
+  {nome:"Sophia Barbosa dos Santos",turma:"6ºD"},
+  {nome:"Sophia Stefani Campos Ferreira",turma:"6ºD"},
+  {nome:"Valentina Amaral Sales Bispo",turma:"6ºD"},
+  {nome:"Vitória Regina da Silva Veiga",turma:"6ºD"},
+  {nome:"Yasmin Vitória Ribeiro Gonçalves",turma:"6ºD"},
+  {nome:"Alice Mendes Alves",turma:"6ºE"},
+  {nome:"Ana Beatriz Moura Costa",turma:"6ºE"},
+  {nome:"Arthur Gomes Cabral Silva",turma:"6ºE"},
+  {nome:"Bryan Thales Simões de Assumpção",turma:"6ºE"},
+  {nome:"Carlos Eduardo Martins de Freitas",turma:"6ºE"},
+  {nome:"Cecília Silva Soares",turma:"6ºE"},
+  {nome:"Clariesse de Almeida Carvalho",turma:"6ºE"},
+  {nome:"Davi de Alcântara Andrade",turma:"6ºE"},
+  {nome:"Davi Leonardo de Sousa Magalhaes",turma:"6ºE"},
+  {nome:"Davi Lucas Almeida Fonseca",turma:"6ºE"},
+  {nome:"Enzo Gabriel Freitas",turma:"6ºE"},
+  {nome:"Ester Luiza dos Santos",turma:"6ºE"},
+  {nome:"Gabriela Vitória dos Santos",turma:"6ºE"},
+  {nome:"Guilherme Oliveira Melo",turma:"6ºE"},
+  {nome:"Helena Lopes Antunes",turma:"6ºE"},
+  {nome:"Henrique da Silva Jardim",turma:"6ºE"},
+  {nome:"Isaac Augusto Moreira Deziderio",turma:"6ºE"},
+  {nome:"Kallen William Gonçalves Rossi",turma:"6ºE"},
+  {nome:"Lara Sara Alves Ciriaco",turma:"6ºE"},
+  {nome:"Leonardo Henrique Queiroga Rocha",turma:"6ºE"},
+  {nome:"Lucas Alberto Ferreira de Oliveira",turma:"6ºE"},
+  {nome:"Lucas Gabriel de Oliveira Campos",turma:"6ºE"},
+  {nome:"Ludmyla Aguiar Fonseca",turma:"6ºE"},
+  {nome:"Maria Clara Alves Costa",turma:"6ºE"},
+  {nome:"Maria Eduarda de Oliveira Teixeira",turma:"6ºE"},
+  {nome:"Maria Eduarda Silva Pereira",turma:"6ºE"},
+  {nome:"Pedro Lucas Rodrigues dos Reis",turma:"6ºE"},
+  {nome:"Raul Henrique Araújo Teixeira de Faria",turma:"6ºE"},
+  {nome:"Sophia Victoria Santos do Nascimento",turma:"6ºE"},
+  {nome:"Tiago Ruan Silveira Mendes",turma:"6ºE"},
+  {nome:"Anna Clara Silva de Oliveira",turma:"6ºF"},
+  {nome:"Anny Marie Victoria de Souza Oliveira",turma:"6ºF"},
+  {nome:"Arthur Guimarães Gomes Ferreira",turma:"6ºF"},
+  {nome:"Cecília Amaral Tomaz",turma:"6ºF"},
+  {nome:"Claudio Calixto Fernandes Junior",turma:"6ºF"},
+  {nome:"Davi Lucca Coutinho Lopes",turma:"6ºF"},
+  {nome:"Gabriel Rodrigues de Caldas",turma:"6ºF"},
+  {nome:"Gabriela Silva Soares",turma:"6ºF"},
+  {nome:"Giovanna Aparecida do Carmo Batista",turma:"6ºF"},
+  {nome:"Isabelly de Souza Xavier",turma:"6ºF"},
+  {nome:"Isadora Luíza de Brito Soares",turma:"6ºF"},
+  {nome:"Isaque Emanuel Medina de Souza",turma:"6ºF"},
+  {nome:"Izabelle Alice dos Santos Gandra",turma:"6ºF"},
+  {nome:"João Guilherme Sales Rodrigues",turma:"6ºF"},
+  {nome:"Julia Maria Silva de Jesus",turma:"6ºF"},
+  {nome:"Leandro Lessa Resende",turma:"6ºF"},
+  {nome:"Lucas Cardoso dos Santos",turma:"6ºF"},
+  {nome:"Luiz Philipe Valle Teixura",turma:"6ºF"},
+  {nome:"Maria Clara de Jesus Alves",turma:"6ºF"},
+  {nome:"Maria Fernanda da Silveira Santos",turma:"6ºF"},
+  {nome:"Maria Luiza Lopes da Silva",turma:"6ºF"},
+  {nome:"Maria Luiza Nunes Flor de Lima",turma:"6ºF"},
+  {nome:"Miguel da Silva Gomes",turma:"6ºF"},
+  {nome:"Miguel Martins de Almeida",turma:"6ºF"},
+  {nome:"Pedro Garil da Silva Marques",turma:"6ºF"},
+  {nome:"Pietra Julia Jesus Franca",turma:"6ºF"},
+  {nome:"Rafael Soares de Oliveira",turma:"6ºF"},
+  {nome:"Ritha Gabrielly Gonçalves da Silva",turma:"6ºF"},
+  {nome:"Samuel Lucca de Sousa Pereira",turma:"6ºF"},
+  {nome:"Alice Cosso Guimarães de Souza Simão",turma:"7ºA"},
+  {nome:"Alice Rodrigues Amorim",turma:"7ºA"},
+  {nome:"Allyce Yevina Martins dos Santos",turma:"7ºA"},
+  {nome:"Anna Clara Sousa Costa",turma:"7ºA"},
+  {nome:"Antonelly Alves Marcolino de Souza",turma:"7ºA"},
+  {nome:"Clara Maria Rodrigues dos Santos",turma:"7ºA"},
+  {nome:"Enzo Damasceno Salvador",turma:"7ºA"},
+  {nome:"Gabriel de Assis Furtado Brandão",turma:"7ºA"},
+  {nome:"Gabriel Rodrigo Ferreira de Aquino",turma:"7ºA"},
+  {nome:"Gabrielly Ferreira de Carvalho",turma:"7ºA"},
+  {nome:"Giovana Layla Gomes da Costa Correia",turma:"7ºA"},
+  {nome:"Heitor Vitor de Almeida Valadares",turma:"7ºA"},
+  {nome:"Isaque Antônio Vieira Dias",turma:"7ºA"},
+  {nome:"Jéssica Nicolly da Cunha de Souza",turma:"7ºA"},
+  {nome:"Luan Jesus França",turma:"7ºA"},
+  {nome:"Mayara Oliveira Souza",turma:"7ºA"},
+  {nome:"Miguel Gonçalves de Oliveira",turma:"7ºA"},
+  {nome:"Miguel Ítalo Monteiro Amaral",turma:"7ºA"},
+  {nome:"Nicolly Maria Teixeira da Silva Viana",turma:"7ºA"},
+  {nome:"Nikolas Matheus Nunes Curvelo",turma:"7ºA"},
+  {nome:"Pedro Henrique Alves Bueno",turma:"7ºA"},
+  {nome:"Pietro de Andrade Pereira Amaral",turma:"7ºA"},
+  {nome:"Rabisa Gomes Dias dos Santos",turma:"7ºA"},
+  {nome:"Samuel de Araújo Magalhães",turma:"7ºA"},
+  {nome:"Samuel Lucas Costa de Aguiar",turma:"7ºA"},
+  {nome:"Sophia Gabriele Pereira dos Santos",turma:"7ºA"},
+  {nome:"Stephanie Katlen de Almeida Lapa",turma:"7ºA"},
+  {nome:"Vitória Hanna Castro Apostolo",turma:"7ºA"},
+  {nome:"Yasmin Gonçalves da Silva",turma:"7ºA"},
+  {nome:"Ana Clara Vitorino Santos Carvalho",turma:"7ºB"},
+  {nome:"Arthur Pietro Veloso Conrado",turma:"7ºB"},
+  {nome:"Ayla Oliveira Rodrigues",turma:"7ºB"},
+  {nome:"Bernardo Diniz de Souza",turma:"7ºB"},
+  {nome:"Bruna Fragoso Queiroz",turma:"7ºB"},
+  {nome:"Carolina Freire Borges",turma:"7ºB"},
+  {nome:"Daniel de Araujo Silva",turma:"7ºB"},
+  {nome:"Davi Alves Resende",turma:"7ºB"},
+  {nome:"Davi Phillip Pereira da Silva",turma:"7ºB"},
+  {nome:"Debick Alejandro dos Santos",turma:"7ºB"},
+  {nome:"Eduardo Augusto Silva da Anunciação",turma:"7ºB"},
+  {nome:"Eduardo Goncalves Fernandes",turma:"7ºB"},
+  {nome:"Giovana Juliane Anzio Santos",turma:"7ºB"},
+  {nome:"Jose Gabriel Menezes Guenha",turma:"7ºB"},
+  {nome:"Júlia de Carvalho Soares",turma:"7ºB"},
+  {nome:"Julia Maria Crispim Santana",turma:"7ºB"},
+  {nome:"Kayo Cristiano Rodrigues Silva",turma:"7ºB"},
+  {nome:"Leonardo Miguel Campos",turma:"7ºB"},
+  {nome:"Maria Alice Braga Leonel",turma:"7ºB"},
+  {nome:"Maria Alice Santos Costa",turma:"7ºB"},
+  {nome:"Maria Eduarda dos Santos Souza",turma:"7ºB"},
+  {nome:"Maria Rita Nunes Silva",turma:"7ºB"},
+  {nome:"Miguel Coelho Dias",turma:"7ºB"},
+  {nome:"Nicolas Damasceno Salvador",turma:"7ºB"},
+  {nome:"Nicolle Ester de Oliveira Guimarães",turma:"7ºB"},
+  {nome:"Olivia Adriana Araújo Mendonça",turma:"7ºB"},
+  {nome:"Pietra Mendes Alves",turma:"7ºB"},
+  {nome:"Raphael da Silva Lobo",turma:"7ºB"},
+  {nome:"Sara Nicácio Nicolau",turma:"7ºB"},
+  {nome:"Sarah Emanuelly Gonçalves de Deus",turma:"7ºB"},
+  {nome:"Sophya Gabrielly Vieira Souza",turma:"7ºB"},
+  {nome:"Agatha Amáda da Silva",turma:"7ºC"},
+  {nome:"Alice Gonçalves Lamas",turma:"7ºC"},
+  {nome:"Anna Laura Ferreira de Morais",turma:"7ºC"},
+  {nome:"Arthur Angelo Fernandes Cabral",turma:"7ºC"},
+  {nome:"Arthur Borges Monteiro",turma:"7ºC"},
+  {nome:"Arthur Gabriel de Paula Moreira",turma:"7ºC"},
+  {nome:"Augusto Novais Assis Xavier Silva",turma:"7ºC"},
+  {nome:"Bernardo Miguel Silva Pereira",turma:"7ºC"},
+  {nome:"Emanuelle Gonçalves da Silva",turma:"7ºC"},
+  {nome:"Enzo Reis Paulino",turma:"7ºC"},
+  {nome:"Esther Marinna Alves Costa",turma:"7ºC"},
+  {nome:"Esther Silva Diniz",turma:"7ºC"},
+  {nome:"Fabio Batista Santos",turma:"7ºC"},
+  {nome:"Gabrielle Stéfanny Santana Costa",turma:"7ºC"},
+  {nome:"Hadassa Gabrielle Alves de Araújo",turma:"7ºC"},
+  {nome:"João Lucas Soares Alves",turma:"7ºC"},
+  {nome:"Julia Vitória Timóteo de Paula",turma:"7ºC"},
+  {nome:"Kauan Henrique Marinho Souza",turma:"7ºC"},
+  {nome:"Lara Oliveira de Souza",turma:"7ºC"},
+  {nome:"Laura Gomes Guimarães",turma:"7ºC"},
+  {nome:"Lorenzo Gabriel Silva Lopes",turma:"7ºC"},
+  {nome:"Lucca Felicio Porto",turma:"7ºC"},
+  {nome:"Manuela Vitônia Diniz Lourenço",turma:"7ºC"},
+  {nome:"Marcella Sophia Rosa Avelar Lima",turma:"7ºC"},
+  {nome:"Melyssa Rosa Gomes Moreira",turma:"7ºC"},
+  {nome:"Pietro Francisco Andrade de Paula",turma:"7ºC"},
+  {nome:"Samuel Dias Fidelis Rosa",turma:"7ºC"},
+  {nome:"Sofia Cosso Guimarães de Souza Simões",turma:"7ºC"},
+  {nome:"Thalita Emanuele de Souza Lima",turma:"7ºC"},
+  {nome:"Victor Lucas Cardoso Mendes",turma:"7ºC"},
+  {nome:"Alana Larissa Pereira de Sa Silva",turma:"7ºD"},
+  {nome:"Arthur Gonçalves Ferreira",turma:"7ºD"},
+  {nome:"Beatriz Alves de Souza",turma:"7ºD"},
+  {nome:"Bernardo Lima Viana de Carvalho",turma:"7ºD"},
+  {nome:"Bianka Vitória Reis de Mendonça",turma:"7ºD"},
+  {nome:"Caio Nascimento Dantas de Paula",turma:"7ºD"},
+  {nome:"Clarice Kelly Viveiros Barbosa",turma:"7ºD"},
+  {nome:"Daniel Silveira Santos",turma:"7ºD"},
+  {nome:"Davi Soares de Sousa",turma:"7ºD"},
+  {nome:"Henrique Meira Ursine",turma:"7ºD"},
+  {nome:"Hitalo Henrique da Silva Vieira",turma:"7ºD"},
+  {nome:"Isabela Rocha Ferreira",turma:"7ºD"},
+  {nome:"Juan Guilherme Pereira da Silva",turma:"7ºD"},
+  {nome:"Kamilly Gomes Silva Leite",turma:"7ºD"},
+  {nome:"Laura Manuela Bracarense Avila de Sa",turma:"7ºD"},
+  {nome:"Lhauanny Gabrielle Queiroz",turma:"7ºD"},
+  {nome:"Lucas Junio Vieira Assis",turma:"7ºD"},
+  {nome:"Lucas Rafael Bragança do Nascimento",turma:"7ºD"},
+  {nome:"Marcello Henrique Fortes Costa",turma:"7ºD"},
+  {nome:"Marcello Lima Nogueira",turma:"7ºD"},
+  {nome:"Maria Julia de Souza Azevedo",turma:"7ºD"},
+  {nome:"Nicolas Rodrigues Vieira",turma:"7ºD"},
+  {nome:"Pietro Augusto de Souza Ribeiro",turma:"7ºD"},
+  {nome:"Ryan Rafael Guimarães da Silva",turma:"7ºD"},
+  {nome:"Samuel Silva Nunes Santos Rocha",turma:"7ºD"},
+  {nome:"Skarlett Gabrielly de Almeida Lapa",turma:"7ºD"},
+  {nome:"Thiago Magalhães da Silva",turma:"7ºD"},
+  {nome:"Valentina Santana Torres",turma:"7ºD"},
+  {nome:"Wallace Brayan dos Santos Alves",turma:"7ºD"},
+  {nome:"Yasmin Magalhães Keler Dias",turma:"7ºD"},
+  {nome:"Ana Luiza Gomes Rosa",turma:"7ºE"},
+  {nome:"Bernardo de Paula Germano Moreira",turma:"7ºE"},
+  {nome:"Bernardo Henrique da Silva Mangabeira",turma:"7ºE"},
+  {nome:"Bernardo Miguel de Almeida",turma:"7ºE"},
+  {nome:"Caio Bitencorte Diniz",turma:"7ºE"},
+  {nome:"Emanuelle Beatriz Guimarães Reis",turma:"7ºE"},
+  {nome:"Emanuelly Vitória Gomes de Paula",turma:"7ºE"},
+  {nome:"Fernanda Lima Aparecida de Souza",turma:"7ºE"},
+  {nome:"Gabriel Xisto de Jesus Oliveira",turma:"7ºE"},
+  {nome:"Gabrielly Vitória Ferreira Pinto",turma:"7ºE"},
+  {nome:"Geovana Rodrigues Alves",turma:"7ºE"},
+  {nome:"Giovana Sousa Duarte",turma:"7ºE"},
+  {nome:"Giovanna Vitória Rodrigues de Freitas",turma:"7ºE"},
+  {nome:"Isaac Emmanuel Sabino Fernandes",turma:"7ºE"},
+  {nome:"Isabella Lima de Souza",turma:"7ºE"},
+  {nome:"Izabel Rocha Paglioni",turma:"7ºE"},
+  {nome:"Kaique Campos Andrade",turma:"7ºE"},
+  {nome:"Laura Luísa Freitas Santos",turma:"7ºE"},
+  {nome:"Lorenzo Fonseca Alves",turma:"7ºE"},
+  {nome:"Luiz Fernando Silva Cruz",turma:"7ºE"},
+  {nome:"Maria Elisa Silva Pinto",turma:"7ºE"},
+  {nome:"Maria Flor Fernandes de Souza",turma:"7ºE"},
+  {nome:"Maria Julia Ribeiro Vasconcelos",turma:"7ºE"},
+  {nome:"Melissa Santarelli Santos",turma:"7ºE"},
+  {nome:"Pedro Henrique de Paula Pereira",turma:"7ºE"},
+  {nome:"Rebeca Vitória Cangussu de Miranda",turma:"7ºE"},
+  {nome:"Robert Taylor dos Santos Monteiro Primo",turma:"7ºE"},
+  {nome:"Sarah Maria Barbosa Santos",turma:"7ºE"},
+  {nome:"Talles Arthur de Lima Reis",turma:"7ºE"},
+  {nome:"Arthur Dias dos Santos",turma:"8ºX"},
+  {nome:"Guilherme Junio Oliveira Cruz",turma:"8ºX"},
+  {nome:"Kaua Henrique Rios Silva",turma:"8ºX"},
+  {nome:"Maria Eduarda Gonçalves Ramos",turma:"8ºX"},
+  {nome:"Richard Flávio de Oliveira Faria",turma:"8ºX"},
+  {nome:"Taylor Eduardo Ferreira da Lima",turma:"8ºX"},
+  {nome:"Yuri Ezequiel Magalhaes de Lima",turma:"8ºX"},
+];
+
+// Carrega lista do localStorage ou usa base
+function carregarAlunos() {
+  try {
+    const salvo = localStorage.getItem('emgtc_alunos');
+    if (salvo) return JSON.parse(salvo);
+  } catch(e){}
+  return ALUNOS_BASE.map(a => ({...a}));
+}
+function salvarAlunos() {
+  try { localStorage.setItem('emgtc_alunos', JSON.stringify(listaAlunos)); } catch(e){}
+}
+let listaAlunos = carregarAlunos();
+listaAlunos.sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
+
+function atualizarContador() {
+  const el = document.getElementById('total-alunos');
+  if (el) el.textContent = listaAlunos.length;
+}
+
+// ── DROPDOWN DE BUSCA NO FORMULÁRIO ──────────────────────────────────────────
+function normalizar(str) {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+
+function filtrarAlunos(q) {
+  const dd = document.getElementById('dropdown-alunos');
+  if (!dd) return;
+  const nq = normalizar(q.trim());
+  let resultados = listaAlunos;
+  if (nq.length > 0) {
+    resultados = listaAlunos.filter(a => normalizar(a.nome).includes(nq) || normalizar(a.turma).includes(nq));
+  }
+  if (resultados.length === 0) {
+    dd.innerHTML = '<div style="padding:10px 14px;color:#888;font-size:0.85rem;">Nenhum aluno encontrado.</div>';
+    dd.style.display = 'block';
+    return;
+  }
+  const max = 12;
+  let html = '';
+  resultados.slice(0, max).forEach(a => {
+    html += `<div onclick="selecionarAluno('${a.nome.replace(/'/g,"\\'")}','${a.turma}')"
+      style="padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f0f0;font-size:0.88rem;"
+      onmouseover="this.style.background='#e8edf5'" onmouseout="this.style.background=''"
+    ><span>${a.nome}</span><span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span></div>`;
+  });
+  if (resultados.length > max) {
+    html += `<div style="padding:7px 14px;color:#888;font-size:0.78rem;text-align:center;">...e mais ${resultados.length - max} resultados. Continue digitando para refinar.</div>`;
+  }
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+}
+
+function selecionarAluno(nome, turma) {
+  document.getElementById('nome_aluno').value = nome;
+  const sel = document.getElementById('turma');
+  for (let i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value === turma) { sel.selectedIndex = i; break; }
+  }
+  fecharDropdown();
+}
+
+function fecharDropdown() {
+  const dd = document.getElementById('dropdown-alunos');
+  if (dd) dd.style.display = 'none';
+}
+
+// ── MODAL GERENCIAR ALUNOS ────────────────────────────────────────────────────
+let filtroModal = '';
+
+function abrirGerenciarAlunos() {
+  document.getElementById('modal-alunos').style.display = 'block';
+  document.getElementById('modal-busca').value = '';
+  filtroModal = '';
+  renderizarModalLista();
+}
+
+function fecharModalAlunos() {
+  document.getElementById('modal-alunos').style.display = 'none';
+  document.getElementById('form-novo-aluno').style.display = 'none';
+}
+
+function filtrarModalLista(q) {
+  filtroModal = q;
+  renderizarModalLista();
+}
+
+function renderizarModalLista() {
+  const nq = normalizar(filtroModal.trim());
+  let lista = listaAlunos;
+  if (nq) lista = listaAlunos.filter(a => normalizar(a.nome).includes(nq) || normalizar(a.turma).includes(nq));
+  const cont = document.getElementById('modal-lista-alunos');
+  if (lista.length === 0) {
+    cont.innerHTML = '<div style="padding:18px;text-align:center;color:#888;font-size:0.85rem;">Nenhum aluno encontrado.</div>';
+    document.getElementById('modal-contador').textContent = '0 alunos';
+    return;
+  }
+  let html = '';
+  lista.forEach((a, idx) => {
+    const idxReal = listaAlunos.indexOf(a);
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f0f2f6;" id="linha-aluno-${idxReal}">
+      <span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;min-width:36px;text-align:center;">${a.turma}</span>
+      <span id="nome-span-${idxReal}" style="flex:1;font-size:0.88rem;">${a.nome}</span>
+      <input id="nome-edit-${idxReal}" type="text" value="${a.nome}" style="flex:1;display:none;border:1.5px solid var(--azul);border-radius:5px;padding:4px 8px;font-size:0.85rem;">
+      <select id="turma-edit-${idxReal}" style="display:none;border:1.5px solid var(--azul);border-radius:5px;padding:4px 6px;font-size:0.82rem;">
+        <option>6ºA</option><option>6ºB</option><option>6ºC</option><option>6ºD</option><option>6ºE</option><option>6ºF</option>
+        <option>7ºA</option><option>7ºB</option><option>7ºC</option><option>7ºD</option><option>7ºE</option><option>8ºX</option>
+      </select>
+      <button onclick="editarAluno(${idxReal})" id="btn-edit-${idxReal}" title="Editar" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#888;padding:2px 5px;">✏️</button>
+      <button onclick="salvarEdicao(${idxReal})" id="btn-save-${idxReal}" style="display:none;background:var(--verde);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:0.8rem;cursor:pointer;font-weight:700;">✓</button>
+      <button onclick="cancelarEdicao(${idxReal})" id="btn-cancel-${idxReal}" style="display:none;background:#fff;color:#888;border:1.5px solid #ccc;border-radius:5px;padding:4px 8px;font-size:0.8rem;cursor:pointer;">✕</button>
+      <button onclick="removerAluno(${idxReal})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#c0392b;padding:2px 5px;">🗑️</button>
+    </div>`;
+  });
+  cont.innerHTML = html;
+  document.getElementById('modal-contador').textContent = lista.length + ' aluno(s)' + (nq ? ' encontrado(s)' : ' no total');
+}
+
+function editarAluno(idx) {
+  document.getElementById('nome-span-'+idx).style.display = 'none';
+  document.getElementById('nome-edit-'+idx).style.display = '';
+  const selEdit = document.getElementById('turma-edit-'+idx);
+  selEdit.style.display = '';
+  // Set current turma
+  for (let i=0;i<selEdit.options.length;i++) {
+    if (selEdit.options[i].value === listaAlunos[idx].turma) { selEdit.selectedIndex=i; break; }
+  }
+  document.getElementById('btn-edit-'+idx).style.display = 'none';
+  document.getElementById('btn-save-'+idx).style.display = '';
+  document.getElementById('btn-cancel-'+idx).style.display = '';
+}
+
+function salvarEdicao(idx) {
+  const novoNome = document.getElementById('nome-edit-'+idx).value.trim();
+  const novaTurma = document.getElementById('turma-edit-'+idx).value;
+  if (!novoNome) { alert('O nome não pode estar vazio.'); return; }
+  listaAlunos[idx].nome = novoNome;
+  listaAlunos[idx].turma = novaTurma;
+  listaAlunos.sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
+  salvarAlunos();
+  renderizarModalLista();
+  atualizarContador();
+}
+
+function cancelarEdicao(idx) { renderizarModalLista(); }
+
+function removerAluno(idx) {
+  if (!confirm('Remover "' + listaAlunos[idx].nome + '"?')) return;
+  listaAlunos.splice(idx, 1);
+  salvarAlunos();
+  renderizarModalLista();
+  atualizarContador();
+}
+
+function adicionarAlunoModal() {
+  document.getElementById('form-novo-aluno').style.display = '';
+  document.getElementById('novo-nome').value = '';
+  document.getElementById('novo-turma').selectedIndex = 0;
+  document.getElementById('novo-nome').focus();
+}
+
+function salvarNovoAluno() {
+  const nome = document.getElementById('novo-nome').value.trim();
+  const turma = document.getElementById('novo-turma').value;
+  if (!nome) { alert('Digite o nome do(a) aluno(a).'); return; }
+  if (!turma) { alert('Selecione a turma.'); return; }
+  listaAlunos.push({nome, turma});
+  listaAlunos.sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
+  salvarAlunos();
+  document.getElementById('form-novo-aluno').style.display = 'none';
+  document.getElementById('modal-busca').value = '';
+  filtroModal = '';
+  renderizarModalLista();
+  atualizarContador();
+}
+
+document.addEventListener('DOMContentLoaded', () => { atualizarContador(); atualizarContadorProf(); });
+
+// ── DADOS DOS PROFESSORES ─────────────────────────────────────────────────────
+const PROFESSORES_BASE = [
+  "Adilson",
+  "Alessandra",
+  "Alexandra",
+  "Claudete",
+  "Fabiana",
+  "Fernanda",
+  "Gilce",
+  "Gislaine",
+  "Guilherme",
+  "J.M. (Y)",
+  "Jhow (x)",
+  "Joadne",
+  "Juliana",
+  "Juscele",
+  "Leidiane",
+  "Magna",
+  "Márcia",
+  "Marcia (x)",
+  "Marcelo",
+  "Marcelo C.",
+  "Marcelo Soares",
+  "Maria do Carmo",
+  "Ronei",
+];
+
+function carregarProfessores() {
+  try {
+    const salvo = localStorage.getItem('emgtc_professores');
+    if (salvo) return JSON.parse(salvo);
+  } catch(e) {}
+  return [...PROFESSORES_BASE];
+}
+function salvarProfessores() {
+  try { localStorage.setItem('emgtc_professores', JSON.stringify(listaProfessores)); } catch(e) {}
+}
+let listaProfessores = carregarProfessores();
+listaProfessores.sort((a,b) => a.localeCompare(b,'pt'));
+
+function atualizarContadorProf() {
+  const el = document.getElementById('total-professores');
+  if (el) el.textContent = listaProfessores.length;
+}
+
+// ── DROPDOWN PROFESSOR ────────────────────────────────────────────────────────
+function filtrarProfessores(inputId, dropdownId, q) {
+  const dd = document.getElementById(dropdownId);
+  if (!dd) return;
+  const nq = normalizar(q.trim());
+  let resultados = listaProfessores;
+  if (nq.length > 0) resultados = listaProfessores.filter(p => normalizar(p).includes(nq));
+  if (resultados.length === 0) {
+    dd.innerHTML = '<div style="padding:10px 14px;color:#888;font-size:0.85rem;">Nenhum professor encontrado.</div>';
+    dd.style.display = 'block'; return;
+  }
+  let html = '';
+  resultados.forEach(p => {
+    html += `<div onclick="selecionarProfessor('${inputId}','${dropdownId}','${p.replace(/'/g,"\\'")}')"
+      style="padding:9px 14px;cursor:pointer;font-size:0.88rem;border-bottom:1px solid #f0f0f0;"
+      onmouseover="this.style.background='#e8edf5'" onmouseout="this.style.background=''">${p}</div>`;
+  });
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+}
+
+function selecionarProfessor(inputId, dropdownId, nome) {
+  document.getElementById(inputId).value = nome;
+  fecharDropdownProf(dropdownId);
+}
+
+function fecharDropdownProf(dropdownId) {
+  const dd = document.getElementById(dropdownId);
+  if (dd) dd.style.display = 'none';
+}
+
+// ── MODAL PROFESSORES ─────────────────────────────────────────────────────────
+let filtroModalProf = '';
+
+function abrirGerenciarProfessores() {
+  document.getElementById('modal-professores').style.display = 'block';
+  document.getElementById('modal-busca-prof').value = '';
+  filtroModalProf = '';
+  renderizarModalProfessores();
+}
+
+function fecharModalProfessores() {
+  document.getElementById('modal-professores').style.display = 'none';
+  document.getElementById('form-novo-prof').style.display = 'none';
+}
+
+function filtrarModalProf(q) {
+  filtroModalProf = q;
+  renderizarModalProfessores();
+}
+
+function renderizarModalProfessores() {
+  const nq = normalizar(filtroModalProf.trim());
+  let lista = listaProfessores;
+  if (nq) lista = listaProfessores.filter(p => normalizar(p).includes(nq));
+  const cont = document.getElementById('modal-lista-professores');
+  if (lista.length === 0) {
+    cont.innerHTML = '<div style="padding:18px;text-align:center;color:#888;font-size:0.85rem;">Nenhum professor encontrado.</div>';
+    document.getElementById('modal-contador-prof').textContent = '0 professores';
+    return;
+  }
+  let html = '';
+  lista.forEach((p, i) => {
+    const idxReal = listaProfessores.indexOf(p);
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid #f0f2f6;">
+      <span id="prof-span-${idxReal}" style="flex:1;font-size:0.9rem;">${p}</span>
+      <input id="prof-edit-${idxReal}" type="text" value="${p}" style="flex:1;display:none;border:1.5px solid var(--azul);border-radius:5px;padding:4px 8px;font-size:0.85rem;">
+      <button onclick="editarProf(${idxReal})" id="btn-edit-prof-${idxReal}" title="Editar" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#888;padding:2px 5px;">✏️</button>
+      <button onclick="salvarEdicaoProf(${idxReal})" id="btn-save-prof-${idxReal}" style="display:none;background:var(--verde);color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:0.8rem;cursor:pointer;font-weight:700;">✓</button>
+      <button onclick="renderizarModalProfessores()" id="btn-cancel-prof-${idxReal}" style="display:none;background:#fff;color:#888;border:1.5px solid #ccc;border-radius:5px;padding:4px 8px;font-size:0.8rem;cursor:pointer;">✕</button>
+      <button onclick="removerProf(${idxReal})" title="Remover" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#c0392b;padding:2px 5px;">🗑️</button>
+    </div>`;
+  });
+  cont.innerHTML = html;
+  document.getElementById('modal-contador-prof').textContent = lista.length + ' professor(es)' + (nq ? ' encontrado(s)' : ' no total');
+}
+
+function editarProf(idx) {
+  document.getElementById('prof-span-'+idx).style.display = 'none';
+  document.getElementById('prof-edit-'+idx).style.display = '';
+  document.getElementById('btn-edit-prof-'+idx).style.display = 'none';
+  document.getElementById('btn-save-prof-'+idx).style.display = '';
+  document.getElementById('btn-cancel-prof-'+idx).style.display = '';
+  document.getElementById('prof-edit-'+idx).focus();
+}
+
+function salvarEdicaoProf(idx) {
+  const novoNome = document.getElementById('prof-edit-'+idx).value.trim();
+  if (!novoNome) { alert('O nome não pode estar vazio.'); return; }
+  listaProfessores[idx] = novoNome;
+  listaProfessores.sort((a,b) => a.localeCompare(b,'pt'));
+  salvarProfessores();
+  renderizarModalProfessores();
+  atualizarContadorProf();
+}
+
+function removerProf(idx) {
+  if (!confirm('Remover "' + listaProfessores[idx] + '"?')) return;
+  listaProfessores.splice(idx, 1);
+  salvarProfessores();
+  renderizarModalProfessores();
+  atualizarContadorProf();
+}
+
+function adicionarProfModal() {
+  document.getElementById('form-novo-prof').style.display = '';
+  document.getElementById('novo-prof-nome').value = '';
+  document.getElementById('novo-prof-nome').focus();
+}
+
+function salvarNovoProfessor() {
+  const nome = document.getElementById('novo-prof-nome').value.trim();
+  if (!nome) { alert('Digite o nome do(a) professor(a).'); return; }
+  listaProfessores.push(nome);
+  listaProfessores.sort((a,b) => a.localeCompare(b,'pt'));
+  salvarProfessores();
+  document.getElementById('form-novo-prof').style.display = 'none';
+  document.getElementById('modal-busca-prof').value = '';
+  filtroModalProf = '';
+  renderizarModalProfessores();
+  atualizarContadorProf();
+}
+
+// ── EDITOR LOTE COM AUTOCOMPLETE ──────────────────────────────────────────────
+let loteLinhas = ['']; // array de valores por linha
+let loteLinhaAtiva = 0;
+
+function initLoteEditor() {
+  const container = document.getElementById('lote-linhas');
+  if (!container) return;
+  // só inicializa do zero se ainda não tiver conteúdo renderizado
+  if (container.children.length === 0) {
+    loteLinhas = [''];
+  }
+  renderizarLote();
+  // foca na primeira linha
+  setTimeout(() => focarLinha(0), 50);
+}
+
+function renderizarLote() {
+  const container = document.getElementById('lote-linhas');
+  if (!container) return;
+  // garante pelo menos uma linha vazia no final
+  if (loteLinhas.length === 0 || loteLinhas[loteLinhas.length-1] !== '') {
+    loteLinhas.push('');
+  }
+  const scrollTop = container.parentElement.scrollTop;
+  container.innerHTML = '';
+  loteLinhas.forEach((val, idx) => {
+    const aluno = listaAlunos.find(a => normalizar(a.nome) === normalizar(val));
+    const wrap = document.createElement('div');
+    wrap.className = 'lote-linha-wrap';
+    wrap.innerHTML = `
+      <span class="lote-num">${idx+1}</span>
+      <input class="lote-input${val && aluno ? ' preenchido' : ''}" type="text"
+        value="${val.replace(/"/g,'&quot;')}"
+        placeholder="${idx === 0 ? 'Digite o nome do(a) aluno(a)...' : ''}"
+        data-idx="${idx}"
+        autocomplete="off"
+        oninput="loteOnInput(this)"
+        onkeydown="loteOnKeyDown(event, this)"
+        onfocus="loteOnFocus(this)"
+        onblur="loteOnBlur(this)">
+      ${val && aluno ? `<span class="lote-badge">${aluno.turma}</span>` : ''}
+      ${val ? `<button class="lote-remover" onmousedown="event.preventDefault();removerLinhaLote(${idx})" title="Remover">✕</button>` : ''}
+    `;
+    container.appendChild(wrap);
+  });
+  container.parentElement.scrollTop = scrollTop;
+  sincronizarTextarea();
+  atualizarContadorLote();
+}
+
+function focarLinha(idx) {
+  const inputs = document.querySelectorAll('#lote-linhas .lote-input');
+  if (inputs[idx]) { inputs[idx].focus(); loteLinhaAtiva = idx; }
+}
+
+function focarLinhaSelecionada() {
+  focarLinha(loteLinhaAtiva);
+}
+
+function loteOnFocus(input) {
+  loteLinhaAtiva = parseInt(input.dataset.idx);
+  const q = input.value;
+  mostrarSugestoesLote(input, q);
+}
+
+function loteOnBlur(input) {
+  setTimeout(() => fecharDropdownLote(), 180);
+}
+
+function loteOnInput(input) {
+  const idx = parseInt(input.dataset.idx);
+  loteLinhas[idx] = input.value;
+  loteLinhaAtiva = idx;
+  // Atualiza badge/classe sem re-renderizar tudo
+  const aluno = listaAlunos.find(a => normalizar(a.nome) === normalizar(input.value));
+  input.className = 'lote-input' + (input.value && aluno ? ' preenchido' : '');
+  // Atualiza badge ao lado
+  const wrap = input.parentElement;
+  let badge = wrap.querySelector('.lote-badge');
+  let btn = wrap.querySelector('.lote-remover');
+  if (input.value && aluno) {
+    if (!badge) { badge = document.createElement('span'); badge.className = 'lote-badge'; wrap.insertBefore(badge, btn || null); }
+    badge.textContent = aluno.turma;
+  } else if (badge) { badge.remove(); }
+  if (input.value) {
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.className = 'lote-remover'; btn.title = 'Remover'; btn.textContent = '✕';
+      btn.setAttribute('onmousedown', `event.preventDefault();removerLinhaLote(${idx})`);
+      wrap.appendChild(btn);
+    }
+  } else if (btn) { btn.remove(); }
+  // Nova linha vazia no final se necessário
+  if (idx === loteLinhas.length - 1 && input.value !== '') {
+    loteLinhas.push('');
+    const container = document.getElementById('lote-linhas');
+    const wrap2 = document.createElement('div');
+    wrap2.className = 'lote-linha-wrap';
+    const newIdx = loteLinhas.length - 1;
+    wrap2.innerHTML = `<span class="lote-num">${newIdx+1}</span>
+      <input class="lote-input" type="text" value="" placeholder="" data-idx="${newIdx}" autocomplete="off"
+        oninput="loteOnInput(this)" onkeydown="loteOnKeyDown(event,this)" onfocus="loteOnFocus(this)" onblur="loteOnBlur(this)">`;
+    container.appendChild(wrap2);
+  }
+  sincronizarTextarea();
+  atualizarContadorLote();
+  mostrarSugestoesLote(input, input.value);
+}
+
+function loteOnKeyDown(e, input) {
+  const dd = document.getElementById('dropdown-lote');
+  const itens = dd.querySelectorAll('.dd-item');
+  let sel = dd.querySelector('.dd-item.ativo');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (!sel) { if (itens[0]) { itens[0].classList.add('ativo'); itens[0].scrollIntoView({block:'nearest'}); } }
+    else { sel.classList.remove('ativo'); const nx = sel.nextElementSibling; if (nx) { nx.classList.add('ativo'); nx.scrollIntoView({block:'nearest'}); } }
+    return;
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (sel) { sel.classList.remove('ativo'); const pv = sel.previousElementSibling; if (pv) { pv.classList.add('ativo'); pv.scrollIntoView({block:'nearest'}); } }
+    return;
+  }
+  if (e.key === 'Enter' || e.key === 'Tab') {
+    if (sel) {
+      e.preventDefault();
+      selecionarSugestaoLote(sel.dataset.nome, parseInt(input.dataset.idx));
+      return;
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      fecharDropdownLote();
+      const idx = parseInt(input.dataset.idx);
+      // avança para próxima linha
+      const inputs = document.querySelectorAll('#lote-linhas .lote-input');
+      if (inputs[idx+1]) { inputs[idx+1].focus(); loteLinhaAtiva = idx+1; }
+    }
+  }
+  if (e.key === 'Backspace' && input.value === '') {
+    const idx = parseInt(input.dataset.idx);
+    if (idx > 0) { removerLinhaLote(idx); }
+  }
+}
+
+function mostrarSugestoesLote(input, q) {
+  const dd = document.getElementById('dropdown-lote');
+  const nq = normalizar(q.trim());
+  if (!nq) { dd.style.display = 'none'; return; }
+  const resultados = listaAlunos.filter(a => normalizar(a.nome).includes(nq)).slice(0, 10);
+  if (!resultados.length) { dd.style.display = 'none'; return; }
+  // posiciona o dropdown sob o input ativo, relativo ao wrapper pai (position:relative)
+  const wrapper = dd.parentElement; // div[style="position:relative"]
+  const wrapperRect = wrapper.getBoundingClientRect();
+  const inputRect = input.getBoundingClientRect();
+  const topPx = inputRect.bottom - wrapperRect.top + wrapper.scrollTop;
+  const leftPx = inputRect.left - wrapperRect.left;
+  const widthPx = inputRect.width;
+  dd.style.top = topPx + 'px';
+  dd.style.left = leftPx + 'px';
+  dd.style.right = 'auto';
+  dd.style.width = widthPx + 'px';
+  dd.innerHTML = resultados.map(a =>
+    `<div class="dd-item" data-nome="${a.nome.replace(/"/g,'&quot;')}"
+      style="padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f0f0;font-size:0.88rem;"
+      onmouseover="this.classList.add('ativo')" onmouseout="this.classList.remove('ativo')"
+      onmousedown="event.preventDefault();selecionarSugestaoLote('${a.nome.replace(/'/g,"\\'")}',${loteLinhaAtiva})">
+      <span>${a.nome}</span>
+      <span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span>
+    </div>`
+  ).join('');
+  dd.style.display = 'block';
+  // observador de classe para highlight
+  dd.querySelectorAll('.dd-item').forEach(el => {
+    const obs = new MutationObserver(() => { el.style.background = el.classList.contains('ativo') ? '#e8edf5' : ''; });
+    obs.observe(el, {attributes:true, attributeFilter:['class']});
+  });
+}
+
+function selecionarSugestaoLote(nome, idx) {
+  loteLinhas[idx] = nome;
+  fecharDropdownLote();
+  renderizarLote();
+  // re-foca na mesma linha e move para próxima
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#lote-linhas .lote-input');
+    if (inputs[idx+1]) { inputs[idx+1].focus(); loteLinhaAtiva = idx+1; }
+    else if (inputs[idx]) { inputs[idx].focus(); loteLinhaAtiva = idx; }
+  }, 30);
+}
+
+function fecharDropdownLote() {
+  const dd = document.getElementById('dropdown-lote');
+  if (dd) dd.style.display = 'none';
+}
+
+function removerLinhaLote(idx) {
+  if (loteLinhas.length <= 1) { loteLinhas = ['']; renderizarLote(); focarLinha(0); return; }
+  loteLinhas.splice(idx, 1);
+  // garante linha vazia final
+  if (loteLinhas[loteLinhas.length-1] !== '') loteLinhas.push('');
+  renderizarLote();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#lote-linhas .lote-input');
+    const alvo = Math.min(idx, inputs.length-1);
+    if (inputs[alvo]) { inputs[alvo].focus(); loteLinhaAtiva = alvo; }
+  }, 30);
+}
+
+function sincronizarTextarea() {
+  const ta = document.getElementById('lista_alunos');
+  if (ta) ta.value = loteLinhas.filter(n => n.trim()).join('\n');
+}
+
+function atualizarContadorLote() {
+  const nomes = loteLinhas.filter(n => n.trim());
+  const el = document.getElementById('contador-alunos');
+  if (el) el.textContent = nomes.length > 0 ? nomes.length + ' aluno(s) na lista' : '';
+}
+
+let modoAtual = 'individual';
+
+function trocarModo(modo) {
+  modoAtual = modo;
+  document.getElementById('modo-individual').style.display = modo === 'individual' ? '' : 'none';
+  document.getElementById('modo-lote').style.display = modo === 'lote' ? '' : 'none';
+  const bi = document.getElementById('btn-individual');
+  const bl = document.getElementById('btn-lote');
+  if (modo === 'individual') {
+    bi.style.background = 'var(--azul)'; bi.style.color = '#fff';
+    bl.style.background = '#fff'; bl.style.color = 'var(--azul)';
+  } else {
+    bl.style.background = 'var(--azul)'; bl.style.color = '#fff';
+    bi.style.background = '#fff'; bi.style.color = 'var(--azul)';
+  }
+  if (modo === 'lote') setTimeout(initLoteEditor, 50);
+}
+
+// contador de alunos no lote
+document.addEventListener('DOMContentLoaded', () => {
+  const ta = document.getElementById('lista_alunos');
+  if (ta) ta.addEventListener('input', () => {
+    const nomes = ta.value.split('\n').map(s => s.trim()).filter(Boolean);
+    document.getElementById('contador-alunos').textContent =
+      nomes.length > 0 ? nomes.length + ' aluno(s) na lista' : '';
+  });
+});
+
+function toggleOpcao(el, event) {
+  const cb = el.querySelector(':scope > input[type=checkbox]');
+  if (event && event.target === cb) {
+    // browser already toggled
+  } else {
+    cb.checked = !cb.checked;
+  }
+  el.classList.toggle('selecionado', cb.checked);
+  const extra = el.querySelector('.opcao-extra');
+  if (extra) extra.style.display = cb.checked ? 'block' : 'none';
+}
+
+function limparForm() {
+  document.querySelectorAll('input[type=text], input[type=date], textarea').forEach(e => e.value = '');
+  document.querySelectorAll('select').forEach(e => e.selectedIndex = 0);
+  document.querySelectorAll('.opcao-item').forEach(el => {
+    el.classList.remove('selecionado');
+    el.querySelector(':scope > input[type=checkbox]').checked = false;
+    const extra = el.querySelector('.opcao-extra');
+    if (extra) extra.style.display = 'none';
+  });
+  document.getElementById('mat_caderno').checked = false;
+  document.getElementById('mat_livro').checked = false;
+  document.getElementById('contador-alunos').textContent = '';
+  trocarModo('individual');
+}
+
+function voltarForm() {
+  document.getElementById('form-section').style.display = '';
+  document.getElementById('preview-section').classList.remove('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatarData(dataStr) {
+  if (!dataStr) return '______/______';
+  const [y, m, d] = dataStr.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+function boxMarcado(marcado) {
+  return marcado
+    ? '<span class="box-check marcado"></span>'
+    : '<span class="box-check"></span>';
+}
+
+function gerarBlocoHTML(dados) {
+  const { nome, turma, turno, data, professor, disciplina, opcoes, observacoes } = dados;
+
+  const dataFmt = formatarData(data);
+
+  // Linha professor + disciplina
+  const profLabel = professor || '___________________________';
+  const discLabel = disciplina || '___________________';
+  const linhaProfessor = `Professor(a): <span class="campo-sublinhado">${profLabel}</span> &nbsp;&nbsp; Disciplina: <span class="campo-sublinhado">${discLabel}</span>`;
+
+  // Linha aluno
+  const linhaAluno = `Informo que o(a) aluno(a) <span class="campo-sublinhado">${nome || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
+    turma <span class="campo-sublinhado curto">${turma || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
+    turno <span class="campo-sublinhado medio">${turno || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>,
+    no dia <span class="campo-sublinhado curto">${dataFmt}</span> apresentou a seguinte atitude:`;
+
+  // Opções
+  const linhasOpcoes = [
+    { id:'op1', texto: 'Prejudicou as atividades em sala com brincadeiras e/ou conversa excessiva.' },
+    { id:'op2', texto: () => {
+      const disc = document.getElementById('aula_disciplina').value || '________________________________';
+      const hor = document.getElementById('aula_horario').value || '____';
+      return `Chegou atrasado(a) para a aula de <span class="campo-sublinhado">${disc}</span>, no <span class="campo-sublinhado curto">${hor}</span> horário.`;
+    }},
+    { id:'op3', texto: 'Saiu de sala sem autorização do(a) professor(a).' },
+    { id:'op4', texto: () => {
+      const desc = document.getElementById('atividade_desc').value || '_______________________________________________________________';
+      return `Não realizou a atividade: <span class="campo-sublinhado" style="min-width:80mm">${desc}</span>`;
+    }},
+    { id:'op5', texto: () => {
+      const desc = document.getElementById('trabalho_desc').value || '_______________________________________________________________';
+      return `Não fez e/ou entregou o trabalho: <span class="campo-sublinhado" style="min-width:75mm">${desc}</span>`;
+    }},
+    { id:'op6', texto: () => {
+      const cad = document.getElementById('mat_caderno').checked;
+      const liv = document.getElementById('mat_livro').checked;
+      return `Não trouxe o material: ${boxMarcado(cad)} Caderno &nbsp;&nbsp; ${boxMarcado(liv)} Livro`;
+    }},
+    { id:'op7', texto: () => {
+      const desc = document.getElementById('outros_desc').value || '_______________________________________________________________';
+      return `Outros: <span class="campo-sublinhado" style="min-width:90mm">${desc}</span>`;
+    }},
+  ];
+
+  let opcoesHTML = '';
+  linhasOpcoes.forEach(op => {
+    const checked = document.getElementById(op.id).checked;
+    const texto = typeof op.texto === 'function' ? op.texto() : op.texto;
+    opcoesHTML += `<div class="opcao-print">${boxMarcado(checked)} <span>${texto}</span></div>`;
+  });
+
+  let obsHTML = '';
+  if (observacoes) {
+    obsHTML = `<div class="obs-area"><strong>Observações:</strong><div class="obs-texto">${observacoes}</div></div>`;
+  } else {
+    obsHTML = `<div class="obs-area"><strong>Observações:</strong><br><br></div>`;
+  }
+
+  return `
+  <div class="bloco">
+    <div class="cabecalho-bloco">
+      <div class="cab-logo"><img src="${IMG_PREFEITURA}" alt="Prefeitura BH"></div>
+      <div class="cab-centro">
+        <div class="nome-escola">Escola Municipal Geraldo Teixeira da Costa</div>
+        <div class="sub-escola">Escola pública de qualidade</div>
+        <div class="ano">2026</div>
+      </div>
+      <div class="cab-direito"><img src="${IMG_GETEC}" alt="GETEC"></div>
+    </div>
+    <div class="titulo-comunicacao">COMUNICAÇÃO AOS RESPONSÁVEIS</div>
+    <div class="corpo-bloco">
+      <div class="linha-aluno" style="margin-bottom:4pt;">${linhaProfessor}</div>
+      <div class="linha-aluno">${linhaAluno}</div>
+      <div class="opcoes-lista">${opcoesHTML}</div>
+      ${obsHTML}
+      <div class="assinaturas">
+        <div class="assinatura-col">
+          <div class="linha-assinatura"></div>
+          <div class="assinatura-label">PROFESSOR(A)${professor ? ': ' + professor : ''}</div>
+        </div>
+        <div class="assinatura-col">
+          <div class="linha-assinatura"></div>
+          <div class="assinatura-label">RESPONSÁVEL CIENTE</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function gerarPrevia() {
+  const algumMarcado = ['op1','op2','op3','op4','op5','op6','op7'].some(id => document.getElementById(id).checked);
+  if (!algumMarcado) { alert('Por favor, selecione ao menos uma atitude apresentada.'); return; }
+
+  const vias = parseInt(document.querySelector('input[name=vias]:checked').value);
+  const observacoes = document.getElementById('observacoes').value.trim();
+  let html = '';
+
+  if (modoAtual === 'individual') {
+    const nome = document.getElementById('nome_aluno').value.trim();
+    const turma = document.getElementById('turma').value;
+    const turno = document.getElementById('turno').value;
+    const data = document.getElementById('data_ocorrencia').value;
+    const professor = document.getElementById('professor').value.trim();
+    const disciplina = document.getElementById('disciplina').value;
+    if (!nome) { alert('Por favor, informe o nome do(a) aluno(a).'); return; }
+    const dados = { nome, turma, turno, data, professor, disciplina, observacoes };
+    for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
+
+  } else {
+    const turma = document.getElementById('turma_lote').value;
+    const turno = document.getElementById('turno_lote').value;
+    const data = document.getElementById('data_lote').value;
+    const professor = document.getElementById('professor_lote').value.trim();
+    const disciplina = document.getElementById('disciplina_lote').value;
+    const listaTexto = document.getElementById('lista_alunos').value;
+    const nomes = listaTexto.split('\n').map(s => s.trim()).filter(Boolean);
+    if (!turma) { alert('Selecione a turma.'); return; }
+    if (nomes.length === 0) { alert('Adicione ao menos um aluno na lista.'); return; }
+    for (const nome of nomes) {
+      const dados = { nome, turma, turno, data, professor, disciplina, observacoes };
+      for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
+    }
+  }
+
+  document.getElementById('folha-impressao').innerHTML = html;
+  document.getElementById('form-section').style.display = 'none';
+  document.getElementById('preview-section').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
