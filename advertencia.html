@@ -193,7 +193,7 @@
 
   .cabecalho-bloco {
     display: grid;
-    grid-template-columns: 50mm 1fr 50mm;
+    grid-template-columns: 44mm 1fr 36mm;
     border-bottom: 1.5px solid #000;
     min-height: 20mm;
   }
@@ -202,23 +202,23 @@
     display: flex; align-items: center; justify-content: center;
     padding: 3mm;
   }
-  .cab-logo img { max-height: 18mm; max-width: 46mm; object-fit: contain; }
+  .cab-logo img { max-height: 20mm; max-width: 40mm; object-fit: contain; }
   .cab-centro {
     text-align: center;
-    padding: 3mm 4mm;
+    padding: 3mm 6mm;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
   }
   .cab-centro .nome-escola {
-    font-size: 10pt; font-weight: 700; text-transform: uppercase;
+    font-size: 10pt; font-weight: 700; text-transform: uppercase; white-space: nowrap;
   }
   .cab-centro .sub-escola { font-size: 8.5pt; }
   .cab-centro .ano { font-size: 9pt; font-weight: 700; }
   .cab-direito {
     border-left: 1.5px solid #000;
     display: flex; align-items: center; justify-content: center;
-    padding: 3mm;
+    padding: 2mm;
   }
-  .cab-direito img { max-height: 18mm; max-width: 46mm; object-fit: contain; }
+  .cab-direito img { max-height: 14mm; max-width: 32mm; object-fit: contain; }
 
   .titulo-comunicacao {
     text-align: center;
@@ -234,6 +234,7 @@
     margin-bottom: 3mm;
     font-size: 9.5pt;
     line-height: 1.6;
+    text-align: justify;
   }
 
   .campo-sublinhado {
@@ -245,6 +246,7 @@
   }
   .campo-sublinhado.curto { min-width: 22mm; }
   .campo-sublinhado.medio { min-width: 38mm; }
+  .maiuscula { text-transform: uppercase; }
 
   .opcoes-lista { margin: 2mm 0; }
   .opcao-print {
@@ -254,7 +256,9 @@
     margin-bottom: 1.5mm;
     font-size: 9pt;
     line-height: 1.4;
+    text-align: justify;
   }
+  .opcao-print span { text-align: justify; }
   .box-check {
     display: inline-flex;
     align-items: center;
@@ -289,8 +293,8 @@
     print-color-adjust: exact;
   }
 
-  .obs-area { margin-top: 2mm; font-size: 9pt; }
-  .obs-texto { font-size: 9pt; margin-top: 1mm; }
+  .obs-area { margin-top: 2mm; font-size: 9pt; text-align: justify; }
+  .obs-texto { font-size: 9pt; margin-top: 1mm; text-align: justify; }
 
   .assinaturas {
     display: flex;
@@ -304,7 +308,7 @@
     height: 6mm;
     margin-bottom: 1mm;
   }
-  .assinatura-label { font-size: 8pt; font-weight: 700; text-align: center; }
+  .assinatura-label { font-size: 8pt; font-weight: 700; text-align: center; text-transform: uppercase; }
 
   /* LOTE EDITOR */
   .lote-linha-wrap {
@@ -364,6 +368,8 @@
     #form-section, .btn-row-top, h1, .subtitle, .no-print { display: none !important; }
     #preview-section { display: block !important; }
     .bloco { page-break-inside: avoid; }
+    .par-alunos { page-break-after: always; }
+    .par-alunos:last-child { page-break-after: auto; }
     .box-check {
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
@@ -471,6 +477,18 @@
           <input type="date" id="data_ocorrencia">
         </div>
         <div>
+          <label>Emitido por</label>
+          <select id="tipo_emissor" onchange="trocarEmissor(this.value,'individual')">
+            <option value="professor">Professor(a)</option>
+            <option value="coord_turno">Coordenador(a) de Turno</option>
+            <option value="coord_pedagogico">Coordenador(a) Pedagógico(a)</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="bloco-professor-individual">
+      <div class="form-grid-2">
+        <div>
           <label>Disciplina do(a) Professor(a)</label>
           <select id="disciplina">
             <option value="">Selecione a disciplina</option>
@@ -498,6 +516,30 @@
             onblur="setTimeout(()=>fecharDropdownProf('dropdown-professores'),200)">
           <div id="dropdown-professores" style="display:none;position:absolute;z-index:999;left:0;right:0;top:100%;background:#fff;border:1.5px solid var(--azul);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);"></div>
           <span style="font-size:0.7rem;color:#888;margin-top:2px;display:block;">Se não encontrar, <a href="#" onclick="abrirGerenciarProfessores();return false;" style="color:var(--azul);">adicione na listagem</a>.</span>
+        </div>
+      </div>
+      </div><!-- fim bloco-professor-individual -->
+
+      <div id="bloco-coord-turno-individual" style="display:none;">
+        <div class="form-grid-2">
+          <div>
+            <label>Coordenador(a) de Turno</label>
+            <select id="coord_turno_nome">
+              <option value="">Selecione</option>
+              <option value="Wander Lúcio">Wander Lúcio</option>
+              <option value="Cristina Sant' Ana">Cristina Sant' Ana</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="bloco-coord-pedagogico-individual" style="display:none;">
+        <div class="form-grid-2">
+          <div>
+            <label>Coordenador(a) Pedagógico(a)</label>
+            <input type="text" value="Everton Correa" disabled
+              style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;background:#eef1f6;color:#333;">
+          </div>
         </div>
       </div>
       </div><!-- fim modo-individual -->
@@ -535,6 +577,16 @@
           <input type="date" id="data_lote" style="max-width:200px;">
         </div>
         <div style="margin-bottom:14px;">
+          <label>Emitido por</label>
+          <select id="tipo_emissor_lote" onchange="trocarEmissor(this.value,'lote')">
+            <option value="professor">Professor(a)</option>
+            <option value="coord_turno">Coordenador(a) de Turno</option>
+            <option value="coord_pedagogico">Coordenador(a) Pedagógico(a)</option>
+          </select>
+        </div>
+
+        <div id="bloco-professor-lote">
+        <div style="margin-bottom:14px;">
           <label>Disciplina do(a) Professor(a)</label>
           <select id="disciplina_lote">
             <option value="">Selecione a disciplina</option>
@@ -561,6 +613,23 @@
           <div id="dropdown-professores-lote" style="display:none;position:absolute;z-index:999;left:0;right:0;top:100%;background:#fff;border:1.5px solid var(--azul);border-top:none;border-radius:0 0 8px 8px;max-height:200px;overflow-y:auto;box-shadow:0 6px 18px rgba(0,0,0,.13);"></div>
           <span style="font-size:0.7rem;color:#888;margin-top:2px;display:block;">Se não encontrar, <a href="#" onclick="abrirGerenciarProfessores();return false;" style="color:var(--azul);">adicione na listagem</a>.</span>
         </div>
+        </div><!-- fim bloco-professor-lote -->
+
+        <div id="bloco-coord-turno-lote" style="display:none;margin-bottom:14px;">
+          <label>Coordenador(a) de Turno</label>
+          <select id="coord_turno_nome_lote">
+            <option value="">Selecione</option>
+            <option value="Wander Lúcio">Wander Lúcio</option>
+            <option value="Cristina Sant' Ana">Cristina Sant' Ana</option>
+          </select>
+        </div>
+
+        <div id="bloco-coord-pedagogico-lote" style="display:none;margin-bottom:14px;">
+          <label>Coordenador(a) Pedagógico(a)</label>
+          <input type="text" value="Everton Correa" disabled
+            style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;background:#eef1f6;color:#333;">
+        </div>
+
         <div style="position:relative;">
           <label>Nomes dos Alunos * <span style="font-weight:400;color:#888;">(um por linha)</span></label>
           <!-- Editor inteligente: linhas com autocomplete -->
@@ -1696,6 +1765,13 @@ function atualizarContadorLote() {
   if (el) el.textContent = nomes.length > 0 ? nomes.length + ' aluno(s) na lista' : '';
 }
 
+function trocarEmissor(tipo, modo) {
+  const sufixo = modo === 'lote' ? '-lote' : '-individual';
+  document.getElementById('bloco-professor' + sufixo).style.display = tipo === 'professor' ? '' : 'none';
+  document.getElementById('bloco-coord-turno' + sufixo).style.display = tipo === 'coord_turno' ? '' : 'none';
+  document.getElementById('bloco-coord-pedagogico' + sufixo).style.display = tipo === 'coord_pedagogico' ? '' : 'none';
+}
+
 let modoAtual = 'individual';
 
 function trocarModo(modo) {
@@ -1748,6 +1824,8 @@ function limparForm() {
   document.getElementById('mat_caderno').checked = false;
   document.getElementById('mat_livro').checked = false;
   document.getElementById('contador-alunos').textContent = '';
+  trocarEmissor('professor', 'individual');
+  trocarEmissor('professor', 'lote');
   trocarModo('individual');
 }
 
@@ -1770,17 +1848,33 @@ function boxMarcado(marcado) {
 }
 
 function gerarBlocoHTML(dados) {
-  const { nome, turma, turno, data, professor, disciplina, opcoes, observacoes } = dados;
+  const { nome, turma, turno, data, professor, disciplina, opcoes, observacoes, tipoEmissor, nomeEmissor } = dados;
 
   const dataFmt = formatarData(data);
 
-  // Linha professor + disciplina
-  const profLabel = professor || '___________________________';
-  const discLabel = disciplina || '___________________';
-  const linhaProfessor = `Professor(a): <span class="campo-sublinhado">${profLabel}</span> &nbsp;&nbsp; Disciplina: <span class="campo-sublinhado">${discLabel}</span>`;
+  // Linha emissor (professor, coord. turno ou coord. pedagógico)
+  let linhaEmissor = '';
+  let labelAssinatura = '';
+  if (tipoEmissor === 'coord_turno') {
+    const nome_coord = nomeEmissor ? nomeEmissor.toUpperCase() : '___________________________';
+    linhaEmissor = `Coordenador(a) de Turno: <span class="campo-sublinhado">${nome_coord}</span>`;
+    labelAssinatura = `COORDENADOR(A) DE TURNO${nomeEmissor ? ': ' + nomeEmissor.toUpperCase() : ''}`;
+  } else if (tipoEmissor === 'coord_pedagogico') {
+    const nome_coord = nomeEmissor ? nomeEmissor.toUpperCase() : 'EVERTON CORREA';
+    linhaEmissor = `Coordenador(a) Pedagógico(a): <span class="campo-sublinhado">${nome_coord}</span>`;
+    labelAssinatura = `COORDENADOR(A) PEDAGÓGICO(A): ${nome_coord}`;
+  } else {
+    const profLabel = professor ? professor.toUpperCase() : '___________________________';
+    const discLabel = disciplina || '___________________';
+    linhaEmissor = `Professor(a): <span class="campo-sublinhado">${profLabel}</span> &nbsp;&nbsp; Disciplina: <span class="campo-sublinhado">${discLabel}</span>`;
+    labelAssinatura = `PROFESSOR(A)${professor ? ': ' + professor.toUpperCase() : ''}`;
+  }
+  const linhaProfessor = linhaEmissor;
+
+  const nomeUpper = (nome || '').toUpperCase();
 
   // Linha aluno
-  const linhaAluno = `Informo que o(a) aluno(a) <span class="campo-sublinhado">${nome || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
+  const linhaAluno = `Informo que o(a) aluno(a) <span class="campo-sublinhado">${nomeUpper || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
     turma <span class="campo-sublinhado curto">${turma || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>
     turno <span class="campo-sublinhado medio">${turno || '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'}</span>,
     no dia <span class="campo-sublinhado curto">${dataFmt}</span> apresentou a seguinte atitude:`;
@@ -1847,7 +1941,7 @@ function gerarBlocoHTML(dados) {
       <div class="assinaturas">
         <div class="assinatura-col">
           <div class="linha-assinatura"></div>
-          <div class="assinatura-label">PROFESSOR(A)${professor ? ': ' + professor : ''}</div>
+          <div class="assinatura-label">${labelAssinatura}</div>
         </div>
         <div class="assinatura-col">
           <div class="linha-assinatura"></div>
@@ -1871,25 +1965,48 @@ function gerarPrevia() {
     const turma = document.getElementById('turma').value;
     const turno = document.getElementById('turno').value;
     const data = document.getElementById('data_ocorrencia').value;
-    const professor = document.getElementById('professor').value.trim();
-    const disciplina = document.getElementById('disciplina').value;
+    const tipoEmissor = document.getElementById('tipo_emissor').value;
+    let professor = '', disciplina = '', nomeEmissor = '';
+    if (tipoEmissor === 'professor') {
+      professor = document.getElementById('professor').value.trim();
+      disciplina = document.getElementById('disciplina').value;
+    } else if (tipoEmissor === 'coord_turno') {
+      nomeEmissor = document.getElementById('coord_turno_nome').value;
+    } else if (tipoEmissor === 'coord_pedagogico') {
+      nomeEmissor = 'Everton Correa';
+    }
     if (!nome) { alert('Por favor, informe o nome do(a) aluno(a).'); return; }
-    const dados = { nome, turma, turno, data, professor, disciplina, observacoes };
+    const dados = { nome, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
     for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
 
   } else {
     const turma = document.getElementById('turma_lote').value;
     const turno = document.getElementById('turno_lote').value;
     const data = document.getElementById('data_lote').value;
-    const professor = document.getElementById('professor_lote').value.trim();
-    const disciplina = document.getElementById('disciplina_lote').value;
+    const tipoEmissor = document.getElementById('tipo_emissor_lote').value;
+    let professor = '', disciplina = '', nomeEmissor = '';
+    if (tipoEmissor === 'professor') {
+      professor = document.getElementById('professor_lote').value.trim();
+      disciplina = document.getElementById('disciplina_lote').value;
+    } else if (tipoEmissor === 'coord_turno') {
+      nomeEmissor = document.getElementById('coord_turno_nome_lote').value;
+    } else if (tipoEmissor === 'coord_pedagogico') {
+      nomeEmissor = 'Everton Correa';
+    }
     const listaTexto = document.getElementById('lista_alunos').value;
     const nomes = listaTexto.split('\n').map(s => s.trim()).filter(Boolean);
     if (!turma) { alert('Selecione a turma.'); return; }
     if (nomes.length === 0) { alert('Adicione ao menos um aluno na lista.'); return; }
+    // Gerar todos os blocos individuais (respeitando nº de vias)
+    const blocos = [];
     for (const nome of nomes) {
-      const dados = { nome, turma, turno, data, professor, disciplina, observacoes };
-      for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
+      const dados = { nome, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
+      for (let i = 0; i < vias; i++) blocos.push(gerarBlocoHTML(dados));
+    }
+    // Agrupar 2 blocos por página
+    for (let i = 0; i < blocos.length; i += 2) {
+      const par = blocos.slice(i, i + 2).join('');
+      html += `<div class="par-alunos">${par}</div>`;
     }
   }
 
