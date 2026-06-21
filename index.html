@@ -1196,6 +1196,7 @@
     <button onclick="openExternal('https://sistemaseducacao.pbh.gov.br/smae/default/user/login?_next=/smae/default/index', 'SMAE – Sistema de Monitoramento das Aprendizagens dos(as) Estudantes', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">📈 SMAE</button>
     <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
     <button onclick="window.open('advertencia.html', '_blank')">📝 Gerar Advertência</button>
+    <button onclick="window.open('dashboard-greve.html', '_blank')">✊ Dashboard da Greve</button>
     <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </header>
@@ -2684,7 +2685,8 @@ function applyAccess() {
     { tab: 'linktree',      idx: 9 },
     { tab: 'smae',          idx: 10 },
     { tab: 'sge',           idx: 11 },
-    { tab: 'advertencia',   idx: 12 }
+    { tab: 'advertencia',   idx: 12 },
+    { tab: 'greve',         idx: 13 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
@@ -2712,7 +2714,7 @@ function initAcessoPanel() {
     substituicoes: '🔄 Substituições', acepat: '⭐ ACEPAT',
     gestao: '📋 Gestão Ped.', mecano: '🖨️ Mecanografia',
     mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree',
-    smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência'
+    smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência', greve: '✊ Dashboard da Greve'
   };
   const secondaries = USERS.filter(u => u.perfil !== 'admin');
   container.innerHTML = secondaries.map(u => {
