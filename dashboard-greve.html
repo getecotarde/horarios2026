@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard da Paralisação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef1f6;
+  --surface:#ffffff;
+  --surface-2:#f6f8fb;
+  --ink:#16243a;
+  --ink-soft:#5b6b85;
+  --ink-faint:#90a0b7;
+  --line:#e2e7f0;
+
+  --sidebar:#0d1b2e;
+  --sidebar-soft:#16283f;
+  --sidebar-text:#aab9cf;
+  --sidebar-text-strong:#ffffff;
+
+  --primary:#0e9488;
+  --primary-ink:#ffffff;
+
+  --success:#1f9d55;
+  --success-bg:#e7f7ee;
+  --danger:#d6453c;
+  --danger-bg:#fdecea;
+  --warning:#b9790a;
+  --warning-bg:#fdf3df;
+
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 1px 2px rgba(16,36,58,.05), 0 10px 28px -16px rgba(16,36,58,.22);
+
+  --font-display:'Manrope',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:var(--font-display);
+  background:var(--bg);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{background:var(--primary);color:#fff}
+
+/* ---------- Sidebar ---------- */
+.sidebar{
+  position:fixed;left:0;top:0;width:248px;height:100vh;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;
+  padding:26px 18px;
+  z-index:20;
+}
+.brand{padding:4px 10px 22px}
+.brand .eyebrow{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;
+  color:var(--primary);font-weight:600;text-transform:uppercase;
+}
+.brand h1{
+  font-size:19px;line-height:1.25;margin:6px 0 0;color:var(--sidebar-text-strong);
+  font-weight:800;letter-spacing:-.01em;
+}
+
+nav{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.nav-btn{
+  display:flex;align-items:center;gap:11px;
+  width:100%;text-align:left;border:none;cursor:pointer;
+  background:transparent;color:var(--sidebar-text);
+  padding:11px 12px;border-radius:var(--radius-sm);
+  font-family:var(--font-display);font-size:14.5px;font-weight:600;
+  transition:background .15s ease,color .15s ease;
+}
+.nav-btn svg{flex:0 0 auto;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+.nav-btn:hover{background:var(--sidebar-soft);color:var(--sidebar-text-strong)}
+.nav-btn.ativo{background:var(--primary);color:#fff}
+.nav-btn.ativo svg{opacity:1}
+
+.sidebar-footer{
+  margin-top:auto;padding:14px 12px 4px;border-top:1px solid rgba(255,255,255,.08);
+  color:var(--ink-faint);font-family:var(--font-mono);font-size:11.5px;line-height:1.6;
+}
+.sidebar-footer b{color:var(--sidebar-text)}
+
+/* ---------- Main ---------- */
+.main{margin-left:248px;padding:38px 44px 64px;max-width:1180px}
+.aba{display:none}
+.aba.ativa{display:block;animation:subir .28s ease}
+@keyframes subir{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.aba.ativa{animation:none}}
+
+.eyebrow{
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.12em;
+  color:var(--primary);font-weight:600;text-transform:uppercase;margin:0 0 8px;
+}
+h1.titulo{font-size:30px;margin:0 0 6px;letter-spacing:-.015em;font-weight:800}
+.subtitulo{color:var(--ink-soft);font-size:15px;margin:0 0 28px;max-width:640px;line-height:1.55}
+
+/* ---------- Stat cards ---------- */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:16px;margin-bottom:20px}
+.stat-card{
+  background:var(--surface);border-radius:var(--radius);padding:20px 22px;
+  box-shadow:var(--shadow);border:1px solid var(--line);
+}
+.stat-card .num{font-family:var(--font-mono);font-size:34px;font-weight:700;line-height:1}
+.stat-card .label{margin-top:8px;color:var(--ink-soft);font-size:13.5px;font-weight:600}
+
+/* ---------- Ledger (signature element) ---------- */
+.ledger{background:var(--surface);border-radius:var(--radius);padding:24px 26px 22px;box-shadow:var(--shadow);border:1px solid var(--line);margin-bottom:22px}
+.ledger h2{margin:0 0 3px;font-size:16px;font-weight:700}
+.ledger p.desc{margin:0 0 18px;color:var(--ink-soft);font-size:13.5px}
+.ledger-bar{display:flex;width:100%;height:26px;border-radius:8px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+.ledger-bar span{height:100%;transition:width .4s ease}
+.ledger-legend{display:flex;flex-wrap:wrap;gap:22px;margin-top:16px}
+.ledger-legend .item{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink-soft)}
+.ledger-legend .dot{width:9px;height:9px;border-radius:3px}
+.ledger-legend b{font-family:var(--font-mono);color:var(--ink);font-weight:700}
+
+.alerta{
+  display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-left:4px solid var(--primary);border-radius:var(--radius-sm);
+  padding:14px 16px;color:var(--ink-soft);font-size:14px;line-height:1.55;margin-bottom:10px;
+}
+.alerta svg{flex:0 0 auto;width:18px;height:18px;stroke:var(--primary);fill:none;stroke-width:2;margin-top:1px}
+.alerta b{color:var(--ink)}
+
+/* ---------- Search / combobox ---------- */
+.busca-wrap{position:relative;max-width:420px;margin-bottom:22px}
+.busca-icone{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-faint);fill:none;stroke-width:2}
+#busca{
+  width:100%;padding:11px 14px 11px 38px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--surface);font-family:var(--font-display);
+  font-size:14.5px;color:var(--ink);box-shadow:var(--shadow);
+}
+#busca:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary)}
+.sugestoes{
+  position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  max-height:300px;overflow-y:auto;z-index:30;
+}
+.sugestao-item{padding:10px 14px;font-size:14px;cursor:pointer;color:var(--ink)}
+.sugestao-item mark{background:transparent;color:var(--primary);font-weight:700}
+.sugestao-item:hover,.sugestao-item.realce{background:var(--surface-2)}
+.sugestao-vazia{padding:12px 14px;font-size:13.5px;color:var(--ink-faint)}
+
+/* ---------- Professor cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:16px}
+.card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:18px 18px 16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;
+}
+.card h3{margin:0;font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.card .turmas-label{margin:3px 0 0;font-size:12.5px;color:var(--ink-soft)}
+.mini-bar{display:flex;width:100%;height:7px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.mini-bar span{height:100%}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--font-mono);font-size:11.5px;font-weight:600;padding:4px 8px;border-radius:999px}
+.chip-success{background:var(--success-bg);color:var(--success)}
+.chip-danger{background:var(--danger-bg);color:var(--danger)}
+.chip-warning{background:var(--warning-bg);color:var(--warning)}
+.btn-detalhe{
+  margin-top:auto;border:none;background:var(--ink);color:#fff;border-radius:var(--radius-sm);
+  padding:10px 12px;font-family:var(--font-display);font-weight:700;font-size:13.5px;cursor:pointer;
+  transition:background .15s ease;
+}
+.btn-detalhe:hover{background:var(--primary)}
+
+/* ---------- Detail panel ---------- */
+.detalhe-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px;box-shadow:var(--shadow)}
+.btn-voltar{
+  border:none;background:var(--surface-2);color:var(--ink);padding:8px 14px;border-radius:999px;
+  font-family:var(--font-display);font-weight:700;font-size:13px;cursor:pointer;margin-bottom:16px;
+}
+.btn-voltar:hover{background:var(--line)}
+.detalhe-panel h2{margin:0 0 4px;font-size:21px;font-weight:800}
+.detalhe-resumo{color:var(--ink-soft);font-size:14px;margin:0 0 14px}
+.detalhe-resumo b{color:var(--ink);font-family:var(--font-mono)}
+.dias-tabela{width:100%;border-collapse:collapse;margin-top:8px}
+.dias-tabela th{
+  text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-soft);padding:8px 10px;border-bottom:1px solid var(--line);
+}
+.dias-tabela td{padding:9px 10px;font-size:13.5px;border-bottom:1px solid var(--line)}
+.dias-tabela tr:last-child td{border-bottom:none}
+.status-badge{font-family:var(--font-mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;display:inline-block}
+
+/* ---------- Turma: linha clicável ---------- */
+.turma-linha-clicavel{cursor:pointer}
+.turma-linha-clicavel:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.turma-linha-clicavel td.turma-nome{position:relative}
+
+/* ---------- Modal: dias da turma ---------- */
+.turma-modal-overlay{
+  position:fixed;inset:0;background:rgba(13,27,46,.45);
+  align-items:center;justify-content:center;
+  padding:24px;z-index:50;opacity:0;transition:opacity .18s ease;
+  display:none;
+}
+.turma-modal-overlay:not([hidden]){display:flex}
+.turma-modal-overlay.aberto{opacity:1}
+.turma-modal{
+  background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:26px 28px;max-width:480px;width:100%;max-height:80vh;overflow-y:auto;
+  position:relative;transform:translateY(10px);transition:transform .18s ease;
+}
+.turma-modal-overlay.aberto .turma-modal{transform:translateY(0)}
+.turma-modal h2{margin:0 0 4px;font-size:21px;font-weight:800}
+.turma-modal-fechar{
+  position:absolute;top:18px;right:18px;border:none;background:var(--surface-2);
+  color:var(--ink-soft);width:30px;height:30px;border-radius:999px;cursor:pointer;
+  font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;
+  transition:background .15s ease,color .15s ease;
+}
+.turma-modal-fechar:hover{background:var(--line);color:var(--ink)}
+
+/* ---------- Botões de impressão ---------- */
+.btn-imprimir{
+  display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);border-radius:999px;
+  padding:8px 15px;font-family:var(--font-display);font-weight:700;font-size:13px;
+  cursor:pointer;transition:background .15s ease,border-color .15s ease;
+}
+.btn-imprimir svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-imprimir:hover{background:var(--surface-2);border-color:var(--ink-faint)}
+.btn-imprimir-sm{
+  border:none;background:var(--surface-2);color:var(--ink-soft);border-radius:999px;
+  width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:background .15s ease,color .15s ease;flex:0 0 auto;
+}
+.btn-imprimir-sm svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
+.btn-imprimir-sm:hover{background:var(--line);color:var(--ink)}
+.aba-acoes{display:flex;justify-content:flex-end;margin:-8px 0 14px}
+.card-header-flex{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.detalhe-acoes{display:flex;justify-content:flex-end;margin-bottom:-6px}
+.turma-modal-acoes{position:absolute;top:18px;right:58px}
+
+/* ---------- Área de impressão dedicada ---------- */
+#areaImpressao{display:none}
+.imp-doc{display:none}
+.imp-cabecalho{margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid #000}
+.imp-cabecalho h1{font-size:18px;margin:0 0 2px}
+.imp-cabecalho p{margin:0;font-size:11px;color:#444}
+.imp-item{margin-bottom:22px;break-inside:avoid;page-break-inside:avoid}
+.imp-item h2{font-size:14px;margin:0 0 2px}
+.imp-item .imp-resumo{font-size:11.5px;color:#333;margin:0 0 8px}
+.imp-item table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px}
+.imp-item th{text-align:left;padding:4px 8px;border-bottom:1px solid #999;background:#f2f2f2}
+.imp-item td{padding:4px 8px;border-bottom:1px solid #ddd}
+.imp-item-divisor{border:none;border-top:1px dashed #bbb;margin:18px 0}
+
+@media print{
+  body *{visibility:hidden}
+  #areaImpressao, #areaImpressao *{visibility:visible}
+  #areaImpressao{display:block;position:absolute;left:0;top:0;width:100%;padding:0;margin:0}
+  .imp-doc.imp-ativo{display:block}
+  @page{margin:14mm}
+}
+
+/* ---------- Tables (Turmas) ---------- */
+.tabela-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:6px;box-shadow:var(--shadow);overflow-x:auto}
+table.turmas{width:100%;border-collapse:collapse;min-width:520px}
+table.turmas th{
+  text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-soft);padding:13px 16px;border-bottom:1px solid var(--line);
+}
+table.turmas td{padding:12px 16px;font-size:14px;border-bottom:1px solid var(--line)}
+table.turmas tr:last-child td{border-bottom:none}
+table.turmas tr:hover td{background:var(--surface-2)}
+.turma-nome{font-family:var(--font-mono);font-weight:700}
+.progresso{display:flex;align-items:center;gap:10px}
+.progresso .trilha{flex:1;height:7px;border-radius:4px;background:var(--surface-2);overflow:hidden;min-width:90px}
+.progresso .trilha span{display:block;height:100%;background:var(--primary)}
+.progresso small{font-family:var(--font-mono);color:var(--ink-soft);font-size:12px;white-space:nowrap}
+
+.nota-regra{color:var(--ink-soft);font-size:13.5px;margin-top:16px}
+.nota-regra b{color:var(--ink)}
+
+footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-family:var(--font-mono)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:860px){
+  .sidebar{position:fixed;width:100%;height:auto;flex-direction:row;align-items:center;
+    padding:12px 14px;overflow-x:auto;gap:14px;top:0}
+  .brand{padding:0;flex:0 0 auto}
+  .brand h1{display:none}
+  nav{flex-direction:row;margin-top:0;flex:1}
+  .nav-btn{padding:9px 12px;white-space:nowrap}
+  .sidebar-footer{display:none}
+  .main{margin-left:0;margin-top:64px;padding:24px 18px 50px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">
+    <p class="eyebrow">Acompanhamento</p>
+    <h1>Dashboard&nbsp;da<br>Paralisação</h1>
+  </div>
+  <nav>
+    <button class="nav-btn" data-aba="inicio" onclick="abrir('inicio',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/><path d="M9.5 19.5v-6h5v6"/></svg>
+      Início
+    </button>
+    <button class="nav-btn" data-aba="professores" onclick="abrir('professores',this)">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19.5c0-3.6 2.9-6.3 6.5-6.3s6.5 2.7 6.5 6.3"/><circle cx="17.5" cy="8.8" r="2.4"/><path d="M16.3 13.4c2.6.4 4.7 2.5 4.7 6.1"/></svg>
+      Professores
+    </button>
+    <button class="nav-btn" data-aba="turmas" onclick="abrir('turmas',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.3"/></svg>
+      Turmas
+    </button>
+    <button class="nav-btn" data-aba="pendencias" onclick="abrir('pendencias',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
+      Pendências
+    </button>
+    <button class="nav-btn" data-aba="reposicao" onclick="abrir('reposicao',this)">
+      <svg viewBox="0 0 24 24"><path d="M4 4.5v6h6"/><path d="M20 19.5v-6h-6"/><path d="M5 13.5a8 8 0 0 1 13.8-5.3l1.2 1.1"/><path d="M19 10.5a8 8 0 0 1-13.8 5.3l-1.2-1.1"/></svg>
+      Reposição
+    </button>
+  </nav>
+  <div class="sidebar-footer" id="rodapeSidebar"></div>
+</div>
+
+<div class="main">
+
+  <!-- INÍCIO -->
+  <section id="inicio" class="aba ativa">
+    <p class="eyebrow">Painel geral</p>
+    <h1 class="titulo">Dashboard da Paralisação</h1>
+    <p class="subtitulo">Visão consolidada dos dias trabalhados, em greve e em aberto durante o período de paralisação.</p>
+
+    <div class="stats-row" id="statsInicio"></div>
+
+    <div class="ledger">
+      <h2>Balanço geral de dias</h2>
+      <p class="desc">Soma de todos os dias de todos os professores, por situação.</p>
+      <div class="ledger-bar" id="ledgerBar"></div>
+      <div class="ledger-legend" id="ledgerLegend"></div>
+    </div>
+
+    <div class="alerta">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg>
+      <span><b>Gilce</b> e <b>Ed. 2</b> foram excluídos dos cálculos. <b>João Marcelo Guimães</b> permanece como exceção ao fechamento dos 32 dias.</span>
+    </div>
+  </section>
+
+  <!-- PROFESSORES -->
+  <section id="professores" class="aba">
+    <p class="eyebrow">Corpo docente</p>
+    <h1 class="titulo">Professores</h1>
+    <p class="subtitulo">Listados em ordem alfabética. Digite para filtrar — uma lista suspensa mostra as correspondências em tempo real.</p>
+
+    <div class="aba-acoes">
+      <button class="btn-imprimir" onclick="imprimirTodosProfessores()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir todos os professores
+      </button>
+    </div>
+
+    <div class="busca-wrap">
+      <svg class="busca-icone" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.2"/><path d="m20.5 20.5-4.3-4.3"/></svg>
+      <input id="busca" type="text" placeholder="Buscar professor pelo nome…" autocomplete="off"
+             role="combobox" aria-expanded="false" aria-controls="sugestoes" aria-autocomplete="list">
+      <div id="sugestoes" class="sugestoes" role="listbox" hidden></div>
+    </div>
+
+    <div id="lista" class="grid"></div>
+
+    <div id="detalhe" class="detalhe-panel" hidden>
+      <button class="btn-voltar" onclick="voltar()">← Voltar para a lista</button>
+      <div class="card-header-flex">
+        <h2 id="profNome"></h2>
+        <button class="btn-imprimir" id="btnImprimirProfessorAtual" onclick="imprimirProfessor(profAtualNome)">
+          <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+          Imprimir
+        </button>
+      </div>
+      <p class="detalhe-resumo" id="profResumo"></p>
+      <div class="mini-bar" id="detalheBar" style="margin-bottom:6px"></div>
+      <table class="dias-tabela">
+        <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+        <tbody id="dias"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TURMAS -->
+  <section id="turmas" class="aba">
+    <p class="eyebrow">Convocação por turma</p>
+    <h1 class="titulo">Turmas</h1>
+    <p class="subtitulo">Dias convocados e saldo para reposição por turma, apurados a partir da aba de horários, com base no total de 32 dias de paralisação.</p>
+
+    <div class="aba-acoes">
+      <button class="btn-imprimir" onclick="imprimirTodasTurmas()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir todas as turmas
+      </button>
+    </div>
+
+    <div class="tabela-card">
+      <table class="turmas">
+        <thead>
+          <tr><th>Turma</th><th>Saldo para reposição</th><th>Dias convocados</th><th>Progresso</th></tr>
+        </thead>
+        <tbody id="corpoTurmas"></tbody>
+      </table>
+    </div>
+
+    <p class="nota-regra"><b>Regra utilizada:</b> 32 − dias convocados.</p>
+
+    <div class="alerta" style="margin-top:14px">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg>
+      <span><b>03/06:</b> confirmado que nenhuma turma foi convocada nesse dia. Por isso ele já entra automaticamente como dia a repor para todas as turmas — os números acima (32 dias) já refletem isso.</span>
+    </div>
+  </section>
+
+  <!-- PENDÊNCIAS -->
+  <section id="pendencias" class="aba">
+    <p class="eyebrow">Observações</p>
+    <h1 class="titulo">Pendências</h1>
+    <p class="subtitulo">Pontos de atenção considerados no fechamento dos dados.</p>
+
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span>Dias vazios são considerados <b>EM ABERTO</b>.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Gilce</b> excluída do cálculo.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Ed. 2</b> excluído do cálculo.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>João Marcelo</b> é exceção ao fechamento dos 32 dias.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>03/06:</b> confirmado que nenhuma turma foi convocada — esse dia conta como dia a repor para todas as turmas (já refletido na aba Turmas).</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>8ºX:</b> turma adicionada à aba Turmas — não teve nenhum dia de convocação, então precisa repor os 32 dias.</span></div>
+  </section>
+
+  <!-- REPOSIÇÃO -->
+  <section id="reposicao" class="aba">
+    <p class="eyebrow">Saldo de aulas</p>
+    <h1 class="titulo">Reposição</h1>
+    <p class="subtitulo">Referência principal: o saldo de cada turma (dias não convocados dos 32 totais). Em seguida, quanto cada professor consegue repor — limitado ao saldo da turma dele com maior número de dias a repor.</p>
+
+    <div class="alerta">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg>
+      <span>No dia <b>03/06</b> nenhuma turma foi convocada — esse dia já está contado como dia a repor para todas as turmas, inclusive nos números abaixo.</span>
+    </div>
+
+    <h2 style="font-size:16px;margin:26px 0 10px">Reposição por turma</h2>
+    <p class="subtitulo" style="margin-bottom:14px">Saldo = 32 − dias convocados. É a referência usada para limitar a reposição de cada professor.</p>
+    <div class="tabela-card">
+      <table class="turmas">
+        <thead>
+          <tr><th>Turma</th><th>Saldo para reposição</th><th>Dias convocados</th><th>Progresso</th></tr>
+        </thead>
+        <tbody id="corpoReposicaoTurmas"></tbody>
+      </table>
+    </div>
+
+    <div class="card-header-flex" style="margin:30px 0 4px;align-items:flex-end">
+      <h2 style="font-size:16px;margin:0">Reposição por professor</h2>
+      <button class="btn-imprimir" onclick="imprimirReposicaoProfessores()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir
+      </button>
+    </div>
+    <p class="subtitulo" style="margin-bottom:14px">Cada professor só pode repor até o saldo da sua turma com mais dias a repor. O restante dos dias de greve vira <b>"dias sem possibilidade de reposição"</b>.</p>
+    <div class="tabela-card">
+      <table class="turmas">
+        <thead>
+          <tr><th>Professor</th><th>Turmas</th><th>Dias de greve</th><th>Turma de referência</th><th>Saldo da turma ref.</th><th>Dias possíveis de repor</th><th>Sem possibilidade</th></tr>
+        </thead>
+        <tbody id="corpoReposicaoProfessores"></tbody>
+      </table>
+    </div>
+
+    <p class="nota-regra"><b>Regra utilizada:</b> dias possíveis de repor = mínimo entre (dias de greve do professor) e (saldo da turma de maior saldo entre as turmas dele). Dias sem possibilidade = dias de greve − dias possíveis de repor.</p>
+
+    <footer class="creditos">32 dias de referência · dados atualizados manualmente</footer>
+  </section>
+
+</div>
+
+<!-- MODAL: dias de convocação da turma -->
+<div id="turmaModalOverlay" class="turma-modal-overlay" hidden>
+  <div class="turma-modal" role="dialog" aria-modal="true" aria-labelledby="turmaModalTitulo">
+    <button id="turmaModalFechar" class="turma-modal-fechar" onclick="fecharTurmaModal()" aria-label="Fechar">✕</button>
+    <button class="btn-imprimir-sm turma-modal-acoes" id="turmaModalImprimir" title="Imprimir" aria-label="Imprimir esta turma">
+      <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+    </button>
+    <h2 id="turmaModalTitulo"></h2>
+    <p class="detalhe-resumo" id="turmaModalResumo"></p>
+    <table class="dias-tabela">
+      <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+      <tbody id="turmaModalDias"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ÁREA DE IMPRESSÃO (oculta na tela, exibida apenas via window.print) -->
+<div id="areaImpressao">
+  <div id="impProfessorUnico" class="imp-doc"></div>
+  <div id="impTurmaUnica" class="imp-doc"></div>
+  <div id="impTodosProfessores" class="imp-doc"></div>
+  <div id="impTodasTurmas" class="imp-doc"></div>
+  <div id="impReposicaoProfessores" class="imp-doc"></div>
+</div>
+
+<script>
+const professores = [{"nome": "Adilson Eustáquio", "turmas": "6º A/B/C/D/E/F", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Alessandra", "turmas": "6º A/B/C", "trabalhado": 1, "greve": 31, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Alexandra Ferreira", "turmas": "7º A/B/C", "trabalhado": 32, "greve": 0, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Claudete", "turmas": "7ºD/E  8ºX", "trabalhado": 32, "greve": 0, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO/Atestado"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO/Atestado"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Fabiana", "turmas": "7ºD/E", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Fernanda Carolina", "turmas": "6º D/E/F", "trabalhado": 31, "greve": 1, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Gislaine Diniz", "turmas": "6º A/B/C", "trabalhado": 32, "greve": 0, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO/Atestado"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO/Atestado"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO/Atestado"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Guilherme Nicácio", "turmas": "7º A/B/C", "trabalhado": 27, "greve": 5, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Joadne Ridicchi", "turmas": "6º D/E/F", "trabalhado": 1, "greve": 31, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "JOAO T.", "turmas": "PIP", "trabalhado": 29, "greve": 1, "aberto": 2, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "EM ABERTO"}, {"dia": "27/04 SEG", "situacao": "EM ABERTO"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "João Marcelo Guimães", "turmas": "6º A/B/C/D/E/F- 7º A/B/C", "trabalhado": 11, "greve": 10, "aberto": 11, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "EM ABERTO"}, {"dia": "26/05 TER", "situacao": "EM ABERTO"}, {"dia": "27/05 QUA", "situacao": "EM ABERTO"}, {"dia": "28/05 QUI", "situacao": "EM ABERTO"}, {"dia": "29/05 SEX", "situacao": "EM ABERTO"}, {"dia": "01/06 SEG", "situacao": "EM ABERTO"}, {"dia": "02/06 TER", "situacao": "EM ABERTO"}, {"dia": "03/06 QUA", "situacao": "EM ABERTO"}, {"dia": "08/06 SEG", "situacao": "EM ABERTO"}, {"dia": "09/06TER", "situacao": "EM ABERTO"}, {"dia": "10/06 QUA", "situacao": "EM ABERTO"}]}, {"nome": "Juliana Cristie", "turmas": "7º A/B/C/D/E", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Juscele Silva", "turmas": "6º A/B/C/D/E/F", "trabalhado": 31, "greve": 1, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Leidiane de Paula", "turmas": "6º A/B/C/D/E/F", "trabalhado": 31, "greve": 1, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO/Atestado"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Magna Aparecida", "turmas": "7º D/E  8ºX", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Marcelo", "turmas": "6º A/B/C/D/E/F- 7º A/B/C", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Marcelo Cafiero", "turmas": "8ºX", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Marcelo Soares (JHOW)", "turmas": "7º A/B/C/D/E", "trabalhado": 32, "greve": 0, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "TRABALHADO"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "TRABALHADO"}, {"dia": "30/04 QUI", "situacao": "TRABALHADO/TRE"}, {"dia": "04/05 SEG", "situacao": "TRABALHADO"}, {"dia": "05/05 TER", "situacao": "TRABALHADO"}, {"dia": "06/05 QUA", "situacao": "TRABALHADO"}, {"dia": "07/05 QUI", "situacao": "TRABALHADO"}, {"dia": "08/05 SEX", "situacao": "TRABALHADO"}, {"dia": "11/05 SEG", "situacao": "TRABALHADO"}, {"dia": "12/05 TER", "situacao": "TRABALHADO"}, {"dia": "13/05 QUA", "situacao": "TRABALHADO"}, {"dia": "14/05 QUI", "situacao": "TRABALHADO"}, {"dia": "15/05 SEX", "situacao": "TRABALHADO"}, {"dia": "18/05 SEG", "situacao": "TRABALHADO"}, {"dia": "19/05 TER", "situacao": "TRABALHADO"}, {"dia": "20/05 QUA", "situacao": "TRABALHADO"}, {"dia": "21/05 QUI", "situacao": "TRABALHADO"}, {"dia": "22/05 SEX", "situacao": "TRABALHADO"}, {"dia": "25/05 SEG", "situacao": "TRABALHADO"}, {"dia": "26/05 TER", "situacao": "TRABALHADO"}, {"dia": "27/05 QUA", "situacao": "TRABALHADO"}, {"dia": "28/05 QUI", "situacao": "TRABALHADO"}, {"dia": "29/05 SEX", "situacao": "TRABALHADO"}, {"dia": "01/06 SEG", "situacao": "TRABALHADO"}, {"dia": "02/06 TER", "situacao": "TRABALHADO"}, {"dia": "03/06 QUA", "situacao": "TRABALHADO"}, {"dia": "08/06 SEG", "situacao": "TRABALHADO"}, {"dia": "09/06TER", "situacao": "TRABALHADO"}, {"dia": "10/06 QUA", "situacao": "TRABALHADO"}]}, {"nome": "Marcia Peifer MArtins", "turmas": "7º A/B/C/D/E", "trabalhado": 1, "greve": 31, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "TRABALHADO"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Maria do Carmo", "turmas": "7ª D/E", "trabalhado": 2, "greve": 30, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "TRABALHADO"}, {"dia": "28/04 TER", "situacao": "TRABALHADO"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}, {"nome": "Ronei", "turmas": "6º A/B/C/D/E/F- 7º A/B/C", "trabalhado": 0, "greve": 32, "aberto": 0, "detalhes": [{"dia": "11/03 QUA", "situacao": "GREVE/Paralisação"}, {"dia": "16/04 QUI", "situacao": "GREVE/Paralisação"}, {"dia": "27/04 SEG", "situacao": "GREVE"}, {"dia": "28/04 TER", "situacao": "GREVE"}, {"dia": "29/04 QUA", "situacao": "GREVE"}, {"dia": "30/04 QUI", "situacao": "GREVE"}, {"dia": "04/05 SEG", "situacao": "GREVE"}, {"dia": "05/05 TER", "situacao": "GREVE"}, {"dia": "06/05 QUA", "situacao": "GREVE"}, {"dia": "07/05 QUI", "situacao": "GREVE"}, {"dia": "08/05 SEX", "situacao": "GREVE"}, {"dia": "11/05 SEG", "situacao": "GREVE"}, {"dia": "12/05 TER", "situacao": "GREVE"}, {"dia": "13/05 QUA", "situacao": "GREVE"}, {"dia": "14/05 QUI", "situacao": "GREVE"}, {"dia": "15/05 SEX", "situacao": "GREVE"}, {"dia": "18/05 SEG", "situacao": "GREVE"}, {"dia": "19/05 TER", "situacao": "GREVE"}, {"dia": "20/05 QUA", "situacao": "GREVE"}, {"dia": "21/05 QUI", "situacao": "GREVE"}, {"dia": "22/05 SEX", "situacao": "GREVE"}, {"dia": "25/05 SEG", "situacao": "GREVE"}, {"dia": "26/05 TER", "situacao": "GREVE"}, {"dia": "27/05 QUA", "situacao": "GREVE"}, {"dia": "28/05 QUI", "situacao": "GREVE"}, {"dia": "29/05 SEX", "situacao": "GREVE"}, {"dia": "01/06 SEG", "situacao": "GREVE"}, {"dia": "02/06 TER", "situacao": "GREVE"}, {"dia": "03/06 QUA", "situacao": "GREVE"}, {"dia": "08/06 SEG", "situacao": "GREVE"}, {"dia": "09/06TER", "situacao": "GREVE"}, {"dia": "10/06 QUA", "situacao": "GREVE"}]}];
+
+const turmasData = [
+  {turma:"6A", convocados:14, repor:18, diasConvocados:["16/04 QUI","27/04 SEG","28/04 TER","30/04 QUI","05/05 TER","11/05 SEG","15/05 SEX","18/05 SEG","22/05 SEX","25/05 SEG","27/05 QUA","01/06 SEG","09/06TER","10/06 QUA"]},
+  {turma:"6B", convocados:14, repor:18, diasConvocados:["11/03 QUA","28/04 TER","29/04 QUA","04/05 SEG","06/05 QUA","08/05 SEX","13/05 QUA","15/05 SEX","20/05 QUA","21/05 QUI","26/05 TER","28/05 QUI","02/06 TER","09/06TER"]},
+  {turma:"6C", convocados:13, repor:19, diasConvocados:["27/04 SEG","29/04 QUA","04/05 SEG","07/05 QUI","11/05 SEG","14/05 QUI","18/05 SEG","22/05 SEX","25/05 SEG","29/05 SEX","02/06 TER","08/06 SEG","09/06TER"]},
+  {turma:"6D", convocados:15, repor:17, diasConvocados:["16/04 QUI","28/04 TER","30/04 QUI","05/05 TER","08/05 SEX","12/05 TER","14/05 QUI","18/05 SEG","19/05 TER","25/05 SEG","27/05 QUA","28/05 QUI","02/06 TER","09/06TER","10/06 QUA"]},
+  {turma:"6E", convocados:14, repor:18, diasConvocados:["27/04 SEG","29/04 QUA","30/04 QUI","04/05 SEG","06/05 QUA","08/05 SEX","12/05 TER","15/05 SEX","19/05 TER","22/05 SEX","25/05 SEG","29/05 SEX","01/06 SEG","09/06TER"]},
+  {turma:"6F", convocados:13, repor:19, diasConvocados:["27/04 SEG","29/04 QUA","04/05 SEG","07/05 QUI","11/05 SEG","13/05 QUA","20/05 QUA","21/05 QUI","26/05 TER","29/05 SEX","01/06 SEG","08/06 SEG","09/06TER"]},
+  {turma:"7A", convocados:18, repor:14, diasConvocados:["11/03 QUA","27/04 SEG","29/04 QUA","05/05 TER","07/05 QUI","08/05 SEX","12/05 TER","13/05 QUA","14/05 QUI","18/05 SEG","19/05 TER","20/05 QUA","21/05 QUI","27/05 QUA","28/05 QUI","02/06 TER","09/06TER","10/06 QUA"]},
+  {turma:"7B", convocados:18, repor:14, diasConvocados:["16/04 QUI","29/04 QUA","30/04 QUI","05/05 TER","07/05 QUI","12/05 TER","13/05 QUA","15/05 SEX","18/05 SEG","19/05 TER","20/05 QUA","22/05 SEX","26/05 TER","27/05 QUA","29/05 SEX","01/06 SEG","09/06TER","10/06 QUA"]},
+  {turma:"7C", convocados:16, repor:16, diasConvocados:["16/04 QUI","28/04 TER","30/04 QUI","05/05 TER","06/05 QUA","08/05 SEX","12/05 TER","14/05 QUI","15/05 SEX","19/05 TER","21/05 QUI","22/05 SEX","26/05 TER","29/05 SEX","02/06 TER","09/06TER"]},
+  {turma:"7D", convocados:12, repor:20, diasConvocados:["27/04 SEG","28/04 TER","04/05 SEG","07/05 QUI","08/05 SEX","11/05 SEG","14/05 QUI","21/05 QUI","25/05 SEG","28/05 QUI","08/06 SEG","09/06TER"]},
+  {turma:"7E", convocados:12, repor:20, diasConvocados:["27/04 SEG","28/04 TER","04/05 SEG","07/05 QUI","11/05 SEG","15/05 SEX","22/05 SEX","25/05 SEG","29/05 SEX","01/06 SEG","08/06 SEG","09/06TER"]},
+  {turma:"8X", convocados:0, repor:32, diasConvocados:[]},
+];
+/* Calculado a partir da aba "Horários 2704 a 1006" da planilha GREVE_E_HORÁRIOS.xlsx:
+   para cada bloco de dia, a turma é considerada convocada se aparece na linha
+   "Turma/H" logo abaixo da linha com a data. No dia 03/06 nenhuma turma foi
+   convocada (confirmado), por isso esse dia já entra automaticamente como dia
+   a repor para todas as turmas — é o que faz convocados + repor = 32 em cada linha.
+   O 8ºX não teve nenhum dia de convocação registrado na planilha: repor = 32. */
+const turmasMap = Object.fromEntries(turmasData.map(t => [t.turma, t]));
+
+/* Extrai os códigos de turma (ex.: "6A", "7D", "8X") de uma string como
+   "6º A/B/C/D/E/F- 7º A/B/C" ou "7ºD/E  8ºX". Strings sem nenhum dígito+letra
+   reconhecível (ex.: "PIP") retornam lista vazia. */
+function extrairCodigosTurma(s){
+  const out = [];
+  const re = /(\d)\s*[ºªo°]?\s*((?:[A-Z](?:\s*\/\s*[A-Z])*))/g;
+  let mm;
+  while((mm = re.exec(s))){
+    const digito = mm[1];
+    mm[2].split('/').map(x=>x.trim()).forEach(letra=>{
+      const codigo = digito + letra;
+      if(turmasMap[codigo] && !out.includes(codigo)) out.push(codigo);
+    });
+  }
+  return out;
+}
+
+/* Para cada professor, calcula quantos dias de greve ele consegue repor.
+   Regra: o limite é o saldo (repor) da turma dele com MAIOR saldo a repor —
+   é essa turma que ainda tem dias livres suficientes na agenda. O restante
+   dos dias de greve, se houver, fica como "sem possibilidade de reposição". */
+function calcularReposicaoProfessor(p){
+  const codigos = extrairCodigosTurma(p.turmas);
+  if(codigos.length === 0){
+    return {codigos, turmaRef:null, maxRepor:null, possiveis:p.greve, semPossibilidade:0};
+  }
+  let turmaRef = codigos[0], maxRepor = turmasMap[codigos[0]].repor;
+  codigos.forEach(c=>{
+    if(turmasMap[c].repor > maxRepor){ maxRepor = turmasMap[c].repor; turmaRef = c; }
+  });
+  const possiveis = Math.min(p.greve, maxRepor);
+  const semPossibilidade = Math.max(0, p.greve - maxRepor);
+  return {codigos, turmaRef, maxRepor, possiveis, semPossibilidade};
+}
+
+const DIAS_PARALISACAO = 32;
+
+function normalizar(s){
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function corSituacao(sit){
+  if(sit.startsWith('TRABALHADO')) return {cls:'chip-success', bg:'var(--success-bg)', fg:'var(--success)'};
+  if(sit.startsWith('GREVE')) return {cls:'chip-danger', bg:'var(--danger-bg)', fg:'var(--danger)'};
+  return {cls:'chip-warning', bg:'var(--warning-bg)', fg:'var(--warning)'};
+}
+function formatarDia(d){
+  return d.replace(/(\d{2}\/\d{2})([A-Z]{3})/, '$1 $2');
+}
+
+const professoresOrdenados = [...professores].sort((a,b)=>
+  a.nome.localeCompare(b.nome, 'pt-BR', {sensitivity:'base'})
+);
+
+/* ---------------- Navegação entre abas ---------------- */
+function abrir(id, btn){
+  document.querySelectorAll('.aba').forEach(x=>x.classList.remove('ativa'));
+  document.getElementById(id).classList.add('ativa');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.classList.remove('ativo');
+    b.removeAttribute('aria-current');
+  });
+  if(btn){ btn.classList.add('ativo'); btn.setAttribute('aria-current','page'); }
+}
+
+/* ---------------- Início ---------------- */
+function renderInicio(){
+  const totais = professores.reduce((acc,p)=>{
+    acc.trabalhado += p.trabalhado; acc.greve += p.greve; acc.aberto += p.aberto;
+    return acc;
+  }, {trabalhado:0, greve:0, aberto:0});
+  const soma = totais.trabalhado + totais.greve + totais.aberto || 1;
+
+  document.getElementById('statsInicio').innerHTML = `
+    <div class="stat-card"><div class="num">${DIAS_PARALISACAO}</div><div class="label">Dias de paralisação</div></div>
+    <div class="stat-card"><div class="num">${professoresOrdenados.length}</div><div class="label">Professores</div></div>
+    <div class="stat-card"><div class="num">${turmasData.length}</div><div class="label">Turmas</div></div>
+  `;
+
+  document.getElementById('ledgerBar').innerHTML = `
+    <span style="width:${totais.trabalhado/soma*100}%;background:var(--success)"></span>
+    <span style="width:${totais.greve/soma*100}%;background:var(--danger)"></span>
+    <span style="width:${totais.aberto/soma*100}%;background:var(--warning)"></span>
+  `;
+  document.getElementById('ledgerLegend').innerHTML = `
+    <div class="item"><span class="dot" style="background:var(--success)"></span>Trabalhado <b>${totais.trabalhado}</b></div>
+    <div class="item"><span class="dot" style="background:var(--danger)"></span>Greve <b>${totais.greve}</b></div>
+    <div class="item"><span class="dot" style="background:var(--warning)"></span>Em aberto <b>${totais.aberto}</b></div>
+  `;
+}
+
+/* ---------------- Professores: cards ---------------- */
+function miniBarHTML(p){
+  const total = p.trabalhado + p.greve + p.aberto || 1;
+  return `<span style="width:${p.trabalhado/total*100}%;background:var(--success)"></span>
+          <span style="width:${p.greve/total*100}%;background:var(--danger)"></span>
+          <span style="width:${p.aberto/total*100}%;background:var(--warning)"></span>`;
+}
+
+function cardHTML(p){
+  return `
+  <article class="card" data-nome-norm="${normalizar(p.nome)}">
+    <header class="card-header-flex">
+      <div>
+        <h3>${escapeHtml(p.nome)}</h3>
+        <p class="turmas-label">${escapeHtml(p.turmas)}</p>
+      </div>
+      <button class="btn-imprimir-sm" data-nome="${escapeHtml(p.nome)}" data-acao="imprimir-professor" title="Imprimir ${escapeHtml(p.nome)}" aria-label="Imprimir ${escapeHtml(p.nome)}">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+      </button>
+    </header>
+    <div class="mini-bar">${miniBarHTML(p)}</div>
+    <div class="chips">
+      <span class="chip chip-success">${p.trabalhado} trab.</span>
+      <span class="chip chip-danger">${p.greve} greve</span>
+      <span class="chip chip-warning">${p.aberto} aberto</span>
+    </div>
+    <button class="btn-detalhe" data-nome="${escapeHtml(p.nome)}">Ver detalhes</button>
+  </article>`;
+}
+
+function renderCards(){
+  const lista = document.getElementById('lista');
+  lista.innerHTML = professoresOrdenados.map(cardHTML).join('');
+  lista.querySelectorAll('.btn-detalhe').forEach(b=>{
+    b.addEventListener('click', ()=> detalhe(b.dataset.nome));
+  });
+  lista.querySelectorAll('[data-acao="imprimir-professor"]').forEach(b=>{
+    b.addEventListener('click', e=>{
+      e.stopPropagation();
+      imprimirProfessor(b.dataset.nome);
+    });
+  });
+}
+
+/* ---------------- Detalhe ---------------- */
+let profAtualNome = null;
+
+function detalhe(nome){
+  const p = professores.find(x=>x.nome===nome);
+  if(!p) return;
+
+  const linhas = p.detalhes.map(d=>{
+    const c = corSituacao(d.situacao);
+    return `<tr>
+      <td>${formatarDia(d.dia)}</td>
+      <td><span class="status-badge" style="background:${c.bg};color:${c.fg}">${d.situacao}</span></td>
+    </tr>`;
+  }).join('');
+
+  profAtualNome = p.nome;
+  document.getElementById('lista').style.display = 'none';
+  document.querySelector('.busca-wrap').style.display = 'none';
+  document.getElementById('detalhe').hidden = false;
+  document.getElementById('profNome').textContent = p.nome;
+  document.getElementById('profResumo').innerHTML =
+    `Turmas: ${escapeHtml(p.turmas)} &nbsp;·&nbsp; Trabalhados: <b>${p.trabalhado}</b> &nbsp;·&nbsp; Greve: <b>${p.greve}</b> &nbsp;·&nbsp; Em aberto: <b>${p.aberto}</b>`;
+  document.getElementById('detalheBar').innerHTML = miniBarHTML(p);
+  document.getElementById('dias').innerHTML = linhas;
+  document.getElementById('detalhe').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function voltar(){
+  document.getElementById('lista').style.display = '';
+  document.querySelector('.busca-wrap').style.display = '';
+  document.getElementById('detalhe').hidden = true;
+}
+
+/* ---------------- Busca com lista suspensa ---------------- */
+const inputBusca = document.getElementById('busca');
+const buscaWrap = document.querySelector('.busca-wrap');
+const sugestoesEl = document.getElementById('sugestoes');
+let indiceRealce = -1;
+
+function filtrarCards(termoNorm){
+  document.querySelectorAll('#lista .card').forEach(card=>{
+    card.style.display = card.dataset.nomeNorm.includes(termoNorm) ? '' : 'none';
+  });
+}
+
+function highlight(nome, termoNorm){
+  const nomeNorm = normalizar(nome);
+  const idx = nomeNorm.indexOf(termoNorm);
+  if(idx === -1) return escapeHtml(nome);
+  return escapeHtml(nome.slice(0,idx)) + '<mark>' + escapeHtml(nome.slice(idx, idx+termoNorm.length)) + '</mark>' + escapeHtml(nome.slice(idx+termoNorm.length));
+}
+
+function fecharSugestoes(){
+  sugestoesEl.hidden = true;
+  sugestoesEl.innerHTML = '';
+  inputBusca.setAttribute('aria-expanded','false');
+  indiceRealce = -1;
+}
+
+function renderSugestoes(termoNorm){
+  const matches = professoresOrdenados.filter(p=>normalizar(p.nome).includes(termoNorm)).slice(0,8);
+  if(matches.length === 0){
+    sugestoesEl.innerHTML = '<div class="sugestao-vazia">Nenhum professor encontrado</div>';
+  } else {
+    sugestoesEl.innerHTML = matches.map(p=>
+      `<div class="sugestao-item" role="option" data-nome="${escapeHtml(p.nome)}">${highlight(p.nome, termoNorm)}</div>`
+    ).join('');
+  }
+  sugestoesEl.hidden = false;
+  inputBusca.setAttribute('aria-expanded','true');
+  indiceRealce = -1;
+}
+
+inputBusca.addEventListener('input', ()=>{
+  const termoNorm = normalizar(inputBusca.value.trim());
+  filtrarCards(termoNorm);
+  if(termoNorm === ''){ fecharSugestoes(); return; }
+  renderSugestoes(termoNorm);
+});
+
+inputBusca.addEventListener('keydown', e=>{
+  const itens = Array.from(sugestoesEl.querySelectorAll('.sugestao-item'));
+  if(sugestoesEl.hidden || itens.length === 0) return;
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    indiceRealce = Math.min(indiceRealce + 1, itens.length - 1);
+    itens.forEach((it,i)=> it.classList.toggle('realce', i === indiceRealce));
+    itens[indiceRealce].scrollIntoView({block:'nearest'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    indiceRealce = Math.max(indiceRealce - 1, 0);
+    itens.forEach((it,i)=> it.classList.toggle('realce', i === indiceRealce));
+    itens[indiceRealce].scrollIntoView({block:'nearest'});
+  } else if(e.key === 'Enter'){
+    if(indiceRealce >= 0){
+      e.preventDefault();
+      selecionarSugestao(itens[indiceRealce].dataset.nome);
+    }
+  } else if(e.key === 'Escape'){
+    fecharSugestoes();
+  }
+});
+
+sugestoesEl.addEventListener('click', e=>{
+  const item = e.target.closest('.sugestao-item');
+  if(item && item.dataset.nome) selecionarSugestao(item.dataset.nome);
+});
+
+function selecionarSugestao(nome){
+  inputBusca.value = nome;
+  fecharSugestoes();
+  filtrarCards(normalizar(nome));
+  detalhe(nome);
+}
+
+document.addEventListener('click', e=>{
+  if(!buscaWrap.contains(e.target)) fecharSugestoes();
+});
+
+/* ---------------- Turmas ---------------- */
+function linhaTurmaHTML(t){
+  const pct = t.convocados / DIAS_PARALISACAO * 100;
+  return `<tr class="turma-linha-clicavel" data-turma="${t.turma}" tabindex="0" role="button" aria-label="Ver dias em que a turma ${t.turma} foi convocada">
+    <td class="turma-nome">${t.turma}</td>
+    <td>${t.repor}</td>
+    <td>${t.convocados}</td>
+    <td><div class="progresso"><div class="trilha"><span style="width:${pct}%"></span></div><small>${t.convocados}/${DIAS_PARALISACAO}</small></div></td>
+  </tr>`;
+}
+
+function vincularCliqueTurmas(container){
+  container.querySelectorAll('.turma-linha-clicavel').forEach(tr=>{
+    tr.addEventListener('click', ()=> abrirTurmaModal(tr.dataset.turma));
+    tr.addEventListener('keydown', e=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        abrirTurmaModal(tr.dataset.turma);
+      }
+    });
+  });
+}
+
+let turmaModalAtual = null;
+
+function abrirTurmaModal(codigoTurma){
+  const t = turmasMap[codigoTurma];
+  if(!t) return;
+
+  turmaModalAtual = codigoTurma;
+  const linhas = t.diasConvocados.map(d=>
+    `<tr><td>${formatarDia(d)}</td><td><span class="status-badge" style="background:var(--success-bg);color:var(--success)">CONVOCADA</span></td></tr>`
+  ).join('');
+
+  const corpo = linhas || `<tr><td colspan="2" style="color:var(--ink-faint)">Nenhum dia de convocação registrado.</td></tr>`;
+
+  document.getElementById('turmaModalTitulo').textContent = `Turma ${t.turma}`;
+  document.getElementById('turmaModalResumo').innerHTML =
+    `Convocada em <b>${t.convocados}</b> de <b>${DIAS_PARALISACAO}</b> dias &nbsp;·&nbsp; Saldo para reposição: <b>${t.repor}</b>`;
+  document.getElementById('turmaModalDias').innerHTML = corpo;
+
+  const overlay = document.getElementById('turmaModalOverlay');
+  overlay.hidden = false;
+  requestAnimationFrame(()=> overlay.classList.add('aberto'));
+  document.body.style.overflow = 'hidden';
+  document.getElementById('turmaModalFechar').focus();
+}
+
+function fecharTurmaModal(){
+  const overlay = document.getElementById('turmaModalOverlay');
+  overlay.classList.remove('aberto');
+  document.body.style.overflow = '';
+  setTimeout(()=>{ overlay.hidden = true; }, 180);
+}
+
+document.getElementById('turmaModalOverlay').addEventListener('click', e=>{
+  if(e.target.id === 'turmaModalOverlay') fecharTurmaModal();
+});
+
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){
+    const overlay = document.getElementById('turmaModalOverlay');
+    if(!overlay.hidden) fecharTurmaModal();
+  }
+});
+
+function renderTurmas(){
+  document.getElementById('corpoTurmas').innerHTML = turmasData.map(linhaTurmaHTML).join('');
+  vincularCliqueTurmas(document.getElementById('corpoTurmas'));
+}
+
+/* ---------------- Reposição ---------------- */
+function linhaReposicaoProfessorHTML(p){
+  const r = calcularReposicaoProfessor(p);
+  const turmaRefTxt = r.turmaRef ? r.turmaRef : '—';
+  const semPossTxt = r.codigos.length === 0
+    ? '<span class="chip chip-warning" style="white-space:nowrap">sem turma vinculada</span>'
+    : (r.semPossibilidade > 0
+        ? `<span class="chip chip-danger">${r.semPossibilidade}</span>`
+        : `<span class="chip chip-success">0</span>`);
+  return `<tr>
+    <td>${escapeHtml(p.nome)}</td>
+    <td>${escapeHtml(p.turmas)}</td>
+    <td>${p.greve}</td>
+    <td class="turma-nome">${turmaRefTxt}</td>
+    <td>${r.maxRepor ?? '—'}</td>
+    <td>${r.possiveis}</td>
+    <td>${semPossTxt}</td>
+  </tr>`;
+}
+
+function renderReposicao(){
+  document.getElementById('corpoReposicaoTurmas').innerHTML = turmasData.map(linhaTurmaHTML).join('');
+  vincularCliqueTurmas(document.getElementById('corpoReposicaoTurmas'));
+  document.getElementById('corpoReposicaoProfessores').innerHTML = professoresOrdenados.map(linhaReposicaoProfessorHTML).join('');
+}
+
+/* ---------------- Rodapé lateral ---------------- */
+function renderRodape(){
+  const primeiro = professores[0]?.detalhes?.[0]?.dia.split(' ')[0] ?? '';
+  const lista = professores[0]?.detalhes ?? [];
+  const ultimo = lista[lista.length-1]?.dia.split(' ')[0] ?? '';
+  document.getElementById('rodapeSidebar').innerHTML =
+    `<b>${professoresOrdenados.length}</b> professores · <b>${turmasData.length}</b> turmas<br>Período ${primeiro} – ${ultimo}`;
+}
+
+/* ---------------- Impressão ---------------- */
+function impCabecalhoHTML(titulo, subtitulo){
+  const agora = new Date();
+  const dataStr = agora.toLocaleDateString('pt-BR');
+  return `<div class="imp-cabecalho">
+    <h1>${escapeHtml(titulo)}</h1>
+    <p>${escapeHtml(subtitulo)} · gerado em ${dataStr}</p>
+  </div>`;
+}
+
+function impProfessorItemHTML(p){
+  const linhas = p.detalhes.map(d=>
+    `<tr><td>${formatarDia(d.dia)}</td><td>${escapeHtml(d.situacao)}</td></tr>`
+  ).join('');
+  return `<div class="imp-item">
+    <h2>${escapeHtml(p.nome)}</h2>
+    <p class="imp-resumo">Turmas: ${escapeHtml(p.turmas)} · Trabalhados: ${p.trabalhado} · Greve: ${p.greve} · Em aberto: ${p.aberto}</p>
+    <table>
+      <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+  </div>`;
+}
+
+function impTurmaItemHTML(t){
+  const linhas = t.diasConvocados.map(d=>
+    `<tr><td>${formatarDia(d)}</td><td>CONVOCADA</td></tr>`
+  ).join('') || `<tr><td colspan="2">Nenhum dia de convocação registrado.</td></tr>`;
+  return `<div class="imp-item">
+    <h2>Turma ${escapeHtml(t.turma)}</h2>
+    <p class="imp-resumo">Convocada em ${t.convocados} de ${DIAS_PARALISACAO} dias · Saldo para reposição: ${t.repor}</p>
+    <table>
+      <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+  </div>`;
+}
+
+function dispararImpressao(idAlvo){
+  document.querySelectorAll('#areaImpressao .imp-doc').forEach(el=> el.classList.remove('imp-ativo'));
+  const alvo = document.getElementById(idAlvo);
+  alvo.classList.add('imp-ativo');
+  window.print();
+}
+
+function imprimirProfessor(nome){
+  const p = professores.find(x=>x.nome===nome);
+  if(!p) return;
+  const html = impCabecalhoHTML(`Dias de convocação — ${p.nome}`, `Turmas: ${p.turmas}`)
+    + impProfessorItemHTML(p);
+  document.getElementById('impProfessorUnico').innerHTML = html;
+  dispararImpressao('impProfessorUnico');
+}
+
+function imprimirTurma(codigoTurma){
+  const t = turmasMap[codigoTurma];
+  if(!t) return;
+  const html = impCabecalhoHTML(`Dias de convocação — Turma ${t.turma}`, 'Acompanhamento da paralisação')
+    + impTurmaItemHTML(t);
+  document.getElementById('impTurmaUnica').innerHTML = html;
+  dispararImpressao('impTurmaUnica');
+}
+
+function imprimirTodosProfessores(){
+  const itens = professoresOrdenados.map(impProfessorItemHTML).join('<hr class="imp-item-divisor">');
+  const html = impCabecalhoHTML('Dias de convocação — Todos os professores', `${professoresOrdenados.length} professores`) + itens;
+  document.getElementById('impTodosProfessores').innerHTML = html;
+  dispararImpressao('impTodosProfessores');
+}
+
+function imprimirTodasTurmas(){
+  const itens = turmasData.map(impTurmaItemHTML).join('<hr class="imp-item-divisor">');
+  const html = impCabecalhoHTML('Dias de convocação — Todas as turmas', `${turmasData.length} turmas`) + itens;
+  document.getElementById('impTodasTurmas').innerHTML = html;
+  dispararImpressao('impTodasTurmas');
+}
+
+function imprimirReposicaoProfessores(){
+  const linhas = professoresOrdenados.map(p=>{
+    const r = calcularReposicaoProfessor(p);
+    const turmaRefTxt = r.turmaRef ? r.turmaRef : '—';
+    return `<tr>
+      <td>${escapeHtml(p.nome)}</td>
+      <td>${escapeHtml(p.turmas)}</td>
+      <td>${p.greve}</td>
+      <td>${turmaRefTxt}</td>
+      <td>${r.maxRepor ?? '—'}</td>
+      <td>${r.possiveis}</td>
+      <td>${r.semPossibilidade}</td>
+    </tr>`;
+  }).join('');
+  const html = impCabecalhoHTML('Reposição por professor', `${professoresOrdenados.length} professores`) + `
+    <div class="imp-item">
+      <table>
+        <thead><tr><th>Professor</th><th>Turmas</th><th>Greve</th><th>Turma ref.</th><th>Saldo ref.</th><th>Possíveis</th><th>Sem possibilidade</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>`;
+  document.getElementById('impReposicaoProfessores').innerHTML = html;
+  dispararImpressao('impReposicaoProfessores');
+}
+
+document.getElementById('turmaModalImprimir').addEventListener('click', ()=>{
+  if(turmaModalAtual) imprimirTurma(turmaModalAtual);
+});
+
+/* ---------------- Inicialização ---------------- */
+renderInicio();
+renderCards();
+renderTurmas();
+renderReposicao();
+renderRodape();
+</script>
+</body>
+</html>
