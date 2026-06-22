@@ -436,6 +436,7 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
     <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>João Marcelo</b> é exceção ao fechamento dos 32 dias.</span></div>
     <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>03/06:</b> confirmado que nenhuma turma foi convocada — esse dia conta como dia a repor para todas as turmas (já refletido na aba Turmas).</span></div>
     <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>8ºX:</b> turma adicionada à aba Turmas — não teve nenhum dia de convocação, então precisa repor os 32 dias.</span></div>
+    <div class="alerta" style="border-left-color:var(--warning)"><svg viewBox="0 0 24 24" style="stroke:var(--warning)"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Correção — 27/04:</b> as turmas dos 7ºs convocadas nesse dia foram <b>7ºA e 7ºB</b> (e não 7ºA, 7ºD e 7ºE como constava anteriormente). Os dados das turmas 7B (+1 convocado), 7D (−1 convocado) e 7E (−1 convocado) foram atualizados em todo o sistema. As convocações dos 6ºs anos nesse dia permanecem inalteradas.</span></div>
   </section>
 
   <!-- REPOSIÇÃO -->
@@ -520,10 +521,10 @@ const turmasData = [
   {turma:"6E", convocados:14, repor:18, diasConvocados:["27/04 SEG","29/04 QUA","30/04 QUI","04/05 SEG","06/05 QUA","08/05 SEX","12/05 TER","15/05 SEX","19/05 TER","22/05 SEX","25/05 SEG","29/05 SEX","01/06 SEG","09/06TER"]},
   {turma:"6F", convocados:13, repor:19, diasConvocados:["27/04 SEG","29/04 QUA","04/05 SEG","07/05 QUI","11/05 SEG","13/05 QUA","20/05 QUA","21/05 QUI","26/05 TER","29/05 SEX","01/06 SEG","08/06 SEG","09/06TER"]},
   {turma:"7A", convocados:18, repor:14, diasConvocados:["11/03 QUA","27/04 SEG","29/04 QUA","05/05 TER","07/05 QUI","08/05 SEX","12/05 TER","13/05 QUA","14/05 QUI","18/05 SEG","19/05 TER","20/05 QUA","21/05 QUI","27/05 QUA","28/05 QUI","02/06 TER","09/06TER","10/06 QUA"]},
-  {turma:"7B", convocados:18, repor:14, diasConvocados:["16/04 QUI","29/04 QUA","30/04 QUI","05/05 TER","07/05 QUI","12/05 TER","13/05 QUA","15/05 SEX","18/05 SEG","19/05 TER","20/05 QUA","22/05 SEX","26/05 TER","27/05 QUA","29/05 SEX","01/06 SEG","09/06TER","10/06 QUA"]},
+  {turma:"7B", convocados:19, repor:13, diasConvocados:["16/04 QUI","27/04 SEG","29/04 QUA","30/04 QUI","05/05 TER","07/05 QUI","12/05 TER","13/05 QUA","15/05 SEX","18/05 SEG","19/05 TER","20/05 QUA","22/05 SEX","26/05 TER","27/05 QUA","29/05 SEX","01/06 SEG","09/06TER","10/06 QUA"]},
   {turma:"7C", convocados:16, repor:16, diasConvocados:["16/04 QUI","28/04 TER","30/04 QUI","05/05 TER","06/05 QUA","08/05 SEX","12/05 TER","14/05 QUI","15/05 SEX","19/05 TER","21/05 QUI","22/05 SEX","26/05 TER","29/05 SEX","02/06 TER","09/06TER"]},
-  {turma:"7D", convocados:12, repor:20, diasConvocados:["27/04 SEG","28/04 TER","04/05 SEG","07/05 QUI","08/05 SEX","11/05 SEG","14/05 QUI","21/05 QUI","25/05 SEG","28/05 QUI","08/06 SEG","09/06TER"]},
-  {turma:"7E", convocados:12, repor:20, diasConvocados:["27/04 SEG","28/04 TER","04/05 SEG","07/05 QUI","11/05 SEG","15/05 SEX","22/05 SEX","25/05 SEG","29/05 SEX","01/06 SEG","08/06 SEG","09/06TER"]},
+  {turma:"7D", convocados:11, repor:21, diasConvocados:["28/04 TER","04/05 SEG","07/05 QUI","08/05 SEX","11/05 SEG","14/05 QUI","21/05 QUI","25/05 SEG","28/05 QUI","08/06 SEG","09/06TER"]},
+  {turma:"7E", convocados:11, repor:21, diasConvocados:["28/04 TER","04/05 SEG","07/05 QUI","11/05 SEG","15/05 SEX","22/05 SEX","25/05 SEG","29/05 SEX","01/06 SEG","08/06 SEG","09/06TER"]},
   {turma:"8X", convocados:0, repor:32, diasConvocados:[]},
 ];
 /* Calculado a partir da aba "Horários 2704 a 1006" da planilha GREVE_E_HORÁRIOS.xlsx:
