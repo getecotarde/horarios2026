@@ -1195,8 +1195,8 @@
     <button onclick="openExternal('https://linktr.ee/geteco_tarde', 'LinkTree GETECO Tarde', 'Acesso público, sem necessidade de credenciais.')">🔗 LinkTree</button>
     <button onclick="openExternal('https://sistemaseducacao.pbh.gov.br/smae/default/user/login?_next=/smae/default/index', 'SMAE – Sistema de Monitoramento das Aprendizagens dos(as) Estudantes', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">📈 SMAE</button>
     <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
-    <button onclick="window.open('advertencia.html', '_blank')">📝 Gerar Advertência</button>
-    <button onclick="window.open('dashboard-greve.html', '_blank')">✊ Dashboard da Greve</button>
+    <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
+    <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
     <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </header>
@@ -2822,6 +2822,79 @@ function confirmExternal() {
     </div>
   </div>
 </div>
+
+<!-- Modal de código de acesso (Gerar Advertência / Dashboard da Greve) -->
+<div id="code-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;font-family:'Inter',sans-serif;">
+  <div style="background:white;border-radius:18px;padding:32px 28px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.22);">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+      <div style="width:44px;height:44px;border-radius:12px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🔒</div>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:#1c1f26;" id="code-modal-title">Acesso restrito</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px;">Informe o código de acesso para continuar</div>
+      </div>
+    </div>
+    <div class="login-field" style="margin-bottom:4px;">
+      <label>Código de Acesso</label>
+      <input type="password" id="code-modal-input" placeholder="Digite o código" autocomplete="off"
+        onkeydown="if(event.key==='Enter')confirmProtectedAccess()">
+    </div>
+    <div class="login-error" id="code-modal-error">Código incorreto.</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;">
+      <button onclick="closeProtectedModal()" style="padding:9px 20px;border-radius:9px;border:2px solid #d1dde8;background:white;font-size:13px;font-weight:700;cursor:pointer;color:#4a5568;font-family:'Inter',sans-serif;">Cancelar</button>
+      <button onclick="confirmProtectedAccess()" style="padding:9px 20px;border-radius:9px;border:none;background:linear-gradient(135deg,#1a6b3a,#1a4480);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Acessar →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// GATE DE CÓDIGO DE ACESSO — Gerar Advertência / Dashboard da Greve
+// Código armazenado como hash SHA-256 (nunca em texto puro no HTML).
+// Para trocar o código: gere o novo hash em
+// https://emn178.github.io/online-tools/sha256.html e substitua abaixo.
+// ============================================================
+const PROTECTED_CODE_HASH = '2929315305f141e39a37eb11ffa8950fcb8e8e65d4d1c2c491ffb3b1a9be19e0';
+let _pendingProtectedUrl = '';
+
+function requestProtectedAccess(url, titulo) {
+  _pendingProtectedUrl = url;
+  document.getElementById('code-modal-title').textContent = titulo || 'Acesso restrito';
+  document.getElementById('code-modal-error').classList.remove('show');
+  document.getElementById('code-modal-input').value = '';
+  document.getElementById('code-modal-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('code-modal-input').focus(), 50);
+}
+
+function closeProtectedModal() {
+  document.getElementById('code-modal-overlay').style.display = 'none';
+  _pendingProtectedUrl = '';
+}
+
+async function confirmProtectedAccess() {
+  const input = document.getElementById('code-modal-input');
+  const err = document.getElementById('code-modal-error');
+  const code = input.value.trim();
+  const hashed = await hashSHA256(code);
+  if (hashed === PROTECTED_CODE_HASH) {
+    err.classList.remove('show');
+    const url = _pendingProtectedUrl;
+    closeProtectedModal();
+    if (url) window.open(url, '_blank');
+  } else {
+    err.classList.add('show');
+    input.value = '';
+    input.focus();
+  }
+}
+
+// Fechar ao clicar fora
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.getElementById('code-modal-overlay');
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeProtectedModal();
+  });
+});
+</script>
 
 </body>
 </html>
