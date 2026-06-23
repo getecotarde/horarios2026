@@ -652,11 +652,27 @@
 
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op1">
-        <div class="opcao-label">Prejudicou as atividades em sala com brincadeiras e/ou conversa excessiva.</div>
+        <div class="opcao-label">
+          "Matou" aula de:
+          <div class="opcao-extra">
+            <label>Disciplina</label>
+            <input type="text" id="matou_aula_desc" placeholder="Descreva a disciplina" onclick="stopProp(event)">
+          </div>
+        </div>
       </div>
 
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op2">
+        <div class="opcao-label">Prejudicou as atividades da sala com brincadeiras e/ou conversa.</div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op3">
+        <div class="opcao-label">Usou celular para fins não pedagógicos na sala de aula.</div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op4">
         <div class="opcao-label">
           Chegou atrasado(a) para a aula de:
           <div class="opcao-extra">
@@ -685,28 +701,19 @@
       </div>
 
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
-        <input type="checkbox" id="op3">
-        <div class="opcao-label">Saiu de sala sem autorização do(a) professor(a).</div>
-      </div>
-
-      <div class="opcao-item" onclick="toggleOpcao(this, event)">
-        <input type="checkbox" id="op4">
-        <div class="opcao-label">
-          Não realizou a atividade:
-          <div class="opcao-extra">
-            <label>Descreva a atividade</label>
-            <input type="text" id="atividade_desc" placeholder="Descreva a atividade não realizada" onclick="stopProp(event)">
-          </div>
-        </div>
-      </div>
-
-      <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op5">
         <div class="opcao-label">
-          Não fez e/ou entregou o trabalho:
-          <div class="opcao-extra">
-            <label>Descreva o trabalho</label>
-            <input type="text" id="trabalho_desc" placeholder="Descreva o trabalho não entregue" onclick="stopProp(event)">
+          Apresentou-se sem uniforme:
+          <div class="opcao-extra" style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="unif_calca" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Calça
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="unif_tenis" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Tênis
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="unif_blusa" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Blusa
+            </label>
           </div>
         </div>
       </div>
@@ -714,13 +721,13 @@
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op6">
         <div class="opcao-label">
-          Não trouxe o material:
-          <div class="opcao-extra" style="display:flex;gap:16px;margin-top:6px;">
+          Agrediu o(a) colega:
+          <div class="opcao-extra" style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;">
             <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
-              <input type="checkbox" id="mat_caderno" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Caderno
+              <input type="checkbox" id="col_fisicamente" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Fisicamente
             </label>
             <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
-              <input type="checkbox" id="mat_livro" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Livro
+              <input type="checkbox" id="col_verbalmente" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Verbalmente
             </label>
           </div>
         </div>
@@ -728,6 +735,21 @@
 
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op7">
+        <div class="opcao-label">
+          Agrediu o(a) professor(a) ou funcionário(a):
+          <div class="opcao-extra" style="display:flex;gap:16px;margin-top:6px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="prof_fisicamente" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Fisicamente
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.9rem;text-transform:none;letter-spacing:0;">
+              <input type="checkbox" id="prof_verbalmente" onclick="stopProp(event)" style="width:16px;height:16px;margin:0;"> Verbalmente
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op8">
         <div class="opcao-label">
           Outros:
           <div class="opcao-extra">
@@ -1821,8 +1843,13 @@ function limparForm() {
     const extra = el.querySelector('.opcao-extra');
     if (extra) extra.style.display = 'none';
   });
-  document.getElementById('mat_caderno').checked = false;
-  document.getElementById('mat_livro').checked = false;
+  document.getElementById('unif_calca').checked = false;
+  document.getElementById('unif_tenis').checked = false;
+  document.getElementById('unif_blusa').checked = false;
+  document.getElementById('col_fisicamente').checked = false;
+  document.getElementById('col_verbalmente').checked = false;
+  document.getElementById('prof_fisicamente').checked = false;
+  document.getElementById('prof_verbalmente').checked = false;
   document.getElementById('contador-alunos').textContent = '';
   trocarEmissor('professor', 'individual');
   trocarEmissor('professor', 'lote');
@@ -1881,27 +1908,34 @@ function gerarBlocoHTML(dados) {
 
   // Opções
   const linhasOpcoes = [
-    { id:'op1', texto: 'Prejudicou as atividades em sala com brincadeiras e/ou conversa excessiva.' },
-    { id:'op2', texto: () => {
+    { id:'op1', texto: () => {
+      const desc = document.getElementById('matou_aula_desc').value || '________________________________';
+      return `"Matou" aula de: <span class="campo-sublinhado">${desc}</span>`;
+    }},
+    { id:'op2', texto: 'Prejudicou as atividades da sala com brincadeiras e/ou conversa.' },
+    { id:'op3', texto: 'Usou celular para fins não pedagógicos na sala de aula.' },
+    { id:'op4', texto: () => {
       const disc = document.getElementById('aula_disciplina').value || '________________________________';
       const hor = document.getElementById('aula_horario').value || '____';
       return `Chegou atrasado(a) para a aula de <span class="campo-sublinhado">${disc}</span>, no <span class="campo-sublinhado curto">${hor}</span> horário.`;
     }},
-    { id:'op3', texto: 'Saiu de sala sem autorização do(a) professor(a).' },
-    { id:'op4', texto: () => {
-      const desc = document.getElementById('atividade_desc').value || '_______________________________________________________________';
-      return `Não realizou a atividade: <span class="campo-sublinhado" style="min-width:80mm">${desc}</span>`;
-    }},
     { id:'op5', texto: () => {
-      const desc = document.getElementById('trabalho_desc').value || '_______________________________________________________________';
-      return `Não fez e/ou entregou o trabalho: <span class="campo-sublinhado" style="min-width:75mm">${desc}</span>`;
+      const calca = document.getElementById('unif_calca').checked;
+      const tenis = document.getElementById('unif_tenis').checked;
+      const blusa = document.getElementById('unif_blusa').checked;
+      return `Apresentou-se sem uniforme: ${boxMarcado(calca)} Calça &nbsp;&nbsp; ${boxMarcado(tenis)} Tênis &nbsp;&nbsp; ${boxMarcado(blusa)} Blusa`;
     }},
     { id:'op6', texto: () => {
-      const cad = document.getElementById('mat_caderno').checked;
-      const liv = document.getElementById('mat_livro').checked;
-      return `Não trouxe o material: ${boxMarcado(cad)} Caderno &nbsp;&nbsp; ${boxMarcado(liv)} Livro`;
+      const fis = document.getElementById('col_fisicamente').checked;
+      const ver = document.getElementById('col_verbalmente').checked;
+      return `Agrediu o(a) colega: ${boxMarcado(fis)} Fisicamente &nbsp;&nbsp; ${boxMarcado(ver)} Verbalmente`;
     }},
     { id:'op7', texto: () => {
+      const fis = document.getElementById('prof_fisicamente').checked;
+      const ver = document.getElementById('prof_verbalmente').checked;
+      return `Agrediu o(a) professor(a) ou funcionário(a): ${boxMarcado(fis)} Fisicamente &nbsp;&nbsp; ${boxMarcado(ver)} Verbalmente`;
+    }},
+    { id:'op8', texto: () => {
       const desc = document.getElementById('outros_desc').value || '_______________________________________________________________';
       return `Outros: <span class="campo-sublinhado" style="min-width:90mm">${desc}</span>`;
     }},
@@ -1953,7 +1987,7 @@ function gerarBlocoHTML(dados) {
 }
 
 function gerarPrevia() {
-  const algumMarcado = ['op1','op2','op3','op4','op5','op6','op7'].some(id => document.getElementById(id).checked);
+  const algumMarcado = ['op1','op2','op3','op4','op5','op6','op7','op8'].some(id => document.getElementById(id).checked);
   if (!algumMarcado) { alert('Por favor, selecione ao menos uma atitude apresentada.'); return; }
 
   const vias = parseInt(document.querySelector('input[name=vias]:checked').value);
