@@ -192,6 +192,31 @@ h1.titulo{font-size:30px;margin:0 0 6px;letter-spacing:-.015em;font-weight:800}
 .dias-tabela tr:last-child td{border-bottom:none}
 .status-badge{font-family:var(--font-mono);font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;display:inline-block}
 
+/* Nº ordinal de reposição */
+.rep-num-ordinal{
+  font-family:var(--font-mono);font-size:13px;font-weight:700;
+  color:var(--primary);background:rgba(14,148,136,.1);
+  padding:3px 10px;border-radius:999px;display:inline-block;
+}
+
+/* Destaque total de reposições */
+.repo-total-box{
+  display:inline-flex;align-items:center;gap:12px;
+  background:linear-gradient(135deg,rgba(14,148,136,.12) 0%,rgba(14,148,136,.05) 100%);
+  border:1.5px solid rgba(14,148,136,.35);
+  border-radius:var(--radius-sm);padding:12px 20px;margin-bottom:14px;
+}
+.repo-total-num{
+  font-family:var(--font-mono);font-size:32px;font-weight:800;
+  color:var(--primary);line-height:1;
+}
+.repo-total-label{
+  font-size:14px;font-weight:600;color:var(--ink-soft);line-height:1.4;
+}
+.repo-sem-pos{
+  display:block;font-size:12px;color:var(--danger);font-weight:600;margin-top:2px;
+}
+
 /* ---------- Turma: linha clicável ---------- */
 .turma-linha-clicavel{cursor:pointer}
 .turma-linha-clicavel:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
@@ -480,9 +505,10 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
         </button>
       </div>
       <p class="detalhe-resumo" id="profResumo"></p>
+      <div id="detalheRepoTotal" hidden></div>
       <div class="mini-bar" id="detalheBar" style="margin-bottom:6px"></div>
       <table class="dias-tabela" id="tabelaDetalhe">
-        <thead><tr><th>Dia de paralisação</th><th>Situação</th><th>Dia de reposição</th></tr></thead>
+        <thead><tr><th>Dia de paralisação</th><th>Situação</th><th>Nº Reposição</th><th>Dia de reposição</th></tr></thead>
         <tbody id="dias"></tbody>
       </table>
     </div>
@@ -833,14 +859,19 @@ function detalhe(nome){
     const c = corSituacao(d.situacao);
     const eGreve = d.situacao.startsWith('GREVE');
     let celulaRepo = '<span class="rep-sem-repos">—</span>';
+    let celulaNum = '<span class="rep-sem-repos">—</span>';
     if(eGreve && repoIdx < diasReposicao.length){
       const dr = diasReposicao[repoIdx];
+      const num = repoIdx + 1;
+      const ordinal = num + 'ª';
+      celulaNum = `<span class="rep-num-ordinal">${ordinal}</span>`;
       celulaRepo = `<span class="rep-dia-repos">${dr.labelCurto} ${dr.semana}</span>`;
       repoIdx++;
     }
     return `<tr>
       <td>${formatarDia(d.dia)}</td>
       <td><span class="status-badge" style="background:${c.bg};color:${c.fg}">${d.situacao}</span></td>
+      <td style="text-align:center">${celulaNum}</td>
       <td>${celulaRepo}</td>
     </tr>`;
   }).join('');
@@ -852,6 +883,22 @@ function detalhe(nome){
   document.getElementById('profNome').textContent = p.nome;
   document.getElementById('profResumo').innerHTML =
     `Turmas: ${escapeHtml(p.turmas)} &nbsp;·&nbsp; Trabalhados: <b>${p.trabalhado}</b> &nbsp;·&nbsp; Greve: <b>${p.greve}</b> &nbsp;·&nbsp; Em aberto: <b>${p.aberto}</b>`;
+
+  // Destaque: total de reposições possíveis
+  const totalRepoEl = document.getElementById('detalheRepoTotal');
+  if(totalRepoEl){
+    if(r.possiveis > 0){
+      totalRepoEl.innerHTML = `
+        <div class="repo-total-box">
+          <span class="repo-total-num">${r.possiveis}</span>
+          <span class="repo-total-label">dia${r.possiveis !== 1 ? 's' : ''} a repor${r.semPossibilidade > 0 ? ` <span class="repo-sem-pos">(+ ${r.semPossibilidade} sem possibilidade)</span>` : ''}</span>
+        </div>`;
+      totalRepoEl.hidden = false;
+    } else {
+      totalRepoEl.hidden = true;
+    }
+  }
+
   document.getElementById('detalheBar').innerHTML = miniBarHTML(p);
   document.getElementById('dias').innerHTML = linhas;
   document.getElementById('detalhe').scrollIntoView({behavior:'smooth', block:'start'});
@@ -1067,14 +1114,29 @@ function impCabecalhoHTML(titulo, subtitulo){
 }
 
 function impProfessorItemHTML(p){
-  const linhas = p.detalhes.map(d=>
-    `<tr><td>${formatarDia(d.dia)}</td><td>${escapeHtml(d.situacao)}</td></tr>`
-  ).join('');
+  const r = calcularReposicaoProfessor(p);
+  const diasReposicao = DIAS_REPOS.slice(0, r.possiveis);
+  let repoIdx = 0;
+  const linhas = p.detalhes.map(d=>{
+    const eGreve = d.situacao.startsWith('GREVE');
+    let numCol = '—';
+    let repoCol = '—';
+    if(eGreve && repoIdx < diasReposicao.length){
+      const dr = diasReposicao[repoIdx];
+      numCol = (repoIdx + 1) + 'ª';
+      repoCol = `${dr.labelCurto} ${dr.semana}`;
+      repoIdx++;
+    }
+    return `<tr><td>${formatarDia(d.dia)}</td><td>${escapeHtml(d.situacao)}</td><td style="text-align:center">${numCol}</td><td>${repoCol}</td></tr>`;
+  }).join('');
+  const totalRepoInfo = r.possiveis > 0
+    ? ` · <strong>${r.possiveis} dia(s) a repor</strong>${r.semPossibilidade > 0 ? ` · ${r.semPossibilidade} sem possibilidade` : ''}`
+    : '';
   return `<div class="imp-item">
     <h2>${escapeHtml(p.nome)}</h2>
-    <p class="imp-resumo">Turmas: ${escapeHtml(p.turmas)} · Trabalhados: ${p.trabalhado} · Greve: ${p.greve} · Em aberto: ${p.aberto}</p>
+    <p class="imp-resumo">Turmas: ${escapeHtml(p.turmas)} · Trabalhados: ${p.trabalhado} · Greve: ${p.greve} · Em aberto: ${p.aberto}${totalRepoInfo}</p>
     <table>
-      <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+      <thead><tr><th>Dia de paralisação</th><th>Situação</th><th>Nº Reposição</th><th>Dia de reposição</th></tr></thead>
       <tbody>${linhas}</tbody>
     </table>
   </div>`;
