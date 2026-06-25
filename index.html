@@ -36,13 +36,92 @@
     min-height: 100vh;
   }
 
-  /* LAYOUT GERAL COM SIDEBAR */
+  /* ── LAYOUT EM "L" ─────────────────────────────────────────── */
   body {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    min-height: 100vh;
   }
 
-  /* SIDEBAR */
+  /* TOPBAR – faixa horizontal com escola + login */
+  #topbar {
+    width: 100%;
+    background: linear-gradient(90deg, var(--verde) 0%, var(--azul) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 60px;
+    min-height: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    box-shadow: 0 3px 16px rgba(0,0,0,0.28);
+    gap: 16px;
+  }
+
+  .topbar-escola {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .logo-escola {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 800; color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    flex-shrink: 0;
+  }
+
+  .header-info h1 {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; opacity: 0.95; line-height: 1.3;
+    margin: 0;
+  }
+  .header-info p {
+    font-size: 10px; opacity: 0.65; margin-top: 2px;
+    font-family: 'DM Mono', monospace; line-height: 1.4;
+  }
+
+  /* USER BADGE na topbar */
+  #user-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.10);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.18);
+  }
+
+  #user-badge .badge-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    line-height: 1.2;
+  }
+  #user-badge .badge-role {
+    font-size: 10px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.2;
+  }
+
+  /* Wrapper abaixo da topbar: sidebar + main */
+  #layout-body {
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    margin-top: 60px;
+  }
+
+  /* SIDEBAR – apenas nav, sem header */
   #sidebar {
     width: 200px;
     min-width: 200px;
@@ -51,67 +130,20 @@
     display: flex;
     flex-direction: column;
     position: fixed;
-    top: 0;
+    top: 60px;
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 60px);
     z-index: 100;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.25);
+    box-shadow: 4px 0 20px rgba(0,0,0,0.20);
     overflow-y: auto;
     overflow-x: hidden;
-  }
-
-  /* HEADER dentro da sidebar */
-  header {
-    background: none;
-    color: white;
-    padding: 0;
-  }
-
-  .header-top {
-    padding: 18px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    text-align: center;
-  }
-
-  .logo-escola {
-    width: 44px; height: 44px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px; font-weight: 800; color: white;
-    border: 2px solid rgba(255,255,255,0.3);
-    flex-shrink: 0;
-  }
-
-  .header-info h1 {
-    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
-    text-transform: uppercase; opacity: 0.9; line-height: 1.3;
-  }
-  .header-info p {
-    font-size: 10px; opacity: 0.65; margin-top: 3px;
-    font-family: 'DM Mono', monospace; line-height: 1.4;
-  }
-
-  /* USER BADGE na sidebar */
-  #user-badge {
-    padding: 10px 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.15);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    text-align: center;
   }
 
   /* NAV vertical */
   nav {
     display: flex;
     flex-direction: column;
-    padding: 8px 0;
+    padding: 10px 0;
     gap: 2px;
     flex: 1;
   }
@@ -1214,9 +1246,9 @@
   </div>
 </div>
 
-<div id="sidebar">
-<header>
-  <div class="header-top">
+<!-- TOPBAR HORIZONTAL -->
+<div id="topbar">
+  <div class="topbar-escola">
     <div class="logo-escola">G</div>
     <div class="header-info">
       <h1>E.M. Geraldo Teixeira da Costa – GETECO</h1>
@@ -1231,7 +1263,12 @@
     </div>
     <button id="btn-trocar-perfil" onclick="doLogout()" title="Trocar perfil" style="display:none">🔄 Trocar perfil</button>
   </div>
-</header>
+</div>
+
+<!-- WRAPPER EM L: sidebar lateral + main -->
+<div id="layout-body">
+
+<div id="sidebar">
   <nav id="main-nav">
     <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
     <button onclick="showSection('professores')">👩‍🏫 Por Professor</button>
@@ -1511,6 +1548,8 @@
 </div>
 
 </main>
+
+</div><!-- /layout-body -->
 
 <!-- PRINT AREA -->
 <div class="print-area" id="print-area"></div>
