@@ -364,30 +364,43 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 .rep-sem-repos{font-size:12px;color:var(--ink-faint);font-style:italic}
 
 /* ---------- Calendário de Reposição ---------- */
-.cal-periodo{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);margin-bottom:22px}
-.cal-periodo h3{margin:0 0 4px;font-size:16px;font-weight:700}
-.cal-periodo p.cal-desc{margin:0 0 16px;color:var(--ink-soft);font-size:13px}
+.cal-periodo{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
 
-.cal-grid-dias{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.cal-periodo-header{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:none;background:transparent;cursor:pointer;padding:16px 22px;text-align:left;
+  font-family:var(--font-display);
+}
+.cal-periodo-header:hover{background:var(--surface-2)}
+.cal-periodo-titulo{display:flex;align-items:center;gap:10px}
+.cal-periodo-titulo h3{margin:0;font-size:16px;font-weight:700}
+.cal-periodo-chevron{width:16px;height:16px;stroke:var(--ink-soft);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto;transform:rotate(90deg);transition:transform .18s ease}
+.cal-periodo-chevron.fechado{transform:rotate(0deg)}
+.cal-periodo-contagem{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);white-space:nowrap}
 
-.cal-dia-card{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface-2);overflow:hidden}
-.cal-dia-header-full{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--ink);color:#fff}
-.cal-dia-data{font-family:var(--font-mono);font-size:13.5px;font-weight:700}
-.cal-dia-semana{font-family:var(--font-mono);font-size:11px;opacity:.55;text-transform:uppercase;letter-spacing:.08em}
-.cal-dia-corpo{padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.cal-periodo-corpo{padding:0 22px 18px;border-top:1px solid var(--line)}
+.cal-periodo-corpo.fechado{display:none}
 
-.cal-bloco-titulo{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-faint);font-weight:700;margin-bottom:2px;margin-top:2px}
-.cal-bloco-divisor{border-top:1px dashed var(--line);margin:8px 0 4px}
-.cal-bloco-prof{display:flex;align-items:flex-start;flex-wrap:wrap;gap:5px;padding:3px 0}
-.cal-bloco-arrow{color:var(--ink-faint);font-size:12px;padding-top:4px;flex:0 0 auto}
-.cal-bloco-turmas{display:flex;flex-wrap:wrap;gap:4px}
-.cal-sem-vinculo{color:var(--ink-faint);font-size:11.5px;font-style:italic;padding-top:4px}
-.cal-tag-full{display:inline-block;max-width:100%}
+.cal-tabela{width:100%;border-collapse:collapse;margin-top:14px}
+.cal-tabela th{
+  text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-soft);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;
+}
+.cal-tabela td{padding:9px 10px;font-size:13px;border-bottom:1px solid var(--line);vertical-align:top}
+.cal-tabela tr:last-child td{border-bottom:none}
+.cal-tabela-dia{white-space:nowrap;width:1%}
+
+.cal-qtd{
+  font-family:var(--font-mono);font-size:11.5px;font-weight:700;color:var(--ink);
+  background:var(--surface-2);border:1px solid var(--line);border-radius:999px;
+  padding:1px 7px;display:inline-block;min-width:20px;text-align:center;margin-right:8px;
+}
+.cal-tags-inline{display:inline-flex;flex-wrap:wrap;gap:4px;vertical-align:middle}
+.cal-vazio-inline{color:var(--ink-faint);font-size:12.5px;font-style:italic}
 
 .cal-tag{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;display:inline-block;line-height:1.4;white-space:nowrap}
 .cal-tag-prof{background:#e0f2fe;color:#0369a1}
 .cal-tag-turma{background:#fce7f3;color:#9d174d}
-.cal-vazio{color:var(--ink-faint);font-size:12px;font-style:italic;padding:4px 0}
 
 .cal-legenda{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
 .cal-legenda span{font-size:13px;display:flex;align-items:center;gap:6px}
@@ -426,14 +439,6 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 19.5c0-3.6 2.9-6.3 6.5-6.3s6.5 2.7 6.5 6.3"/><circle cx="17.5" cy="8.8" r="2.4"/><path d="M16.3 13.4c2.6.4 4.7 2.5 4.7 6.1"/></svg>
       Professores
     </button>
-    <button class="nav-btn" data-aba="turmas" onclick="abrir('turmas',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.3"/></svg>
-      Turmas
-    </button>
-    <button class="nav-btn" data-aba="pendencias" onclick="abrir('pendencias',this)">
-      <svg viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
-      Pendências
-    </button>
     <button class="nav-btn" data-aba="reposicao" onclick="abrir('reposicao',this)">
       <svg viewBox="0 0 24 24"><path d="M4 4.5v6h6"/><path d="M20 19.5v-6h-6"/><path d="M5 13.5a8 8 0 0 1 13.8-5.3l1.2 1.1"/><path d="M19 10.5a8 8 0 0 1-13.8 5.3l-1.2-1.1"/></svg>
       Reposição
@@ -442,9 +447,17 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
       Calendário
     </button>
+    <button class="nav-btn" data-aba="turmas" onclick="abrir('turmas',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1.3"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1.3"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.3"/></svg>
+      Turmas
+    </button>
     <button class="nav-btn" data-aba="blocos" onclick="abrir('blocos',this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
       Blocos por Dia
+    </button>
+    <button class="nav-btn" data-aba="pendencias" onclick="abrir('pendencias',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
+      Pendências
     </button>
   </nav>
   <div class="sidebar-footer" id="rodapeSidebar"></div>
@@ -472,8 +485,6 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       <span><b>Gilce</b> e <b>Ed. 2</b> foram excluídos dos cálculos. <b>João Marcelo Guimães</b> permanece como exceção ao fechamento dos 32 dias.</span>
     </div>
   </section>
-
-  <!-- PROFESSORES -->
   <section id="professores" class="aba">
     <p class="eyebrow">Corpo docente</p>
     <h1 class="titulo">Professores</h1>
@@ -513,54 +524,6 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       </table>
     </div>
   </section>
-
-  <!-- TURMAS -->
-  <section id="turmas" class="aba">
-    <p class="eyebrow">Convocação por turma</p>
-    <h1 class="titulo">Turmas</h1>
-    <p class="subtitulo">Dias convocados e saldo para reposição por turma, apurados a partir da aba de horários, com base no total de 32 dias de paralisação.</p>
-
-    <div class="aba-acoes">
-      <button class="btn-imprimir" onclick="imprimirTodasTurmas()">
-        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
-        Imprimir todas as turmas
-      </button>
-    </div>
-
-    <div class="tabela-card">
-      <table class="turmas">
-        <thead>
-          <tr><th>Turma</th><th>Saldo para reposição</th><th>Dias convocados</th><th>Progresso</th></tr>
-        </thead>
-        <tbody id="corpoTurmas"></tbody>
-      </table>
-    </div>
-
-    <p class="nota-regra"><b>Regra utilizada:</b> 32 − dias convocados.</p>
-
-    <div class="alerta" style="margin-top:14px">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg>
-      <span><b>03/06:</b> confirmado que nenhuma turma foi convocada nesse dia. Por isso ele já entra automaticamente como dia a repor para todas as turmas — os números acima (32 dias) já refletem isso.</span>
-    </div>
-  </section>
-
-  <!-- PENDÊNCIAS -->
-  <section id="pendencias" class="aba">
-    <p class="eyebrow">Observações</p>
-    <h1 class="titulo">Pendências</h1>
-    <p class="subtitulo">Pontos de atenção considerados no fechamento dos dados.</p>
-
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span>Dias vazios são considerados <b>EM ABERTO</b>.</span></div>
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Gilce</b> excluída do cálculo.</span></div>
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Ed. 2</b> excluído do cálculo.</span></div>
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>João Marcelo</b> é exceção ao fechamento dos 32 dias.</span></div>
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>03/06:</b> confirmado que nenhuma turma foi convocada — esse dia conta como dia a repor para todas as turmas (já refletido na aba Turmas).</span></div>
-    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>8ºX:</b> turma adicionada à aba Turmas — não teve nenhum dia de convocação, então precisa repor os 32 dias.</span></div>
-    <div class="alerta" style="border-left-color:var(--warning)"><svg viewBox="0 0 24 24" style="stroke:var(--warning)"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Correção — 27/04:</b> as turmas dos 7ºs convocadas nesse dia foram <b>7ºA e 7ºB</b> (e não 7ºA, 7ºD e 7ºE como constava anteriormente). 7D: convocados −1 · repor +1. 7E: convocados −1 · repor +1. 7B: dia 27/04 incluído, dia 29/05 excluído (saldo de convocados permanece 18 · repor 14). As convocações dos 6ºs anos nesse dia permanecem inalteradas.</span></div>
-    <div class="alerta" style="border-left-color:var(--warning)"><svg viewBox="0 0 24 24" style="stroke:var(--warning)"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Correção — 08/05:</b> o <b>6ºA</b> foi convocado nesse dia (sexta-feira) e não constava no sistema. Turma atualizada: convocados 14→<b>15</b> · saldo a repor 18→<b>17</b>. Os efeitos nos professores que atendem o 6ºA refletem-se automaticamente no cruzamento de convocação × situação do dia.</span></div>
-  </section>
-
-  <!-- REPOSIÇÃO -->
   <section id="reposicao" class="aba">
     <p class="eyebrow">Saldo de aulas</p>
     <h1 class="titulo">Reposição</h1>
@@ -571,7 +534,13 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       <span>No dia <b>03/06</b> nenhuma turma foi convocada — esse dia já está contado como dia a repor para todas as turmas, inclusive nos números abaixo.</span>
     </div>
 
-    <h2 style="font-size:16px;margin:26px 0 10px">Reposição por turma</h2>
+    <div class="card-header-flex" style="margin:26px 0 4px;align-items:flex-end">
+      <h2 style="font-size:16px;margin:0">Reposição por turma</h2>
+      <button class="btn-imprimir" onclick="imprimirTodasTurmasReposicao()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir todas
+      </button>
+    </div>
     <p class="subtitulo" style="margin-bottom:14px">Saldo = 32 − dias convocados. É a referência usada para limitar a reposição de cada professor.</p>
     <div class="tabela-card">
       <table class="turmas">
@@ -603,8 +572,6 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 
     <footer class="creditos">32 dias de referência · dados atualizados manualmente</footer>
   </section>
-
-  <!-- CALENDÁRIO DE REPOSIÇÃO -->
   <section id="calendario" class="aba">
     <p class="eyebrow">Cronograma</p>
     <h1 class="titulo">Calendário de Reposição</h1>
@@ -624,8 +591,34 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 
     <div id="calConteudo"></div>
   </section>
+  <section id="turmas" class="aba">
+    <p class="eyebrow">Convocação por turma</p>
+    <h1 class="titulo">Turmas</h1>
+    <p class="subtitulo">Dias convocados e saldo para reposição por turma, apurados a partir da aba de horários, com base no total de 32 dias de paralisação.</p>
 
-  <!-- BLOCOS POR DIA -->
+    <div class="aba-acoes">
+      <button class="btn-imprimir" onclick="imprimirTodasTurmas()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir todas as turmas
+      </button>
+    </div>
+
+    <div class="tabela-card">
+      <table class="turmas">
+        <thead>
+          <tr><th>Turma</th><th>Saldo para reposição</th><th>Dias convocados</th><th>Progresso</th></tr>
+        </thead>
+        <tbody id="corpoTurmas"></tbody>
+      </table>
+    </div>
+
+    <p class="nota-regra"><b>Regra utilizada:</b> 32 − dias convocados.</p>
+
+    <div class="alerta" style="margin-top:14px">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg>
+      <span><b>03/06:</b> confirmado que nenhuma turma foi convocada nesse dia. Por isso ele já entra automaticamente como dia a repor para todas as turmas — os números acima (32 dias) já refletem isso.</span>
+    </div>
+  </section>
   <section id="blocos" class="aba">
     <p class="eyebrow">Organização por grupos</p>
     <h1 class="titulo">Blocos por Dia</h1>
@@ -652,6 +645,20 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 
     <div id="blocosConteudo"></div>
   </section>
+  <section id="pendencias" class="aba">
+    <p class="eyebrow">Observações</p>
+    <h1 class="titulo">Pendências</h1>
+    <p class="subtitulo">Pontos de atenção considerados no fechamento dos dados.</p>
+
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span>Dias vazios são considerados <b>EM ABERTO</b>.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Gilce</b> excluída do cálculo.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Ed. 2</b> excluído do cálculo.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>João Marcelo</b> é exceção ao fechamento dos 32 dias.</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>03/06:</b> confirmado que nenhuma turma foi convocada — esse dia conta como dia a repor para todas as turmas (já refletido na aba Turmas).</span></div>
+    <div class="alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>8ºX:</b> turma adicionada à aba Turmas — não teve nenhum dia de convocação, então precisa repor os 32 dias.</span></div>
+    <div class="alerta" style="border-left-color:var(--warning)"><svg viewBox="0 0 24 24" style="stroke:var(--warning)"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Correção — 27/04:</b> as turmas dos 7ºs convocadas nesse dia foram <b>7ºA e 7ºB</b> (e não 7ºA, 7ºD e 7ºE como constava anteriormente). 7D: convocados −1 · repor +1. 7E: convocados −1 · repor +1. 7B: dia 27/04 incluído, dia 29/05 excluído (saldo de convocados permanece 18 · repor 14). As convocações dos 6ºs anos nesse dia permanecem inalteradas.</span></div>
+    <div class="alerta" style="border-left-color:var(--warning)"><svg viewBox="0 0 24 24" style="stroke:var(--warning)"><circle cx="12" cy="12" r="9.2"/><path d="M12 8v5"/><circle cx="12" cy="15.6" r=".4" fill="currentColor" stroke="none"/></svg><span><b>Correção — 08/05:</b> o <b>6ºA</b> foi convocado nesse dia (sexta-feira) e não constava no sistema. Turma atualizada: convocados 14→<b>15</b> · saldo a repor 18→<b>17</b>. Os efeitos nos professores que atendem o 6ºA refletem-se automaticamente no cruzamento de convocação × situação do dia.</span></div>
+  </section>
 
 </div><!-- fim .main -->
 
@@ -665,7 +672,7 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
     <h2 id="turmaModalTitulo"></h2>
     <p class="detalhe-resumo" id="turmaModalResumo"></p>
     <table class="dias-tabela">
-      <thead><tr><th>Dia</th><th>Situação</th></tr></thead>
+      <thead><tr id="turmaModalCabecalho"><th>Dia</th><th>Situação</th></tr></thead>
       <tbody id="turmaModalDias"></tbody>
     </table>
   </div>
@@ -677,6 +684,7 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
   <div id="impTurmaUnica" class="imp-doc"></div>
   <div id="impTodosProfessores" class="imp-doc"></div>
   <div id="impTodasTurmas" class="imp-doc"></div>
+  <div id="impTodasTurmasReposicao" class="imp-doc"></div>
   <div id="impReposicaoProfessores" class="imp-doc"></div>
 </div>
 
@@ -1000,7 +1008,7 @@ document.addEventListener('click', e=>{
 /* ---------------- Turmas ---------------- */
 function linhaTurmaHTML(t){
   const pct = t.convocados / DIAS_PARALISACAO * 100;
-  return `<tr class="turma-linha-clicavel" data-turma="${t.turma}" tabindex="0" role="button" aria-label="Ver dias em que a turma ${t.turma} foi convocada">
+  return `<tr class="turma-linha-clicavel" data-turma="${t.turma}" tabindex="0" role="button" aria-label="Ver detalhes da turma ${t.turma}">
     <td class="turma-nome">${t.turma}</td>
     <td>${t.repor}</td>
     <td>${t.convocados}</td>
@@ -1008,34 +1016,79 @@ function linhaTurmaHTML(t){
   </tr>`;
 }
 
-function vincularCliqueTurmas(container){
+function vincularCliqueTurmas(container, handler){
+  const acao = handler || abrirTurmaModal;
   container.querySelectorAll('.turma-linha-clicavel').forEach(tr=>{
-    tr.addEventListener('click', ()=> abrirTurmaModal(tr.dataset.turma));
+    tr.addEventListener('click', ()=> acao(tr.dataset.turma));
     tr.addEventListener('keydown', e=>{
       if(e.key === 'Enter' || e.key === ' '){
         e.preventDefault();
-        abrirTurmaModal(tr.dataset.turma);
+        acao(tr.dataset.turma);
       }
     });
   });
 }
 
 let turmaModalAtual = null;
+let turmaModalModo = 'convocacao';
 
 function abrirTurmaModal(codigoTurma){
   const t = turmasMap[codigoTurma];
   if(!t) return;
 
   turmaModalAtual = codigoTurma;
+  turmaModalModo = 'convocacao';
   const linhas = t.diasConvocados.map(d=>
     `<tr><td>${formatarDia(d)}</td><td><span class="status-badge" style="background:var(--success-bg);color:var(--success)">CONVOCADA</span></td></tr>`
   ).join('');
 
   const corpo = linhas || `<tr><td colspan="2" style="color:var(--ink-faint)">Nenhum dia de convocação registrado.</td></tr>`;
 
+  document.getElementById('turmaModalCabecalho').innerHTML = `<th>Dia</th><th>Situação</th>`;
   document.getElementById('turmaModalTitulo').textContent = `Turma ${t.turma}`;
   document.getElementById('turmaModalResumo').innerHTML =
     `Convocada em <b>${t.convocados}</b> de <b>${DIAS_PARALISACAO}</b> dias &nbsp;·&nbsp; Saldo para reposição: <b>${t.repor}</b>`;
+  document.getElementById('turmaModalDias').innerHTML = corpo;
+
+  const overlay = document.getElementById('turmaModalOverlay');
+  overlay.hidden = false;
+  requestAnimationFrame(()=> overlay.classList.add('aberto'));
+  document.body.style.overflow = 'hidden';
+  document.getElementById('turmaModalFechar').focus();
+}
+
+/* Lista mestra com as datas exatas dos 32 dias de paralisação, na ordem
+   cronológica. Todo professor tem uma entrada em "detalhes" para cada um
+   desses 32 dias (independente da situação dele no dia), então usamos o
+   primeiro professor da lista como fonte dessas datas. */
+const TODOS_DIAS_PARALISACAO = professores[0].detalhes.map(d => d.dia);
+
+/* Modal de reposição: mostra, para a turma clicada, cada dia em que ela NÃO
+   foi convocada (data exata, calculada por exclusão a partir da lista mestra
+   de 32 dias menos os dias em que a turma foi convocada) junto com o número
+   de ordem (1º, 2º, 3º...) e a data de reposição correspondente (os primeiros
+   N dias disponíveis de DIAS_REPOS, na mesma ordem). */
+function abrirTurmaModalReposicao(codigoTurma){
+  const t = turmasMap[codigoTurma];
+  if(!t) return;
+
+  turmaModalAtual = codigoTurma;
+  turmaModalModo = 'reposicao';
+  const diasNaoConvocados = TODOS_DIAS_PARALISACAO.filter(dia => !t.diasConvocados.includes(dia));
+  const diasReposicao = DIAS_REPOS.slice(0, t.repor);
+
+  const linhas = diasNaoConvocados.map((diaGreve, i) => `<tr>
+      <td><span class="rep-num-ordinal">${i + 1}º</span></td>
+      <td>${formatarDia(diaGreve)}</td>
+      <td>${diasReposicao[i] ? `${diasReposicao[i].label} · ${diasReposicao[i].semana}` : '<span style="color:var(--ink-faint)">sem data disponível</span>'}</td>
+    </tr>`).join('');
+
+  const corpo = linhas || `<tr><td colspan="3" style="color:var(--ink-faint)">Nenhum dia de reposição necessário — turma sem saldo a repor.</td></tr>`;
+
+  document.getElementById('turmaModalCabecalho').innerHTML = `<th>Nº ordem</th><th>Dia de greve/paralisação</th><th>Dia de reposição</th>`;
+  document.getElementById('turmaModalTitulo').textContent = `Turma ${t.turma} — Reposição`;
+  document.getElementById('turmaModalResumo').innerHTML =
+    `Saldo a repor: <b>${t.repor}</b> dia(s) &nbsp;·&nbsp; Convocada em <b>${t.convocados}</b> de <b>${DIAS_PARALISACAO}</b> dias`;
   document.getElementById('turmaModalDias').innerHTML = corpo;
 
   const overlay = document.getElementById('turmaModalOverlay');
@@ -1090,7 +1143,7 @@ function linhaReposicaoProfessorHTML(p){
 
 function renderReposicao(){
   document.getElementById('corpoReposicaoTurmas').innerHTML = turmasData.map(linhaTurmaHTML).join('');
-  vincularCliqueTurmas(document.getElementById('corpoReposicaoTurmas'));
+  vincularCliqueTurmas(document.getElementById('corpoReposicaoTurmas'), abrirTurmaModalReposicao);
   document.getElementById('corpoReposicaoProfessores').innerHTML = professoresOrdenados.map(linhaReposicaoProfessorHTML).join('');
 }
 
@@ -1220,8 +1273,59 @@ function imprimirReposicaoProfessores(){
   dispararImpressao('impReposicaoProfessores');
 }
 
+/* Tabela de impressão: para a turma t, lista os 32 dias de paralisação,
+   indicando se ela foi convocada em cada um; para os dias em que NÃO foi
+   convocada, mostra o número de ordem e a data de reposição correspondente
+   (mesma lógica usada no modal da aba Reposição). */
+function impTurmaReposicaoItemHTML(t){
+  const diasReposicao = DIAS_REPOS.slice(0, t.repor);
+  let repoIdx = 0;
+  const linhas = TODOS_DIAS_PARALISACAO.map(dia=>{
+    const convocada = t.diasConvocados.includes(dia);
+    let numCol = '—';
+    let repoCol = '—';
+    let situacaoTxt = 'CONVOCADA';
+    if(!convocada){
+      situacaoTxt = 'NÃO CONVOCADA';
+      if(repoIdx < diasReposicao.length){
+        const dr = diasReposicao[repoIdx];
+        numCol = (repoIdx + 1) + 'º';
+        repoCol = `${dr.labelCurto} ${dr.semana}`;
+      }
+      repoIdx++;
+    }
+    return `<tr><td>${formatarDia(dia)}</td><td>${situacaoTxt}</td><td style="text-align:center">${numCol}</td><td>${repoCol}</td></tr>`;
+  }).join('');
+  return `<div class="imp-item">
+    <h2>Turma ${escapeHtml(t.turma)}</h2>
+    <p class="imp-resumo">Convocada em ${t.convocados} de ${DIAS_PARALISACAO} dias · Saldo para reposição: ${t.repor}</p>
+    <table>
+      <thead><tr><th>Dia de paralisação</th><th>Situação</th><th>Nº ordem</th><th>Dia de reposição</th></tr></thead>
+      <tbody>${linhas}</tbody>
+    </table>
+  </div>`;
+}
+
+function imprimirTurmaReposicao(codigoTurma){
+  const t = turmasMap[codigoTurma];
+  if(!t) return;
+  const html = impCabecalhoHTML(`Dias de greve/paralisação e reposição — Turma ${t.turma}`, 'Acompanhamento da paralisação')
+    + impTurmaReposicaoItemHTML(t);
+  document.getElementById('impTurmaUnica').innerHTML = html;
+  dispararImpressao('impTurmaUnica');
+}
+
+function imprimirTodasTurmasReposicao(){
+  const itens = turmasData.map(impTurmaReposicaoItemHTML).join('<hr class="imp-item-divisor">');
+  const html = impCabecalhoHTML('Dias de greve/paralisação e reposição — Todas as turmas', `${turmasData.length} turmas`) + itens;
+  document.getElementById('impTodasTurmasReposicao').innerHTML = html;
+  dispararImpressao('impTodasTurmasReposicao');
+}
+
 document.getElementById('turmaModalImprimir').addEventListener('click', ()=>{
-  if(turmaModalAtual) imprimirTurma(turmaModalAtual);
+  if(!turmaModalAtual) return;
+  if(turmaModalModo === 'reposicao') imprimirTurmaReposicao(turmaModalAtual);
+  else imprimirTurma(turmaModalAtual);
 });
 
 /* ============================================================
@@ -1327,6 +1431,14 @@ function calFiltrar(modo){
   renderCalendario();
 }
 
+let calPeriodosFechados = new Set();
+
+function toggleCalPeriodo(per){
+  if(calPeriodosFechados.has(per)) calPeriodosFechados.delete(per);
+  else calPeriodosFechados.add(per);
+  renderCalendario();
+}
+
 function renderCalendario(){
   const diasMap = calcularCalendario();
   const periodos = ['Julho/2026','Outubro/2026','Dezembro/2026','Fevereiro/2027'];
@@ -1335,6 +1447,9 @@ function renderCalendario(){
   const diasComAtividade = Object.values(diasMap).filter(d => d.profs.length > 0 || d.turmas.length > 0).length;
   const totalProfsRepondo = professores.filter(p => !PROF_SEM_REPOSICAO.includes(p.nome) && calcularReposicaoProfessor(p).possiveis > 0).length;
   const totalTurmasRepondo = turmasData.filter(t => t.repor > 0).length;
+
+  const mostrarTurmas = calModoFiltro !== 'professores';
+  const mostrarProfs = calModoFiltro !== 'turmas';
 
   let html = `
   <div class="cal-resumo-row">
@@ -1352,69 +1467,53 @@ function renderCalendario(){
     const diasDoPeriodo = DIAS_REPOS.filter(d => d.periodo === per);
     if(!diasDoPeriodo.length) return;
 
-    html += `<div class="cal-periodo"><h3>${per}</h3><p class="cal-desc">${diasDoPeriodo.length} dia(s) disponível(is)</p><div class="cal-grid-dias">`;
+    const fechado = calPeriodosFechados.has(per);
 
+    let linhas = '';
     diasDoPeriodo.forEach(d => {
       const slot = diasMap[d.label];
-      const temConteudo = slot.profs.length > 0 || slot.turmas.length > 0;
+      const nTurmas = slot.turmas.length;
+      const nProfs = slot.profs.length;
 
-      let corpo = '';
-
-      if(!temConteudo){
-        corpo = '<div class="cal-vazio">Sem reposição</div>';
-      } else {
-        // Agrupar por professor: para cada prof no dia, listar suas turmas que também estão no dia
-        if(calModoFiltro !== 'turmas' && slot.profs.length > 0){
-          corpo += `<div class="cal-bloco-titulo">Por professor</div>`;
-          slot.profs.forEach(p => {
-            const turmasNoDia = p.turmas.filter(tc => slot.turmas.some(st => st.codigo === tc));
-            corpo += `<div class="cal-bloco-prof">
-              <span class="cal-tag cal-tag-prof cal-tag-full">${escapeHtml(p.nome)}</span>`;
-            if(turmasNoDia.length){
-              corpo += `<span class="cal-bloco-arrow">→</span><span class="cal-bloco-turmas">`;
-              turmasNoDia.forEach(tc => {
-                corpo += `<span class="cal-tag cal-tag-turma">${escapeHtml(tc)}</span>`;
-              });
-              corpo += `</span>`;
-            } else {
-              corpo += `<span class="cal-bloco-arrow">→</span><span class="cal-sem-vinculo">sem turma coincidente</span>`;
-            }
-            corpo += `</div>`;
-          });
-        }
-
-        // Agrupar por turma: para cada turma no dia, listar seus professores que também estão no dia
-        if(calModoFiltro !== 'professores' && slot.turmas.length > 0){
-          if(calModoFiltro === 'todos') corpo += `<div class="cal-bloco-divisor"></div>`;
-          corpo += `<div class="cal-bloco-titulo">Por turma</div>`;
-          slot.turmas.forEach(t => {
-            const profsNoDia = t.profs.filter(pNome => slot.profs.some(sp => sp.nome === pNome));
-            corpo += `<div class="cal-bloco-prof">
-              <span class="cal-tag cal-tag-turma" style="min-width:34px;text-align:center">${escapeHtml(t.codigo)}</span>`;
-            if(profsNoDia.length){
-              corpo += `<span class="cal-bloco-arrow">→</span><span class="cal-bloco-turmas">`;
-              profsNoDia.forEach(pNome => {
-                corpo += `<span class="cal-tag cal-tag-prof">${escapeHtml(pNome)}</span>`;
-              });
-              corpo += `</span>`;
-            } else {
-              corpo += `<span class="cal-bloco-arrow">→</span><span class="cal-sem-vinculo">sem prof. em reposição</span>`;
-            }
-            corpo += `</div>`;
-          });
-        }
+      let colTurmas = '';
+      if(mostrarTurmas){
+        colTurmas = nTurmas > 0
+          ? `<span class="cal-qtd">${nTurmas}</span><span class="cal-tags-inline">${slot.turmas.map(t => `<span class="cal-tag cal-tag-turma">${escapeHtml(t.codigo)}</span>`).join('')}</span>`
+          : `<span class="cal-qtd">0</span><span class="cal-vazio-inline">sem turma</span>`;
+      }
+      let colProfs = '';
+      if(mostrarProfs){
+        colProfs = nProfs > 0
+          ? `<span class="cal-qtd">${nProfs}</span><span class="cal-tags-inline">${slot.profs.map(p => `<span class="cal-tag cal-tag-prof">${escapeHtml(p.nome)}</span>`).join('')}</span>`
+          : `<span class="cal-qtd">0</span><span class="cal-vazio-inline">sem professor</span>`;
       }
 
-      html += `<div class="cal-dia-card">
-        <div class="cal-dia-header-full">
-          <span class="cal-dia-data">${d.labelCurto}</span>
-          <span class="cal-dia-semana">${d.semana}</span>
-        </div>
-        <div class="cal-dia-corpo">${corpo}</div>
-      </div>`;
+      linhas += `<tr>
+        <td class="cal-tabela-dia"><span class="cal-dia-data">${d.labelCurto}</span> <span class="cal-dia-semana">${d.semana}</span></td>
+        ${mostrarTurmas ? `<td>${colTurmas}</td>` : ''}
+        ${mostrarProfs ? `<td>${colProfs}</td>` : ''}
+      </tr>`;
     });
 
-    html += '</div></div>';
+    html += `<div class="cal-periodo">
+      <button class="cal-periodo-header" onclick="toggleCalPeriodo('${per}')" aria-expanded="${!fechado}">
+        <span class="cal-periodo-titulo">
+          <svg class="cal-periodo-chevron${fechado ? ' fechado' : ''}" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+          <h3>${per}</h3>
+        </span>
+        <span class="cal-periodo-contagem">${diasDoPeriodo.length} dia(s) disponível(is)</span>
+      </button>
+      <div class="cal-periodo-corpo${fechado ? ' fechado' : ''}">
+        <table class="cal-tabela">
+          <thead><tr>
+            <th>Dia</th>
+            ${mostrarTurmas ? '<th>Turmas</th>' : ''}
+            ${mostrarProfs ? '<th>Professores</th>' : ''}
+          </tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
+    </div>`;
   });
 
   document.getElementById('calConteudo').innerHTML = html;
