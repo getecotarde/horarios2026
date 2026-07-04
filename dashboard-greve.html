@@ -573,8 +573,16 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
     <footer class="creditos">32 dias de referência · dados atualizados manualmente</footer>
   </section>
   <section id="calendario" class="aba">
-    <p class="eyebrow">Cronograma</p>
-    <h1 class="titulo">Calendário de Reposição</h1>
+    <div class="card-header-flex" style="align-items:flex-end;margin-bottom:6px">
+      <div>
+        <p class="eyebrow">Cronograma</p>
+        <h1 class="titulo" style="margin-bottom:0">Calendário de Reposição</h1>
+      </div>
+      <button class="btn-imprimir" onclick="imprimirCalendario()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir
+      </button>
+    </div>
     <p class="subtitulo">Professores e turmas cumprem os dias de reposição sequencialmente a partir do primeiro dia disponível, conforme o saldo de cada um.</p>
 
     <div class="alerta">
@@ -685,6 +693,7 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
   <div id="impTodosProfessores" class="imp-doc"></div>
   <div id="impTodasTurmas" class="imp-doc"></div>
   <div id="impTodasTurmasReposicao" class="imp-doc"></div>
+  <div id="impCalendario" class="imp-doc"></div>
   <div id="impReposicaoProfessores" class="imp-doc"></div>
 </div>
 
@@ -1304,6 +1313,42 @@ function impTurmaReposicaoItemHTML(t){
       <tbody>${linhas}</tbody>
     </table>
   </div>`;
+}
+
+function imprimirCalendario(){
+  const diasMap = calcularCalendario();
+  const periodos = ['Julho/2026','Outubro/2026','Dezembro/2026','Fevereiro/2027'];
+
+  const itens = periodos.map(per => {
+    const diasDoPeriodo = DIAS_REPOS.filter(d => d.periodo === per);
+    if(!diasDoPeriodo.length) return '';
+
+    const linhas = diasDoPeriodo.map(d => {
+      const slot = diasMap[d.label];
+      const turmasTxt = slot.turmas.length ? slot.turmas.map(t => t.codigo).join(', ') : '—';
+      const profsTxt = slot.profs.length ? slot.profs.map(p => p.nome).join(', ') : '—';
+      return `<tr>
+        <td>${d.labelCurto} · ${d.semana}</td>
+        <td style="text-align:center">${slot.turmas.length}</td>
+        <td>${escapeHtml(turmasTxt)}</td>
+        <td style="text-align:center">${slot.profs.length}</td>
+        <td>${escapeHtml(profsTxt)}</td>
+      </tr>`;
+    }).join('');
+
+    return `<div class="imp-item">
+      <h2>${escapeHtml(per)}</h2>
+      <p class="imp-resumo">${diasDoPeriodo.length} dia(s) disponível(is)</p>
+      <table>
+        <thead><tr><th>Dia</th><th>Nº turmas</th><th>Turmas</th><th>Nº professores</th><th>Professores</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>`;
+  }).filter(Boolean).join('<hr class="imp-item-divisor">');
+
+  const html = impCabecalhoHTML('Calendário de Reposição', `${DIAS_REPOS.length} dias disponíveis`) + itens;
+  document.getElementById('impCalendario').innerHTML = html;
+  dispararImpressao('impCalendario');
 }
 
 function imprimirTurmaReposicao(codigoTurma){
