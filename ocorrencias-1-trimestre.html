@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Cards de Ocorrências - E.M. Geraldo Teixeira da Costa</title>
+<title>Ocorrências Escolares - E.M. Geraldo Teixeira da Costa</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root{
     --azul: #1e3a5f;
@@ -20,31 +21,31 @@
   }
 
   /* ---------- BARRA DE CONTROLES (nao imprime) ---------- */
-  #toolbar{
-    position: sticky; top:0; z-index:10;
+  .toolbar{
+    position: sticky; top:46px; z-index:10;
     background:#fff;
     border-bottom:2px solid var(--azul);
     padding:14px 20px;
     display:flex; flex-wrap:wrap; gap:14px; align-items:center;
     box-shadow:0 2px 6px rgba(0,0,0,.08);
   }
-  #toolbar h1{
+  .toolbar h1{
     font-size:16px; margin:0; color:var(--azul); flex-basis:100%;
   }
-  #toolbar label{ font-size:13px; color:var(--cinza); font-weight:bold; margin-right:4px;}
-  #toolbar select, #toolbar input[type=text]{
+  .toolbar label{ font-size:13px; color:var(--cinza); font-weight:bold; margin-right:4px;}
+  .toolbar select, .toolbar input[type=text]{
     padding:7px 10px; border:1px solid var(--borda); border-radius:6px; font-size:14px;
   }
-  #toolbar button{
+  .toolbar button{
     background:var(--azul); color:#fff; border:none; border-radius:6px;
     padding:9px 18px; font-size:14px; cursor:pointer; font-weight:bold;
   }
-  #toolbar button:hover{ background:#16293f; }
-  #toolbar .aviso-tinta{
+  .toolbar button:hover{ background:#16293f; }
+  .toolbar .aviso-tinta{
     flex-basis:100%; font-size:11.5px; color:var(--cinza);
   }
-  #toolbar button.secundario{ background:#fff; color:var(--azul); border:1px solid var(--azul);}
-  #toolbar button.secundario:hover{ background:var(--azul-claro); }
+  .toolbar button.secundario{ background:#fff; color:var(--azul); border:1px solid var(--azul);}
+  .toolbar button.secundario:hover{ background:var(--azul-claro); }
   #contador{ font-size:13px; color:var(--cinza); margin-left:auto; }
 
   .campo{ display:flex; align-items:center; gap:6px; }
@@ -146,7 +147,7 @@
   /* ---------- IMPRESSAO ---------- */
   @media print{
     body{ background:#fff; }
-    #toolbar{ display:none !important; }
+    .toolbar{ display:none !important; }
     #folhas{ padding:0; gap:0; }
     .folha{
       box-shadow:none;
@@ -154,17 +155,125 @@
       page-break-after: always;
     }
     .folha:last-child{ page-break-after: auto; }
-    @page{ size:A4 landscape; margin:0; }
   }
 
   #vazio-msg{
     text-align:center; color:var(--cinza); padding:60px 20px; font-size:15px;
   }
+
+  /* ================= NAVEGAÇÃO POR ABAS ================= */
+  #topnav{
+    position: sticky; top:0; z-index:20;
+    background: var(--azul);
+    display:flex; align-items:center; gap:4px;
+    padding:0 20px;
+  }
+  #topnav .marca{
+    color:#fff; font-weight:bold; font-size:14px; margin-right:18px; letter-spacing:.2px;
+  }
+  #topnav button.tabbtn{
+    background:transparent; border:none; color:#cdd9e6;
+    padding:13px 18px; font-size:13.5px; font-weight:bold; cursor:pointer;
+    border-bottom:3px solid transparent;
+  }
+  #topnav button.tabbtn:hover{ color:#fff; }
+  #topnav button.tabbtn.ativo{ color:#fff; border-bottom-color:#fff; background:rgba(255,255,255,.08); }
+
+  .tab-content{ display:none; }
+  .tab-content.active{ display:block; }
+
+  /* ================= DASHBOARD ================= */
+  #tab-dashboard .conteudo, #tab-reco .conteudo{ padding:24px; max-width:1300px; margin:0 auto; }
+
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+  .kpi{
+    background:#fff; border:1px solid var(--borda); border-radius:8px; padding:14px 16px;
+  }
+  .kpi .kpi-valor{ font-size:26px; font-weight:bold; color:var(--azul); line-height:1.1;}
+  .kpi .kpi-label{ font-size:12px; color:var(--cinza); margin-top:4px;}
+  .kpi.destaque .kpi-valor{ color:var(--vermelho); }
+
+  .painel{
+    background:#fff; border:1px solid var(--borda); border-radius:8px;
+    padding:16px; margin-bottom:20px;
+  }
+  .painel h2{ font-size:14px; color:var(--azul); margin:0 0 12px 0; }
+  .grid-graficos{ display:grid; grid-template-columns:1.3fr 1fr; gap:16px; }
+  .chart-wrap{ position:relative; height:320px; }
+  .chart-wrap.alto{ height:420px; }
+
+  table.dash-tab{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.dash-tab thead th{
+    text-align:left; background:var(--azul-claro); color:var(--azul);
+    padding:7px 9px; border-bottom:2px solid var(--azul); position:sticky; top:0;
+    cursor:pointer; user-select:none; white-space:nowrap;
+  }
+  table.dash-tab thead th:hover{ background:#dbe7f2; }
+  table.dash-tab tbody td{ padding:6px 9px; border-bottom:1px solid #e3e9ef; vertical-align:top; }
+  table.dash-tab tbody tr:hover{ background:#f5f8fb; }
+  table.dash-tab td.num, table.dash-tab th.num{ text-align:center; }
+  .tag-turma{
+    font-size:10.5px; font-weight:bold; color:var(--azul); background:var(--azul-claro);
+    border:1px solid var(--azul); border-radius:9px; padding:1px 7px; white-space:nowrap;
+  }
+  .barra-mini{ display:inline-block; height:9px; background:var(--vermelho); border-radius:2px; vertical-align:middle; margin-right:6px;}
+
+  /* ================= RECOMENDAÇÕES ================= */
+  .reco-turma{
+    background:#fff; border:1px solid var(--borda); border-radius:8px;
+    padding:14px 16px; margin-bottom:16px;
+  }
+  .reco-turma h3{
+    font-size:14.5px; color:var(--azul); margin:0 0 10px 0;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1.5px solid var(--azul); padding-bottom:6px;
+  }
+  .reco-turma h3 .qtd-badge{
+    background:var(--vermelho); color:#fff; font-size:12px; font-weight:bold;
+    border-radius:10px; padding:1px 9px;
+  }
+  table.reco-tab{ width:100%; border-collapse:collapse; font-size:13px; }
+  table.reco-tab thead th{
+    text-align:left; font-size:11px; color:var(--cinza); text-transform:uppercase;
+    padding:5px 8px; border-bottom:1.3px solid var(--borda);
+  }
+  table.reco-tab tbody td{ padding:6px 8px; border-bottom:1px solid #eef1f4; }
+  table.reco-tab tbody tr:last-child td{ border-bottom:none; }
+  .motivo-chip{
+    display:inline-block; font-size:10.5px; font-weight:bold; color:var(--vermelho);
+    background:#fbeceb; border:1px solid #e6c3bf; border-radius:9px; padding:1px 8px; margin:1px 3px 1px 0;
+  }
+  .motivo-chip.total{ color:var(--azul); background:var(--azul-claro); border-color:var(--borda); }
+  .reco-vazia{ color:var(--cinza); font-size:12.5px; font-style:italic; }
+  .reco-resumo-topo{
+    background:#fff; border:1px solid var(--borda); border-radius:8px;
+    padding:12px 16px; margin-bottom:18px; font-size:13px; color:var(--cinza);
+  }
+  .reco-resumo-topo b{ color:var(--vermelho); }
+
+  @media print{
+    #topnav{ display:none !important; }
+    #tab-dashboard .conteudo, #tab-reco .conteudo{ padding:0; max-width:none; }
+    .painel, .kpi, .reco-turma{ box-shadow:none; break-inside:avoid; }
+    .kpis{ grid-template-columns:repeat(4,1fr); }
+    .grid-graficos{ grid-template-columns:1fr 1fr; }
+    body{ background:#fff; }
+  }
 </style>
 </head>
 <body>
 
-<div id="toolbar">
+<style id="printPageStyle">@page{ size:A4 landscape; margin:0; }</style>
+
+<div id="topnav">
+  <span class="marca">E.M. Geraldo Teixeira da Costa · 1º Trim. 2026</span>
+  <button class="tabbtn ativo" data-tab="tab-cards" onclick="mudarAba('tab-cards')">🗂️ Cards</button>
+  <button class="tabbtn" data-tab="tab-dashboard" onclick="mudarAba('tab-dashboard')">📊 Dashboard</button>
+  <button class="tabbtn" data-tab="tab-reco" onclick="mudarAba('tab-reco')">🗒️ Recomendação de Reunião</button>
+</div>
+
+<div id="tab-cards" class="tab-content active">
+<div class="toolbar">
   <h1>Cards de Ocorrências — E.M. Geraldo Teixeira da Costa · 1º Trimestre 2026</h1>
 
   <div class="campo">
@@ -198,6 +307,90 @@
 
 <div id="folhas"></div>
 <div id="vazio-msg" style="display:none">Nenhum aluno encontrado com os filtros atuais.</div>
+</div><!-- /tab-cards -->
+
+<!-- ================= ABA DASHBOARD ================= -->
+<div id="tab-dashboard" class="tab-content">
+  <div class="toolbar">
+    <div class="campo">
+      <label for="dashTurma">Turma:</label>
+      <select id="dashTurma"></select>
+    </div>
+    <div class="campo">
+      <label for="dashTipo">Tipo de ocorrência:</label>
+      <select id="dashTipo"><option value="__TODOS__">Todos os tipos</option></select>
+    </div>
+    <div class="campo">
+      <label for="dashMin">Mín. de registros (aluno):</label>
+      <input type="text" id="dashMin" value="1" style="width:50px">
+    </div>
+    <button class="secundario" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <span id="dashContador" class="aviso-tinta" style="flex-basis:auto;margin-left:auto;"></span>
+  </div>
+
+  <div class="conteudo">
+    <div class="kpis">
+      <div class="kpi"><div class="kpi-valor" id="kpiTotalOcorr">-</div><div class="kpi-label">Registros de ocorrência no total</div></div>
+      <div class="kpi"><div class="kpi-valor" id="kpiTotalAlunos">-</div><div class="kpi-label">Alunos com ocorrência</div></div>
+      <div class="kpi"><div class="kpi-valor" id="kpiMedia">-</div><div class="kpi-label">Média de registros por aluno</div></div>
+      <div class="kpi destaque"><div class="kpi-valor" id="kpiTurmaTop">-</div><div class="kpi-label">Turma com mais ocorrências</div></div>
+    </div>
+
+    <div class="painel">
+      <h2>Ocorrências por turma e principais tipos</h2>
+      <div class="grid-graficos">
+        <div class="chart-wrap"><canvas id="chartTurmas"></canvas></div>
+        <div class="chart-wrap"><canvas id="chartTipos"></canvas></div>
+      </div>
+    </div>
+
+    <div class="painel">
+      <h2>Detalhamento por aluno (respeitando os filtros acima)</h2>
+      <div style="overflow:auto; max-height:520px;">
+        <table class="dash-tab" id="dashTabela">
+          <thead>
+            <tr>
+              <th onclick="ordenarDash('nome')">Aluno</th>
+              <th onclick="ordenarDash('turma')">Turma</th>
+              <th class="num" onclick="ordenarDash('total_desc')">Registros</th>
+              <th>Tipo mais frequente</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-dashboard -->
+
+<!-- ================= ABA RECOMENDAÇÃO DE REUNIÃO ================= -->
+<div id="tab-reco" class="tab-content">
+  <div class="toolbar">
+    <div class="campo">
+      <label for="recoTurma">Turma:</label>
+      <select id="recoTurma"></select>
+    </div>
+    <div class="campo">
+      <label for="recoMin">Recomendar a partir de (total de registros):</label>
+      <input type="text" id="recoMin" value="6" style="width:50px">
+    </div>
+    <button class="secundario" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+    <span id="recoContador" class="aviso-tinta" style="flex-basis:auto;margin-left:auto;"></span>
+    <div class="aviso-tinta" style="flex-basis:100%;">
+      Também é recomendado quando o aluno tem ao menos 1 registro de um tipo considerado grave, mesmo com poucos registros no total:
+      <label style="margin-left:8px;"><input type="checkbox" class="graveChk" value="BULLYING" checked> Bullying</label>
+      <label style="margin-left:8px;"><input type="checkbox" class="graveChk" value="AGRESSÕES FÍSICAS" checked> Agressão física</label>
+      <label style="margin-left:8px;"><input type="checkbox" class="graveChk" value="PRECONCEITO" checked> Preconceito/Discriminação</label>
+      <label style="margin-left:8px;"><input type="checkbox" class="graveChk" value="DEPREDAÇÃO DE PATRIMÔNIO" checked> Depredação de patrimônio</label>
+      <label style="margin-left:8px;"><input type="checkbox" class="graveChk" value="DESRESPEITAR PROFESSOR"> Desrespeito a professor/colegas</label>
+    </div>
+  </div>
+
+  <div class="conteudo">
+    <div class="reco-resumo-topo" id="recoResumo"></div>
+    <div id="recoLista"></div>
+  </div>
+</div><!-- /tab-reco -->
 
 <script>
 const DATA = {"6ºA": {"ALICE MANUELLA DE OLIVEIRA FELIX LIMA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "BERNARDO MARTINS EMIGDIO DE SOUSA": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}]}, "BRYAN FELIPE DE CARIA TEIXEIRA": {"total": 9, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 7}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 4}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}]}, "CHRISTOPHER FERREIRA CAMPOS": {"total": 1, "tipos": [{"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "DAVI NATHAN SILVA NASCIMENTO": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "DIULIA VICTORIA LIMA DA CRUZ": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "ELOA RUBI MENDES DE SOUZA": {"total": 2, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "ESTHER ALMEIDA BRITO": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "HELOISA CAROLINE RODRIGUES MOREIRA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}]}, "JHULIA KETELLYN MOREIRA DA CUNHA": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}]}, "KAIQUE EDUARDO DE SOUZA LOPES": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "KAUA VICTOR NUNES SILVA": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "KAUAM ROBSON MOREIRA COSTA DA SILVA": {"total": 13, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 6}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}]}, "LUARA VALENTINA BARBOSA PINTO CAMILO": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LUCAS DAMIAN BARBOSA GONCALVES": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "LUCCA CAMPOS SALDANHA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "MIGUEL GONCALVES FREITAS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "PEDRO TIAGO PINHEIRO": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "RAYSSA DE OLIVEIRA DAMASCENO": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}]}}, "6ºB": {"ALICE PERENNE DE OLIVEIRA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "ALICE PIMENTA CAMPOS RODRIGUES": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "ANNA VICTORIA NEDES VIEIRA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "ARTHUR OLIVEIRA DE FREITAS": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "BERNARD ALVES PARREIRAS PERONI": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "BERNARDO ALVES DE SOUZA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}]}, "CHRISTOPHER ALEJANDRO ALVES DE OLIVEIRA": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "CLARA RIOS FRIAS": {"total": 12, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 8}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 4}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "DAVI LUIS SILVA BRAZ": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "DAVI VILAS BOAS MORAIS": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "ESTÊVÃO MIGUEL ALVES DOS SANTOS": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "HEITOR VITOR SILVA SANTOS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "ISABELLA VITORIA MORAES RODRIGUES": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "KAILLANY EVILLYN FLORENÇO LABOURE DA SILVA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "LARA GULARTE DUARTE": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "LAUANE ESTER SILVA MARTINS ROSA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "LORENZO DE PAULA SANTOS DE ALMEIDA": {"total": 11, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 9}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "MANUELA HELENA XAVIER LOPES": {"total": 2, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "MATHEUS MICHAEL FERREIRA VALENTIM": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "NATHAN HENRIQUE COUTINHO MACIEL": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "RODRIGO MARQUES NASCIMENTO CARDOSO": {"total": 14, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 7}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 4}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 3}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "SARA VITORIA DOS ANJOS SILVA": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "SOFIA ESTER ALMEIDA DE MENEZES": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "THAUANY ESTER RODRIGUES SILVA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "VALENTINA ALMEIDA MAGALHAES": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}}, "6ºC": {"AGATHA RAFAELLY VIEIRA DE SOUZA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "ALVARO GABRIEL SILVA FERNANDES": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "ANA BEATRIZ CASTRO APOSTOLO": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "ARTHUR VENTURA DA SILVA ARAUJO": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "ARTHUR VINICIUS OLIVEIRA DE PAIVA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "BERNARDO BRAGANÇA DO NASCIMENTO": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "BRUNO WILLIAM SILVA DA COSTA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "DAVI VICTOR DIAS DUQUES": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "EMANUELLE BITTENCOURT SOARES": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "EMANUELLY VITORIA PEREIRA FELICIANO": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "ENZO NEVES DE SOUZA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}]}, "ESTER LUIZA FELIX DE OLIVEIRA": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "ESTHER LOPES ROCHA DE ABREU": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "GUSTAVO FELIPE CAETANO MIRANDA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "HEITOR VITOR SILVA SANTOS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "JULIA VITALINO DE CARVALHO": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "KAUÃ FELIPE DE OLIVEIRA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "LARA SOFIA ALMEIDA VIEIRA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "SEM UNIFORME", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "LUIS MIGUEL PINHEIRO MOREIRA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LUIZ CLÁUDIO SILVA CUNHA PEREIRA": {"total": 1, "tipos": [{"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 1}]}, "LUIZA VITÓRIA FERNANDES SANTOS": {"total": 1, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "NATHAN HENRIQUE COUTINHO MACIEL": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "PEROLA MARIA PIRES SANTANA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "SAMARA VITORIA DE ALMEIDA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "SOFIA PEREIRA DE CARVALHO": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "SOPHIA ALMEIDA PEREIRA DA CRUZ": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "YURI CÂNDIDA MEDEIROS": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}}, "6ºD": {"ANDRE MIGUEL DE OLIVEIRA DA SILVA": {"total": 9, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "BRYAN FILIPE PIRES": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "DAVI GREGIO MACIEL ROSA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "DAVI KENEDY DO ESPIRITO SANTO AZEVEDO": {"total": 11, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}, {"tipo": "SEM UNIFORME", "qtd": 1}, {"tipo": "SAÍDA ANTECIPADA", "qtd": 1}]}, "EDUARDO AUGUSTO SOARES SILVA": {"total": 9, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "ELOGIO", "qtd": 1}]}, "GABRIELLY CORREA LIMA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "GIULIA NUNES DA SILVA MACEDO": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}]}, "GUSTAVO JUNIO DA SILVA PEREIRA": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "SAÚDE", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "JENNIFER VITORIA DA CRUZ AGUIAR": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LETICIA EMANUELLY PEREIRA DE SOUZA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "SAÚDE", "qtd": 1}]}, "LEVI BENJAMIN COSTA": {"total": 6, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 3}, {"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LUCAS EDUARDO LIMA ROCHA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "MARCO ANTONIO GONCALVES LIMA": {"total": 13, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ELOGIO", "qtd": 1}]}, "MARIA ALICE BARBOSA DE SOUZA": {"total": 4, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "MARIA EDUARDA BATISTA DE SOUZA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "MARIA EDUARDA SILVA PEREIRA": {"total": 1, "tipos": [{"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "MATHEUS RESENDE SANTOS": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "MIGUEL REIS ROMULO DE OLIVEIRA": {"total": 8, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 2}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "PYETRO JUNIO SOUZA DE OLIVEIRA": {"total": 4, "tipos": [{"tipo": "SEM UNIFORME", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "QUEZIA DANIELLY MOURA DA SILVA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "RAUL SALES COSTA": {"total": 1, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "SOPHIA BARBOSA DOS SANTOS": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "SOPHIA STEFANI CAMPOS FERREIRA": {"total": 1, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "VALENTINA AMARAL SALES BISPO": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "YASMIN VITORIA RIBEIRO GONCALVES": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}}, "6ºE": {"ALICE MENDES ALVES": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "ARTHUR GOMES CABRAL SILVA": {"total": 3, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}]}, "CARLOS EDUARDO MARTINS DE FREITAS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "CLARISSE DE ALMEIDA CARVALHO": {"total": 5, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "DAVI LEONARDO DE SOUSA MAGALHAES": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "DAVI LUCAS ALMEIDA FONSECA": {"total": 2, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "ENZO GABRIEL FREITAS": {"total": 1, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ESTER LUIZA DOS SANTOS": {"total": 9, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "GABRIELA VITORIA DOS SANTOS": {"total": 2, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "HELENA LOPES ANTUNES": {"total": 2, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "HENRIQUE DA SILVA JARDIM": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "ISAAK AUGUSTO MOREIRA DESIDERIO": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "KALLEB WILLIAN GONCALVES ROSSI": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "LARA EMANUELLY ARAUJO DA SILVA": {"total": 1, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "LARA SARA ALVES CIRIACO": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "LEONARDO HENRIQUE QUEIROGA ROCHA DOS SANTOS": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "LUCAS GABRIEL DE OLIVEIRA CAMPOS": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "LUDMYLA AGUIAR FONSECA": {"total": 5, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "MARIA CLARA ALVES COSTA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MARIA EDUARDA DE OLIVEIRA TEIXEIRA": {"total": 17, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 6}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "MARIA EDUARDA SILVA PEREIRA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "PEDRO LUCAS RODRIGUES DOS REIS": {"total": 8, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 4}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 4}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}]}, "RAUL HENRIQUE ARAUJO TEIXEIRA DE FARIA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "SOPHIA VICTORIA SANTOS DO NASCIMENTO": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "TIAGO RUAN SILVEIRA MENDES": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}}, "6ºF": {"ANNY MARIE VICTORIA DE SOUZA OLIVEIRA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "ARTHUR GUIMARAES GOMES FERREIRA": {"total": 8, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "CECILIA AMARAL TOMAZ": {"total": 1, "tipos": [{"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "GABRIEL RODRIGUES DE CALDAS": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}]}, "ISABELLY DE SOUZA XAVIER": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ISADORA LUIZA DE BRITO SOARES": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "ISAQUE EMANUEL MEDINA DE SOUZA": {"total": 2, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "IZABELLE ALICE DOS SANTOS GANDRA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "JOAO GUILHERME SALES RODRIGUES": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "JULIA MARIA SILVA DE JESUS": {"total": 2, "tipos": [{"tipo": "SEM UNIFORME", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LEANDRO LESSA RESENDE": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 6}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "LUCAS CARDOSO DOS SANTOS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LUIZ PHILIPE VALE TEIXEIRA": {"total": 2, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MARIA FERNANDA DA SILVEIRA SANTOS": {"total": 2, "tipos": [{"tipo": "SAÍDA ANTECIPADA", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MARIA LUIZA LOPES DA SILVA": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "SAÚDE", "qtd": 1}]}, "MARIA LUIZA NUNES FLOR DE LIMA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "MIGUEL DA SILVA GOMES": {"total": 14, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 4}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 3}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "MIGUEL MARTINS DE ALMEIDA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "PEDRO GAEL DA SILVA MARQUES": {"total": 4, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "PIETRA JULIA JESUS FRANCA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "RAFAEL SOARES DE OLIVEIRA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}]}, "RITHA GABRIELLY GONCALVES DA SILVA": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "SAMUEL LUCCA DE SOUSA PEREIRA": {"total": 4, "tipos": [{"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 2}, {"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 2}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "SARA VITORIA DOS ANJOS SILVA": {"total": 1, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "TEODORA DE AZEVEDO MARTINS": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}}, "7ºA": {"ALICE COSSO GUIMARÃES DE SOUZA SIMÕES": {"total": 4, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ALLYCE YEVINA MARTINS DOS SANTOS": {"total": 2, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "CLARA MARIA RODRIGUES DOS SANTOS": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "ENZO DAMASCENO SALVADOR": {"total": 10, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 5}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 3}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "GABRIEL DE ASSIS FURTADO BRANDÃO": {"total": 3, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 3}]}, "GABRIELLY FERREIRA DE CARVALHO": {"total": 1, "tipos": [{"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "HEITOR VITOR DE ALMEIDA VALADARES": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "JESSICA NICOLLY DA CUNHA DE SOUZA": {"total": 2, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LUAN JESUS FRANCA": {"total": 3, "tipos": [{"tipo": "SEM UNIFORME", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "MARIA RITA RODRIGUES BRAZ DE SOUSA": {"total": 2, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MAYARA OLIVEIRA SOUZA": {"total": 1, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "MIGUEL GONÇALVES DE OLIVEIRA": {"total": 1, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "MIGUEL ÍTALO MONTEIRO AMARAL": {"total": 13, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 5}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "NICOLLY MAIRA TEIXEIRA DA SILVA VIANA": {"total": 3, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 3}]}, "NÍKOLAS MATHEUS NUNES CURVELANO": {"total": 7, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "PIETRO DE ANDRADE PEREIRA AMARAL": {"total": 11, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 3}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "RAISSA GOMES DIAS DOS SANTOS": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "SAMUEL LUCAS COSTA DE AGUIAR": {"total": 7, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 3}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}]}, "STHEPHANY KATLEN DE ALMEIDA LAPA": {"total": 1, "tipos": [{"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "VITORIA HANNA CASTRO APOSTOLO": {"total": 4, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}}, "7ºB": {"ARTHUR PIETRO VELOSO CONRADO": {"total": 15, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 3}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 3}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "SAÚDE", "qtd": 1}]}, "AYLA OLIVEIRA RODRIGUES": {"total": 4, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "BERNARDO DINIZ DE SOUZA": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "DANIEL DE ARAUJO SILVA": {"total": 3, "tipos": [{"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "DAVI ALVES RESENDE": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "DAVI PHILLIP PEREIRA DA SILVA": {"total": 15, "tipos": [{"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 5}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 4}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 2}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "DERICK ALEJANDRO DOS SANTOS": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "EDUARDO AUGUSTO SILVA DA ANUNCIACAO": {"total": 3, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "GIOVANA JULIANE ANIZIO SANTOS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "JOSE GABRIEL MENEZES GUERRA": {"total": 5, "tipos": [{"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "JULIA MARIA CRISPIM SANTANA": {"total": 2, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "JÚLIA DE CARVALHO SOARES": {"total": 1, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "KAYO CRISTIANO RODRIGUES SILVA": {"total": 5, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}]}, "LEONARDO MIGUEL CAMPOS": {"total": 3, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "MARIA ALICE BRAGA LEONEL": {"total": 2, "tipos": [{"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 1}, {"tipo": "PRECONCEITO/DISCRIMINAÇÃO(RACISMO E MISOGINIA, aplica-se também  à \"brincadeiras\")", "qtd": 1}]}, "MARIA ALICE SANTOS COSTA": {"total": 1, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "MARIA RITA NUNES SILVA": {"total": 1, "tipos": [{"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "MIGUEL COELHO DIAS": {"total": 4, "tipos": [{"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "NICOLAS DAMASCENO SALVADOR": {"total": 4, "tipos": [{"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "RAPHAEL DA SILVA LOBO": {"total": 4, "tipos": [{"tipo": "AGRESSÕES FÍSICAS (EMPURRÕES, TAPAS...)", "qtd": 2}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "SARA NICACIO NICOLAU": {"total": 3, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "SOPHYA GABRIELLY VIEIRA SOUZA": {"total": 2, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}}, "7ºC": {"ALICE GONÇALVES LAMAS": {"total": 1, "tipos": [{"tipo": "ELOGIO", "qtd": 1}]}, "ANNA LAURA FERREIRA DE MORAIS": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "ARTHUR GABRIEL DE PAULA MOREIRA": {"total": 7, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "PERMANECER FORA DA SALA SEM AUTORIZAÇÃO", "qtd": 1}]}, "AUGUSTO NOVAIS ASSIS XAVIER SILVA": {"total": 12, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "BERNARDO MIGUEL SILVA PEREIRA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "ENZO REIS PAULINO": {"total": 1, "tipos": [{"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}]}, "FABIO BATISTA SANTOS": {"total": 5, "tipos": [{"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "HADASSA GABRIELLE ALVES DE ARAUJO": {"total": 5, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "ITALO HENRIQUE OLIVEIRA SOUZA": {"total": 1, "tipos": [{"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}]}, "JOAO LUCAS SOARES ALVES": {"total": 2, "tipos": [{"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "JULIA VITORIA TIMOTEO DE PAULA": {"total": 1, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "KAUAN HENRIQUE MARINHO SOUZA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LARA OLIVEIRA DE SOUZA": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "LAURA GOMES GUIMARAES": {"total": 3, "tipos": [{"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "LORENZO GABRIEL SILVA LOPES": {"total": 5, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "LUCCA FELICIO PORTO": {"total": 3, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}]}, "MANUELA VITÓRIA DINIZ LOURENÇO": {"total": 3, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MARCELLA SOPHIA ROSA AVELAR LIMA": {"total": 1, "tipos": [{"tipo": "SEM UNIFORME", "qtd": 1}]}, "PIETRO FRANCISCO ANDRADE DE PAULA": {"total": 4, "tipos": [{"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "SAMUEL DIAS FIDELIS ROSA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "SOFIA COSSO GUIMARAES DE SOUZA SIMOES": {"total": 3, "tipos": [{"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "THALITA EMANUELLE SOUZA LIMA": {"total": 9, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 4}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}]}, "VICTOR LUCAS CARDOSO MENDES": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}}, "7ºD": {"ARTHUR GONÇALVES FERREIRA": {"total": 13, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 12}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 12}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}]}, "BEATRIZ ALVES DE SOUZA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}]}, "BERNARDO LIMA VIANA DE CARVALHO": {"total": 9, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 8}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 7}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 3}]}, "BIANKA VITÓRIA REIS DE MENDONÇA": {"total": 12, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 8}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 8}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "DANIEL SILVEIRA SANTOS": {"total": 8, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 8}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 7}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 6}]}, "HENRIQUE MEIRA URSINE": {"total": 10, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 7}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 7}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 6}, {"tipo": "SAÍDA ANTECIPADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}]}, "HITALO HENRIQUE DA SILVA VIEIRA": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 7}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ISABELA ROCHA FERREIRA": {"total": 6, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ISADORA DA COSTA TELES": {"total": 8, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 7}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "ISIS EDUARDA MENEZES LATALISA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "JUAN GUILHERME PEREIRA DA SILVA": {"total": 8, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 6}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 6}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 3}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 1}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "KAMILY GOMES SILVA LEITE": {"total": 1, "tipos": [{"tipo": "REUNIÃO COM RESPONSÁVEIS", "qtd": 1}]}, "LUCAS JUNIO VIEIRA ASSIS": {"total": 8, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 7}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 5}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}]}, "MARCELLO HENRIQUE FORTES COSTA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 2}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "PIETRO AUGUSTO DE SOUZA RIBEIRO": {"total": 8, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 5}, {"tipo": "DESRESPEITAR PROFESSOR/COLEGAS (GROSSERIAS, PALAVRÕES)", "qtd": 2}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 2}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "RUAN GUILHERME PEREIRA DA SILVA": {"total": 7, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "SAÍDA ANTECIPADA", "qtd": 1}]}, "RYAN RAFAEL GUIMARAES DA SILVA": {"total": 5, "tipos": [{"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 2}, {"tipo": "SAÚDE", "qtd": 1}, {"tipo": "ELOGIO", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "SAMUEL SILVA NUNES SANTOS ROCHA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "SKARLETT GABRIELLY DE ALMEIDA LAPA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "WALLACE BRAYAN DOS SANTOS ALVES": {"total": 3, "tipos": [{"tipo": "BULLYING (PROVOCAÇÕES REPETIDAS, EXCLUSÃO)", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "YASMIN MAGALHÃES KELER DIAS": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}}, "7ºE": {"ANA LUIZA GOMES ROSA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "BERNARDO DE PAULA GERMANO MOREIRA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "BERNARDO HENRIQUE DA SILVA MANGABEIRA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "BERNARDO MIGUEL DE ALMEIDA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "CAIO BITENCORTE DINIZ": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "EMANUELLE BEATRIZ GUIMARÃES REIS": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "GABRIELLY VITORIA FERREIRA PINTO": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO LEVAR MATERIAL ESCOLAR", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "ATRAPALHAR A AULA (BRINCADEIRAS, TUMULTO)", "qtd": 1}]}, "GEOVANA RODRIGUES ALVES": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "ISABELLA LIMA DE SOUZA": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "IZABEL ROCHA PAGLIONI": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "KAIQUE CAMPOS ANDRADE": {"total": 3, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 3}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}]}, "LUIZ FERNANDO SILVA CRUZ": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}, "MARIA FLOR FERNANDES DE SOUZA": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "MAYCON VITOR SILVA SANTOS": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 4}, {"tipo": "SEM UNIFORME", "qtd": 1}]}, "PEDRO HENRIQUE DE PAULA PEREIRA": {"total": 6, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 3}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "AGRESSÕES FÍSICAS LEVES (EMPURRÕES, TAPAS)", "qtd": 1}]}, "REBECA VITORIA CANGUSSU DE MIRANDA": {"total": 5, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}, {"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ANDAR PELA SALA OU LEVANTAR SEM PERMISSÃO", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "ROBERT TAYLOR DOS SANTOS MONTEIRO PINTO": {"total": 2, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 2}]}, "SARAH MARIA BARBOSA SANTOS": {"total": 3, "tipos": [{"tipo": "CONVERSAR EXCESSIVAMENTE, RUÍDOS OU DESORDEM EM AULA", "qtd": 1}, {"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}, {"tipo": "NÃO PARTICIPAR DA AULA OU DEMONSTRAR DESINTERESSE", "qtd": 1}]}, "TALLES ARTHUR DE LIMA REIS": {"total": 1, "tipos": [{"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}}, "8ºX": {"GUILHERME JÚNIO OLIVEIRA CRUZ": {"total": 1, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 1}]}, "KAUA HENRIQUE RIOS SILVA": {"total": 2, "tipos": [{"tipo": "ATRASO OU AUSÊNCIA INJUSTIFICADA", "qtd": 2}]}}, "8ºZ": {"DOUGLAS": {"total": 3, "tipos": [{"tipo": "DEPREDAÇÃO DE PATRIMÔNIO", "qtd": 1}, {"tipo": "USO INDEVIDO DE OBJETOS/CELULAR", "qtd": 1}, {"tipo": "NÃO REALIZAR ATIVIDADES OU TAREFAS ESCOLARES", "qtd": 1}]}}};
@@ -372,6 +565,282 @@ window.addEventListener('resize', ()=> clearTimeout(window._rzTimer) || (window.
 });
 
 renderizar();
+
+/* =====================================================================
+   NAVEGAÇÃO POR ABAS
+===================================================================== */
+function mudarAba(id){
+  document.querySelectorAll('.tab-content').forEach(el=> el.classList.toggle('active', el.id===id));
+  document.querySelectorAll('#topnav .tabbtn').forEach(btn=> btn.classList.toggle('ativo', btn.dataset.tab===id));
+  const printStyle = document.getElementById('printPageStyle');
+  printStyle.textContent = (id === 'tab-cards')
+    ? '@page{ size:A4 landscape; margin:0; }'
+    : '@page{ size:A4 portrait; margin:12mm; }';
+  if (id === 'tab-dashboard') renderizarDashboard();
+  if (id === 'tab-reco') renderizarReco();
+}
+
+/* =====================================================================
+   BASE COMUM: lista plana de todos os alunos de todas as turmas
+===================================================================== */
+function todosOsAlunos(){
+  let lista = [];
+  turmas.forEach(t=>{
+    const alunos = DATA[t];
+    Object.keys(alunos).forEach(nome=>{
+      const info = alunos[nome];
+      lista.push({ turma:t, nome, total: info.total, tipos: info.tipos });
+    });
+  });
+  return lista;
+}
+
+function todosOsTipos(){
+  const set = new Set();
+  todosOsAlunos().forEach(a=> a.tipos.forEach(t=> set.add(t.tipo)));
+  return Array.from(set).sort((a,b)=> a.localeCompare(b,'pt-BR'));
+}
+
+/* =====================================================================
+   ABA DASHBOARD
+===================================================================== */
+const dashTurmaSel = document.getElementById('dashTurma');
+const dashTipoSel  = document.getElementById('dashTipo');
+const dashMinInp   = document.getElementById('dashMin');
+const dashContadorEl = document.getElementById('dashContador');
+
+(function preencherFiltrosDashboard(){
+  let o = document.createElement('option'); o.value='__TODAS__'; o.textContent='Todas as turmas';
+  dashTurmaSel.appendChild(o);
+  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; dashTurmaSel.appendChild(op); });
+
+  todosOsTipos().forEach(tp=>{
+    let op=document.createElement('option'); op.value=tp; op.textContent = tp.length>55 ? tp.slice(0,52)+'…' : tp;
+    dashTipoSel.appendChild(op);
+  });
+})();
+
+let chartTurmasObj = null, chartTiposObj = null;
+let dashOrdem = 'total_desc';
+
+function coletarDadosDashboard(){
+  const turmaAtual = dashTurmaSel.value;
+  const tipoAtual = dashTipoSel.value;
+  const min = parseInt(dashMinInp.value) || 0;
+  const turmasParaPercorrer = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+
+  let alunos = [];
+  turmasParaPercorrer.forEach(t=>{
+    const dic = DATA[t];
+    Object.keys(dic).forEach(nome=>{
+      const info = dic[nome];
+      let total, tiposConsiderados;
+      if (tipoAtual === '__TODOS__'){
+        total = info.total;
+        tiposConsiderados = info.tipos;
+      } else {
+        const encontrado = info.tipos.find(x=> x.tipo === tipoAtual);
+        total = encontrado ? encontrado.qtd : 0;
+        tiposConsiderados = encontrado ? [encontrado] : [];
+      }
+      if (total < min || total === 0) return;
+      alunos.push({ turma:t, nome, total, tipos: tiposConsiderados });
+    });
+  });
+  return alunos;
+}
+
+function renderizarDashboard(){
+  const alunos = coletarDadosDashboard();
+
+  // KPIs
+  const totalOcorr = alunos.reduce((s,a)=> s + a.total, 0);
+  const totalAlunos = alunos.length;
+  const media = totalAlunos ? (totalOcorr/totalAlunos).toFixed(1) : '0.0';
+
+  const porTurma = {};
+  alunos.forEach(a=>{ porTurma[a.turma] = (porTurma[a.turma]||0) + a.total; });
+  let turmaTop = '-', turmaTopValor = -1;
+  Object.keys(porTurma).forEach(t=>{ if (porTurma[t] > turmaTopValor){ turmaTopValor = porTurma[t]; turmaTop = t; } });
+
+  document.getElementById('kpiTotalOcorr').textContent = totalOcorr;
+  document.getElementById('kpiTotalAlunos').textContent = totalAlunos;
+  document.getElementById('kpiMedia').textContent = media;
+  document.getElementById('kpiTurmaTop').textContent = turmaTop === '-' ? '-' : (turmaTop + ' (' + turmaTopValor + ')');
+  dashContadorEl.textContent = totalAlunos + ' aluno(s) nos filtros atuais';
+
+  // Gráfico 1: ocorrências por turma (sempre mostra todas as turmas, mesmo se uma turma específica estiver selecionada,
+  // mas neste caso o filtro de tipo/min ainda se aplica dentro de cada turma)
+  const turmaAtual = dashTurmaSel.value;
+  const turmasBarras = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const labelsTurmas = turmasBarras;
+  const valoresTurmas = turmasBarras.map(t=>{
+    const tipoAtual = dashTipoSel.value;
+    const min = parseInt(dashMinInp.value) || 0;
+    let soma = 0;
+    Object.keys(DATA[t]).forEach(nome=>{
+      const info = DATA[t][nome];
+      let total;
+      if (tipoAtual === '__TODOS__'){ total = info.total; }
+      else { const enc = info.tipos.find(x=>x.tipo===tipoAtual); total = enc? enc.qtd : 0; }
+      if (total >= min) soma += total;
+    });
+    return soma;
+  });
+
+  const ctxTurmas = document.getElementById('chartTurmas').getContext('2d');
+  if (chartTurmasObj) chartTurmasObj.destroy();
+  chartTurmasObj = new Chart(ctxTurmas, {
+    type:'bar',
+    data:{ labels: labelsTurmas, datasets:[{ label:'Registros de ocorrência', data: valoresTurmas, backgroundColor:'#1e3a5f' }]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, title:{display:true, text:'Ocorrências por turma'} },
+      scales:{ y:{ beginAtZero:true, ticks:{precision:0} } }
+    }
+  });
+
+  // Gráfico 2: top tipos de ocorrência (respeita turma e mínimo, ignora o filtro de tipo específico
+  // -- mostra a composição de tipos dentro do recorte escolhido)
+  const contagemTipos = {};
+  const turmasParaTipos = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const min2 = parseInt(dashMinInp.value) || 0;
+  turmasParaTipos.forEach(t=>{
+    Object.keys(DATA[t]).forEach(nome=>{
+      const info = DATA[t][nome];
+      if (info.total < min2) return;
+      info.tipos.forEach(tp=>{ contagemTipos[tp.tipo] = (contagemTipos[tp.tipo]||0) + tp.qtd; });
+    });
+  });
+  const tiposOrdenados = Object.entries(contagemTipos).sort((a,b)=> b[1]-a[1]).slice(0,8);
+  const labelsTipos = tiposOrdenados.map(x=> x[0].length>34 ? x[0].slice(0,31)+'…' : x[0]);
+  const valoresTipos = tiposOrdenados.map(x=> x[1]);
+
+  const ctxTipos = document.getElementById('chartTipos').getContext('2d');
+  if (chartTiposObj) chartTiposObj.destroy();
+  chartTiposObj = new Chart(ctxTipos, {
+    type:'bar',
+    data:{ labels: labelsTipos, datasets:[{ label:'Ocorrências', data: valoresTipos, backgroundColor:'#b23a2e' }]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, title:{display:true, text:'Tipos mais frequentes no recorte'} },
+      scales:{ x:{ beginAtZero:true, ticks:{precision:0} } }
+    }
+  });
+
+  // Tabela detalhada
+  let listaTabela = alunos.slice();
+  if (dashOrdem === 'nome') listaTabela.sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'));
+  else if (dashOrdem === 'turma') listaTabela.sort((a,b)=> a.turma.localeCompare(b.turma,'pt-BR') || a.nome.localeCompare(b.nome,'pt-BR'));
+  else listaTabela.sort((a,b)=> b.total - a.total || a.nome.localeCompare(b.nome,'pt-BR'));
+
+  const tbody = document.querySelector('#dashTabela tbody');
+  tbody.innerHTML = listaTabela.map(a=>{
+    const principal = a.tipos.slice().sort((x,y)=> y.qtd-x.qtd)[0];
+    const principalTxt = principal ? escapeHtml(principal.tipo) + ' (' + principal.qtd + ')' : '-';
+    return `<tr>
+      <td>${escapeHtml(a.nome)}</td>
+      <td><span class="tag-turma">${escapeHtml(a.turma)}</span></td>
+      <td class="num">${a.total}</td>
+      <td>${principalTxt}</td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:#888;padding:16px;">Nenhum aluno encontrado com os filtros atuais.</td></tr>';
+}
+
+function ordenarDash(modo){
+  dashOrdem = modo;
+  renderizarDashboard();
+}
+
+[dashTurmaSel, dashTipoSel, dashMinInp].forEach(el=>{
+  el.addEventListener('input', renderizarDashboard);
+  el.addEventListener('change', renderizarDashboard);
+});
+
+/* =====================================================================
+   ABA RECOMENDAÇÃO DE REUNIÃO
+===================================================================== */
+const recoTurmaSel = document.getElementById('recoTurma');
+const recoMinInp = document.getElementById('recoMin');
+const recoContadorEl = document.getElementById('recoContador');
+const recoResumoEl = document.getElementById('recoResumo');
+const recoListaEl = document.getElementById('recoLista');
+
+(function preencherFiltroRecoTurma(){
+  let o = document.createElement('option'); o.value='__TODAS__'; o.textContent='Todas as turmas';
+  recoTurmaSel.appendChild(o);
+  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; recoTurmaSel.appendChild(op); });
+})();
+
+function motivosGraves(aluno, palavrasChave){
+  const encontrados = new Set();
+  aluno.tipos.forEach(tp=>{
+    palavrasChave.forEach(pal=>{
+      if (tp.tipo.toUpperCase().includes(pal)) encontrados.add(tp.tipo);
+    });
+  });
+  return Array.from(encontrados);
+}
+
+function renderizarReco(){
+  const turmaAtual = recoTurmaSel.value;
+  const minTotal = parseInt(recoMinInp.value) || 0;
+  const palavrasChave = Array.from(document.querySelectorAll('.graveChk:checked')).map(c=> c.value.toUpperCase());
+  const turmasParaPercorrer = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+
+  let totalRecomendados = 0;
+  let blocosHtml = '';
+
+  turmasParaPercorrer.forEach(t=>{
+    const dic = DATA[t];
+    let recomendadosDaTurma = [];
+    Object.keys(dic).forEach(nome=>{
+      const info = dic[nome];
+      const aluno = { turma:t, nome, total: info.total, tipos: info.tipos };
+      const graves = motivosGraves(aluno, palavrasChave);
+      const porTotal = aluno.total >= minTotal;
+      if (porTotal || graves.length > 0){
+        recomendadosDaTurma.push({ ...aluno, graves, porTotal });
+      }
+    });
+    recomendadosDaTurma.sort((a,b)=> b.total - a.total || a.nome.localeCompare(b.nome,'pt-BR'));
+    totalRecomendados += recomendadosDaTurma.length;
+
+    blocosHtml += `<div class="reco-turma">
+      <h3>Turma ${escapeHtml(t)} <span class="qtd-badge">${recomendadosDaTurma.length} aluno(s)</span></h3>`;
+
+    if (recomendadosDaTurma.length === 0){
+      blocosHtml += `<div class="reco-vazia">Nenhum aluno desta turma atinge os critérios de recomendação nos filtros atuais.</div>`;
+    } else {
+      blocosHtml += `<table class="reco-tab"><thead><tr>
+          <th>Aluno</th><th style="text-align:center;">Total de registros</th><th>Motivo da recomendação</th>
+        </tr></thead><tbody>`;
+      recomendadosDaTurma.forEach(a=>{
+        let chips = '';
+        if (a.porTotal) chips += `<span class="motivo-chip total">${a.total} registros no trimestre</span>`;
+        a.graves.forEach(g=> chips += `<span class="motivo-chip">${escapeHtml(g.length>48? g.slice(0,45)+'…': g)}</span>`);
+        blocosHtml += `<tr>
+            <td>${escapeHtml(a.nome)}</td>
+            <td style="text-align:center;font-weight:bold;color:var(--vermelho);">${a.total}</td>
+            <td>${chips}</td>
+          </tr>`;
+      });
+      blocosHtml += `</tbody></table>`;
+    }
+    blocosHtml += `</div>`;
+  });
+
+  recoListaEl.innerHTML = blocosHtml;
+  recoContadorEl.textContent = totalRecomendados + ' aluno(s) recomendado(s)';
+  recoResumoEl.innerHTML = `<b>${totalRecomendados}</b> aluno(s) recomendado(s) para conversa com os responsáveis na reunião de pais, considerando: total de registros ≥ <b>${minTotal}</b> e/ou ao menos um registro de tipo grave selecionado abaixo.`;
+}
+
+[recoTurmaSel, recoMinInp].forEach(el=>{
+  el.addEventListener('input', renderizarReco);
+  el.addEventListener('change', renderizarReco);
+});
+document.querySelectorAll('.graveChk').forEach(chk=> chk.addEventListener('change', renderizarReco));
+
 </script>
 </body>
 </html>
