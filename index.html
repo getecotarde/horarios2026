@@ -1284,6 +1284,7 @@
     <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
     <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
     <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
+    <button onclick="requestProtectedAccess('ocorrencias-1-trimestre.html', 'Ocorrências 1º Trimestre')">📑 Ocorrências 1º Trimestre</button>
     <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </div>
@@ -2687,10 +2688,10 @@ const USERS = [
 // ── Permissões fixas por perfil ───────────────────────────────
 // admin (Everton) sempre tem acesso a tudo — definido em applyAccess()
 const PERFIL_ACCESS = {
-  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia'],
-  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia'],
-  gabriela: ['dashboard','professores','turmas','acepat','mecano','linktree','advertencia'],
-  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','mecano','advertencia']
+  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia','ocorrencias'],
+  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia','ocorrencias'],
+  gabriela: ['dashboard','professores','turmas','acepat','mecano','linktree','advertencia','ocorrencias'],
+  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','mecano','advertencia','ocorrencias']
 };
 
 let currentUser = null;
@@ -2780,7 +2781,8 @@ function applyAccess() {
     { tab: 'smae',          idx: 10 },
     { tab: 'sge',           idx: 11 },
     { tab: 'advertencia',   idx: 12 },
-    { tab: 'greve',         idx: 13 }
+    { tab: 'greve',         idx: 13 },
+    { tab: 'ocorrencias',   idx: 14 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
@@ -2808,7 +2810,8 @@ function initAcessoPanel() {
     substituicoes: '🔄 Substituições', acepat: '⭐ ACEPAT',
     gestao: '📋 Gestão Ped.', mecano: '🖨️ Mecanografia',
     mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree',
-    smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência', greve: '✊ Dashboard da Greve'
+    smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência', greve: '✊ Dashboard da Greve',
+    ocorrencias: '📑 Ocorrências 1º Trimestre'
   };
   const secondaries = USERS.filter(u => u.perfil !== 'admin');
   container.innerHTML = secondaries.map(u => {
