@@ -267,6 +267,20 @@
     background:var(--vermelho); color:#fff; font-size:12px; font-weight:bold;
     border-radius:10px; padding:1px 9px;
   }
+  .reco-prof-ref{
+    display:flex; align-items:baseline; gap:7px; flex-wrap:wrap;
+    margin:-2px 0 12px 0;
+  }
+  .reco-prof-ref .rotulo{
+    font-size:10.5px; color:var(--cinza); text-transform:uppercase; letter-spacing:.4px;
+  }
+  .reco-prof-ref .nome-prof{
+    font-size:17px; font-weight:bold; color:var(--vermelho);
+  }
+  .reco-prof-ref .disciplina-prof{
+    font-size:12.5px; font-weight:bold; color:#fff; background:var(--azul);
+    border-radius:9px; padding:1px 9px;
+  }
   table.reco-tab{ width:100%; border-collapse:collapse; font-size:13px; }
   table.reco-tab thead th{
     text-align:left; font-size:11px; color:var(--cinza); text-transform:uppercase;
@@ -492,11 +506,29 @@ let opt = document.createElement('option');
 opt.value = '__TODAS__';
 opt.textContent = 'Todas as turmas';
 turmaSel.appendChild(opt);
-turmas.forEach(t=>{
-  let o = document.createElement('option');
-  o.value = t; o.textContent = t;
-  turmaSel.appendChild(o);
-});
+
+(function preencherFiltroTurmaCards(){
+  const series = seriesDisponiveis();
+  if (series.length){
+    const grupoSeries = document.createElement('optgroup');
+    grupoSeries.label = 'Por ano (todas as turmas do ano)';
+    series.forEach(s=>{
+      let op = document.createElement('option');
+      op.value = 'serie:' + s;
+      op.textContent = 'Todos os ' + s + ' anos';
+      grupoSeries.appendChild(op);
+    });
+    turmaSel.appendChild(grupoSeries);
+  }
+  const grupoTurmas = document.createElement('optgroup');
+  grupoTurmas.label = 'Turma específica';
+  turmas.forEach(t=>{
+    let o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    grupoTurmas.appendChild(o);
+  });
+  turmaSel.appendChild(grupoTurmas);
+})();
 
 function escapeHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -507,7 +539,7 @@ function coletarAlunos(){
   const termo = buscaAluno.value.trim().toUpperCase();
   const min = parseInt(minOcorr.value) || 0;
   let lista = [];
-  const turmasParaPercorrer = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const turmasParaPercorrer = turmasSelecionadas(turmaAtual);
   turmasParaPercorrer.forEach(t=>{
     const alunos = DATA[t];
     Object.keys(alunos).forEach(nome=>{
@@ -987,6 +1019,16 @@ function renderizarReco(){
 
     blocosHtml += `<div class="reco-turma">
       <h3>Turma ${escapeHtml(t)} <span class="qtd-badge">${recomendadosDaTurma.length} aluno(s)</span></h3>`;
+
+    const profRefT = PROFESSORES_REFERENCIA[t];
+    const disciplinaT = profRefT ? DISCIPLINA_POR_PROFESSOR[profRefT.toUpperCase().trim()] : null;
+    if (profRefT){
+      blocosHtml += `<div class="reco-prof-ref">
+        <span class="rotulo">Prof(a). Referência:</span>
+        <span class="nome-prof">${escapeHtml(profRefT)}</span>
+        ${disciplinaT ? `<span class="disciplina-prof">${escapeHtml(disciplinaT)}</span>` : ''}
+      </div>`;
+    }
 
     if (recomendadosDaTurma.length === 0){
       blocosHtml += `<div class="reco-vazia">Nenhum aluno desta turma atinge os critérios de recomendação nos filtros atuais.</div>`;
