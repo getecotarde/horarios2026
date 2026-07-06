@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Ocorrências Escolares - E.M. Geraldo Teixeira da Costa</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
   :root{
     --azul: #1e3a5f;
@@ -65,7 +64,33 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap:6mm;
+    position:relative;
   }
+
+  /* Linhas pontilhadas indicando onde cortar cada card, para destacar e
+     anexar ao boletim do aluno. Ficam centralizadas no vão entre os cards. */
+  .corte-v, .corte-h{
+    position:absolute;
+    pointer-events:none;
+    z-index:5;
+  }
+  .corte-v{
+    top:2mm; bottom:2mm; left:50%;
+    border-left:1px dashed #97a3ad;
+  }
+  .corte-h{
+    left:2mm; right:2mm; top:50%;
+    border-top:1px dashed #97a3ad;
+  }
+  .corte-icone{
+    position:absolute;
+    font-size:9px; color:#97a3ad;
+    background:#fff;
+    line-height:1;
+    z-index:6;
+  }
+  .corte-icone.esquerda{ left:0.5mm; top:50%; transform:translateY(-50%); padding-right:1mm; }
+  .corte-icone.topo{ top:0.5mm; left:50%; transform:translateX(-50%); padding-bottom:1mm; }
 
   /* Tamanhos de fonte FIXOS em todos os cards — não variam conforme a
      quantidade de ocorrências do aluno (isso evitava dar a falsa impressão
@@ -140,6 +165,16 @@
   .rodape-card{
     margin-top:2px; padding-top:1.5px; border-top:1px dashed var(--borda);
     font-size:8.5px; color:#8a97a3; display:flex; justify-content:space-between;
+  }
+
+  .prof-ref{
+    font-size:9px; font-weight:normal; color:var(--cinza); text-transform:none;
+    letter-spacing:0; margin-left:5px;
+  }
+
+  .aviso-card{
+    margin-top:2px; padding-top:1.5px; border-top:1px dashed var(--borda);
+    font-size:7.3px; line-height:1.25; color:#8a97a3; font-style:italic;
   }
 
   .card-vazio{ border:none; }
@@ -254,7 +289,12 @@
   @media print{
     #topnav{ display:none !important; }
     #tab-dashboard .conteudo, #tab-reco .conteudo{ padding:0; max-width:none; }
-    .painel, .kpi, .reco-turma{ box-shadow:none; break-inside:avoid; }
+    .painel, .kpi{ box-shadow:none; break-inside:avoid; }
+    .reco-turma{
+      box-shadow:none; break-inside:avoid;
+      page-break-after: always; break-after: page;
+    }
+    .reco-turma:last-child{ page-break-after: auto; break-after: auto; }
     .kpis{ grid-template-columns:repeat(4,1fr); }
     .grid-graficos{ grid-template-columns:1fr 1fr; }
     body{ background:#fff; }
@@ -339,8 +379,8 @@
     <div class="painel">
       <h2>Ocorrências por turma e principais tipos</h2>
       <div class="grid-graficos">
-        <div class="chart-wrap"><canvas id="chartTurmas"></canvas></div>
-        <div class="chart-wrap"><canvas id="chartTipos"></canvas></div>
+        <div class="chart-wrap" id="chartTurmas"></div>
+        <div class="chart-wrap" id="chartTipos"></div>
       </div>
     </div>
 
@@ -404,6 +444,50 @@ const contadorEl = document.getElementById('contador');
 const vazioMsg = document.getElementById('vazio-msg');
 
 const turmas = Object.keys(DATA);
+
+// Professor(a) referência de cada turma
+const PROFESSORES_REFERENCIA = {
+  "6ºA": "ALESSANDRA",
+  "6ºB": "GISLAINE",
+  "6ºC": "JUSCELE",
+  "6ºD": "ADILSON",
+  "6ºE": "JOANDE",
+  "6ºF": "LEIDIANE",
+  "7ºA": "ALEXANDRA",
+  "7ºB": "JULIANA",
+  "7ºC": "GUILHERME",
+  "7ºD": "MAGNA",
+  "7ºE": "FABIANA",
+  "8ºZ": "MARELO C."
+};
+
+// Disciplina de cada professor(a) (segmentos como MAT 1/2/3/4, PORT 1/2/3/4 etc.
+// são todos tratados apenas pela disciplina genérica, sem numeração)
+const DISCIPLINA_POR_PROFESSOR = {
+  "GISLAINE": "Matemática",
+  "FERNANDA": "Matemática",
+  "ALEXANDRA": "Matemática",
+  "MAGNA": "Matemática",
+  "ALESSANDRA": "Português",
+  "JOADNE": "Português",
+  "JOANDE": "Português",
+  "GUILHERME": "Português",
+  "MARIA DO CARMO": "Português",
+  "JUSCELE": "Ciências",
+  "MARCELO SOARES": "Ciências",
+  "LEIDIANE": "Geografia",
+  "MÁRCIA": "Geografia",
+  "ADILSON": "História",
+  "JULIANA": "História",
+  "MARCELO": "Educação Física",
+  "MARCIA (X)": "Educação Física",
+  "FABIANA": "Arte",
+  "J.M.(Y)": "Arte",
+  "RONEI": "Inglês",
+  "CLAUDETE": "Inglês",
+  "GILCE": "Educação Física",
+  "MARELO C.": "Unidocência"
+};
 let opt = document.createElement('option');
 opt.value = '__TODAS__';
 opt.textContent = 'Todas as turmas';
@@ -449,10 +533,15 @@ function montarCardHTML(item){
   const linhasTipos = item.tipos.map(t=>
     `<tr data-qtd="${t.qtd}"><td>${escapeHtml(t.tipo)}</td><td class="qtd-col">${t.qtd}</td></tr>`
   ).join('');
+  const profRef = PROFESSORES_REFERENCIA[item.turma];
+  const disciplina = profRef ? DISCIPLINA_POR_PROFESSOR[profRef.toUpperCase().trim()] : null;
+  const profRefHtml = profRef
+    ? `<span class="prof-ref">— Prof(a). Referência: ${escapeHtml(profRef)}${disciplina ? ' (' + escapeHtml(disciplina) + ')' : ''}</span>`
+    : '';
   return `
   <div class="card">
     <div class="card-header">
-      <div class="escola">E.M. Geraldo Teixeira da Costa</div>
+      <div class="escola">E.M. Geraldo Teixeira da Costa${profRefHtml}</div>
       <div class="periodo">1º Trimestre 2026</div>
       <div class="aluno-linha">
         <div class="aluno-nome">${escapeHtml(item.nome)}</div>
@@ -467,6 +556,9 @@ function montarCardHTML(item){
       <thead><tr><th>Tipo de ocorrência</th><th class="qtd-col">Qtd.</th></tr></thead>
       <tbody data-original="${escapeHtml(JSON.stringify(item.tipos))}">${linhasTipos}</tbody>
     </table>
+    <div class="aviso-card">
+      Obs.: caso a família não tenha sido notificada sobre esta ocorrência, é porque o encaminhamento foi dado em conversa diretamente com o(a) aluno(a) e o(s) professor(es) envolvido(s).
+    </div>
     <div class="rodape-card">
       <span>Registro de Ocorrências Escolares</span>
       <span>1º Trim. 2026</span>
@@ -548,7 +640,9 @@ function renderizar(){
     for (let j=grupo.length; j<4; j++){
       html += '<div class="card card-vazio"></div>';
     }
-    folha.innerHTML = html;
+    folha.innerHTML = html +
+      '<div class="corte-v"></div><div class="corte-h"></div>' +
+      '<span class="corte-icone esquerda">✂</span><span class="corte-icone topo">✂</span>';
     folhasEl.appendChild(folha);
   }
   // aguarda o layout ser aplicado antes de medir os cards
@@ -601,9 +695,60 @@ function todosOsTipos(){
   return Array.from(set).sort((a,b)=> a.localeCompare(b,'pt-BR'));
 }
 
-/* =====================================================================
-   ABA DASHBOARD
-===================================================================== */
+/* -------- Gráficos em SVG puro (sem biblioteca externa / sem internet) -------- */
+function svgBarrasVerticais(labels, valores, cor, tituloEixoY){
+  const W = 560, H = 300, padL = 34, padR = 12, padT = 14, padB = 56;
+  const areaW = W - padL - padR, areaH = H - padT - padB;
+  const max = Math.max(1, ...valores);
+  const n = labels.length || 1;
+  const gap = 10;
+  const barW = Math.max(6, (areaW - gap*(n-1)) / n);
+
+  let barrasSvg = '', rotulosSvg = '';
+  labels.forEach((lab, i)=>{
+    const v = valores[i] || 0;
+    const h = (v / max) * areaH;
+    const x = padL + i*(barW+gap);
+    const y = padT + (areaH - h);
+    barrasSvg += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" fill="${cor}" rx="2"></rect>`;
+    barrasSvg += `<text x="${(x+barW/2).toFixed(1)}" y="${(y-4).toFixed(1)}" font-size="11" text-anchor="middle" fill="#333">${v}</text>`;
+    const labelCurto = lab.length>9 ? lab.slice(0,8)+'…' : lab;
+    rotulosSvg += `<text x="${(x+barW/2).toFixed(1)}" y="${H-padB+16}" font-size="10.5" text-anchor="end" fill="#555" transform="rotate(-35 ${(x+barW/2).toFixed(1)},${H-padB+16})">${escapeHtml(labelCurto)}</text>`;
+  });
+
+  // linha de base
+  const linhaBase = `<line x1="${padL}" y1="${padT+areaH}" x2="${W-padR}" y2="${padT+areaH}" stroke="#c7d3de" stroke-width="1"></line>`;
+
+  if (labels.length === 0){
+    return `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:13px;">Nenhum dado para exibir com os filtros atuais.</div>`;
+  }
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;">${linhaBase}${barrasSvg}${rotulosSvg}</svg>`;
+}
+
+function svgBarrasHorizontais(labels, valores, cor){
+  const n = labels.length || 1;
+  const rowH = 30, padL = 8, padR = 46, padTop = 6;
+  const W = 560, H = padTop*2 + rowH*n;
+  const areaW = W - padL - padR - 190; // espaço reservado ao rótulo à esquerda
+  const max = Math.max(1, ...valores);
+
+  if (labels.length === 0){
+    return `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;font-size:13px;">Nenhum dado para exibir com os filtros atuais.</div>`;
+  }
+
+  let linhas = '';
+  labels.forEach((lab,i)=>{
+    const v = valores[i] || 0;
+    const w = (v/max) * areaW;
+    const y = padTop + i*rowH;
+    linhas += `<text x="188" y="${y+rowH/2+4}" font-size="11.5" text-anchor="end" fill="#333">${escapeHtml(lab)}</text>`;
+    linhas += `<rect x="196" y="${(y+5).toFixed(1)}" width="${Math.max(2,w).toFixed(1)}" height="${rowH-10}" fill="${cor}" rx="2"></rect>`;
+    linhas += `<text x="${(196+w+6).toFixed(1)}" y="${y+rowH/2+4}" font-size="11.5" fill="#333">${v}</text>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;min-height:100%;">${linhas}</svg>`;
+}
 const dashTurmaSel = document.getElementById('dashTurma');
 const dashTipoSel  = document.getElementById('dashTipo');
 const dashMinInp   = document.getElementById('dashMin');
@@ -612,7 +757,23 @@ const dashContadorEl = document.getElementById('dashContador');
 (function preencherFiltrosDashboard(){
   let o = document.createElement('option'); o.value='__TODAS__'; o.textContent='Todas as turmas';
   dashTurmaSel.appendChild(o);
-  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; dashTurmaSel.appendChild(op); });
+
+  const seriesDash = seriesDisponiveis();
+  if (seriesDash.length){
+    const grupoSeries = document.createElement('optgroup');
+    grupoSeries.label = 'Por ano (todas as turmas do ano)';
+    seriesDash.forEach(s=>{
+      let op = document.createElement('option');
+      op.value = 'serie:' + s;
+      op.textContent = 'Todos os ' + s + ' anos';
+      grupoSeries.appendChild(op);
+    });
+    dashTurmaSel.appendChild(grupoSeries);
+  }
+  const grupoTurmasDash = document.createElement('optgroup');
+  grupoTurmasDash.label = 'Turma específica';
+  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; grupoTurmasDash.appendChild(op); });
+  dashTurmaSel.appendChild(grupoTurmasDash);
 
   todosOsTipos().forEach(tp=>{
     let op=document.createElement('option'); op.value=tp; op.textContent = tp.length>55 ? tp.slice(0,52)+'…' : tp;
@@ -620,14 +781,13 @@ const dashContadorEl = document.getElementById('dashContador');
   });
 })();
 
-let chartTurmasObj = null, chartTiposObj = null;
 let dashOrdem = 'total_desc';
 
 function coletarDadosDashboard(){
   const turmaAtual = dashTurmaSel.value;
   const tipoAtual = dashTipoSel.value;
   const min = parseInt(dashMinInp.value) || 0;
-  const turmasParaPercorrer = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const turmasParaPercorrer = turmasSelecionadas(turmaAtual);
 
   let alunos = [];
   turmasParaPercorrer.forEach(t=>{
@@ -672,7 +832,7 @@ function renderizarDashboard(){
   // Gráfico 1: ocorrências por turma (sempre mostra todas as turmas, mesmo se uma turma específica estiver selecionada,
   // mas neste caso o filtro de tipo/min ainda se aplica dentro de cada turma)
   const turmaAtual = dashTurmaSel.value;
-  const turmasBarras = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const turmasBarras = turmasSelecionadas(turmaAtual);
   const labelsTurmas = turmasBarras;
   const valoresTurmas = turmasBarras.map(t=>{
     const tipoAtual = dashTipoSel.value;
@@ -688,22 +848,14 @@ function renderizarDashboard(){
     return soma;
   });
 
-  const ctxTurmas = document.getElementById('chartTurmas').getContext('2d');
-  if (chartTurmasObj) chartTurmasObj.destroy();
-  chartTurmasObj = new Chart(ctxTurmas, {
-    type:'bar',
-    data:{ labels: labelsTurmas, datasets:[{ label:'Registros de ocorrência', data: valoresTurmas, backgroundColor:'#1e3a5f' }]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, title:{display:true, text:'Ocorrências por turma'} },
-      scales:{ y:{ beginAtZero:true, ticks:{precision:0} } }
-    }
-  });
+  document.getElementById('chartTurmas').innerHTML =
+    `<div style="font-size:12.5px;color:var(--azul);font-weight:bold;margin-bottom:6px;">Ocorrências por turma</div>` +
+    svgBarrasVerticais(labelsTurmas, valoresTurmas, '#1e3a5f');
 
   // Gráfico 2: top tipos de ocorrência (respeita turma e mínimo, ignora o filtro de tipo específico
   // -- mostra a composição de tipos dentro do recorte escolhido)
   const contagemTipos = {};
-  const turmasParaTipos = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const turmasParaTipos = turmasSelecionadas(turmaAtual);
   const min2 = parseInt(dashMinInp.value) || 0;
   turmasParaTipos.forEach(t=>{
     Object.keys(DATA[t]).forEach(nome=>{
@@ -716,17 +868,9 @@ function renderizarDashboard(){
   const labelsTipos = tiposOrdenados.map(x=> x[0].length>34 ? x[0].slice(0,31)+'…' : x[0]);
   const valoresTipos = tiposOrdenados.map(x=> x[1]);
 
-  const ctxTipos = document.getElementById('chartTipos').getContext('2d');
-  if (chartTiposObj) chartTiposObj.destroy();
-  chartTiposObj = new Chart(ctxTipos, {
-    type:'bar',
-    data:{ labels: labelsTipos, datasets:[{ label:'Ocorrências', data: valoresTipos, backgroundColor:'#b23a2e' }]},
-    options:{
-      indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false}, title:{display:true, text:'Tipos mais frequentes no recorte'} },
-      scales:{ x:{ beginAtZero:true, ticks:{precision:0} } }
-    }
-  });
+  document.getElementById('chartTipos').innerHTML =
+    `<div style="font-size:12.5px;color:var(--vermelho);font-weight:bold;margin-bottom:6px;">Tipos mais frequentes no recorte</div>` +
+    svgBarrasHorizontais(labelsTipos, valoresTipos, '#b23a2e');
 
   // Tabela detalhada
   let listaTabela = alunos.slice();
@@ -766,11 +910,46 @@ const recoContadorEl = document.getElementById('recoContador');
 const recoResumoEl = document.getElementById('recoResumo');
 const recoListaEl = document.getElementById('recoLista');
 
+function seriesDisponiveis(){
+  const set = new Set();
+  turmas.forEach(t=>{
+    const m = t.match(/^(\d+º)/);
+    if (m) set.add(m[1]);
+  });
+  return Array.from(set).sort();
+}
+
 (function preencherFiltroRecoTurma(){
   let o = document.createElement('option'); o.value='__TODAS__'; o.textContent='Todas as turmas';
   recoTurmaSel.appendChild(o);
-  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; recoTurmaSel.appendChild(op); });
+
+  const series = seriesDisponiveis();
+  if (series.length){
+    const grupoSeries = document.createElement('optgroup');
+    grupoSeries.label = 'Por ano (todas as turmas do ano)';
+    series.forEach(s=>{
+      let op = document.createElement('option');
+      op.value = 'serie:' + s;
+      op.textContent = 'Todos os ' + s + ' anos';
+      grupoSeries.appendChild(op);
+    });
+    recoTurmaSel.appendChild(grupoSeries);
+  }
+
+  const grupoTurmas = document.createElement('optgroup');
+  grupoTurmas.label = 'Turma específica';
+  turmas.forEach(t=>{ let op=document.createElement('option'); op.value=t; op.textContent=t; grupoTurmas.appendChild(op); });
+  recoTurmaSel.appendChild(grupoTurmas);
 })();
+
+function turmasSelecionadas(valorFiltro){
+  if (valorFiltro === '__TODAS__') return turmas;
+  if (valorFiltro.startsWith('serie:')){
+    const serie = valorFiltro.slice('serie:'.length);
+    return turmas.filter(t=> t.startsWith(serie));
+  }
+  return [valorFiltro];
+}
 
 function motivosGraves(aluno, palavrasChave){
   const encontrados = new Set();
@@ -786,7 +965,7 @@ function renderizarReco(){
   const turmaAtual = recoTurmaSel.value;
   const minTotal = parseInt(recoMinInp.value) || 0;
   const palavrasChave = Array.from(document.querySelectorAll('.graveChk:checked')).map(c=> c.value.toUpperCase());
-  const turmasParaPercorrer = turmaAtual === '__TODAS__' ? turmas : [turmaAtual];
+  const turmasParaPercorrer = turmasSelecionadas(turmaAtual);
 
   let totalRecomendados = 0;
   let blocosHtml = '';
