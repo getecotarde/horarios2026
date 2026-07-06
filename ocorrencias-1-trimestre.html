@@ -66,71 +66,79 @@
     gap:6mm;
   }
 
-  /* font-size do .card e a unidade-base (em px); o JS ajusta esse valor
-     por card para preencher o espaco disponivel sem transbordar.
-     Todos os elementos internos usam "em", entao escalam juntos. */
+  /* Tamanhos de fonte FIXOS em todos os cards — não variam conforme a
+     quantidade de ocorrências do aluno (isso evitava dar a falsa impressão
+     de que "menos ocorrências = mais grave" por causa de uma fonte maior).
+     Apenas o espaçamento vertical das linhas da tabela (--rowpad) se ajusta
+     via JS quando há muitos tipos de ocorrência, para caber no card. */
   .card{
     border:1.3px solid var(--azul);
     border-radius:6px;
-    padding:0.42em 0.5em;
+    padding:3.5mm 4mm;
     display:flex; flex-direction:column;
     overflow:hidden;
     position:relative;
-    font-size:12px; /* valor inicial, recalculado via JS */
+    --rowpad: 2.6px;
   }
 
   .card-header{
     border-bottom:1.2px solid var(--azul);
-    padding-bottom:0.18em; margin-bottom:0.22em;
+    padding-bottom:1.5px; margin-bottom:2px;
   }
   .escola{
-    font-size:0.875em; font-weight:bold; color:var(--azul); letter-spacing:.2px;
-    text-transform:uppercase; line-height:1.2;
+    font-size:10.5px; font-weight:bold; color:var(--azul); letter-spacing:.2px;
+    text-transform:uppercase; line-height:1.25;
   }
   .periodo{
-    font-size:0.79em; color:var(--cinza); font-style:italic; line-height:1.2;
+    font-size:9.5px; color:var(--cinza); font-style:italic; line-height:1.2;
   }
   .aluno-linha{
-    display:flex; justify-content:space-between; align-items:baseline; margin-top:0.15em;
-    gap:0.5em;
+    display:flex; justify-content:space-between; align-items:baseline; margin-top:1.5px;
+    gap:6px;
   }
   .aluno-nome{
-    font-size:1.2em; font-weight:bold; color:#111;
+    /* nome sempre grande e com o mesmo tamanho em todos os cards */
+    font-size:16px; font-weight:bold; color:#111;
     line-height:1.15;
   }
   .turma-tag{
-    font-size:0.92em; font-weight:bold; color:var(--azul); background:#fff;
+    font-size:11px; font-weight:bold; color:var(--azul); background:#fff;
     border:1.2px solid var(--azul);
-    padding:0.06em 0.55em; border-radius:10px; white-space:nowrap;
+    padding:1px 7px; border-radius:10px; white-space:nowrap;
   }
 
   .resumo{
-    display:flex; align-items:center; gap:0.6em; margin:0.2em 0 0.22em 0;
+    display:flex; align-items:center; gap:7px; margin:2px 0 2.5px 0;
   }
   .total-badge{
     background:#fff; color:var(--vermelho); font-weight:bold;
     border:1.3px solid var(--vermelho);
-    font-size:1.05em; border-radius:5px; padding:0.1em 0.6em;
+    font-size:13px; border-radius:5px; padding:1px 8px;
   }
-  .total-label{ font-size:0.79em; color:var(--cinza); }
+  .total-label{ font-size:9.5px; color:var(--cinza); }
 
   table.tipos{
-    width:100%; border-collapse:collapse; font-size:0.85em; flex:1;
+    width:100%; border-collapse:collapse; flex:1; table-layout:fixed;
   }
   table.tipos thead th{
-    text-align:left; font-size:0.88em; color:var(--azul); background:#fff;
+    text-align:left; font-size:10.5px; color:var(--azul); background:#fff;
     border-bottom:1.4px solid var(--azul);
-    padding:0.12em 0.4em; font-weight:bold;
+    padding:2px 5px; font-weight:bold;
   }
   table.tipos thead th.qtd-col{ text-align:center; width:11mm; }
   table.tipos tbody td{
-    padding:0.13em 0.4em; border-bottom:0.6px solid #d7dfe7; vertical-align:top;
+    /* tamanho equivalente a, no mínimo, fonte 12 (Arial) = 16px */
+    font-size:16px; line-height:1.12;
+    padding:var(--rowpad) 5px; border-bottom:0.6px solid #d7dfe7; vertical-align:top;
   }
   table.tipos tbody td.qtd-col{ text-align:center; font-weight:bold; color:var(--vermelho); }
+  table.tipos tbody tr.linha-resumo td{
+    font-style:italic; color:var(--cinza); font-size:14px;
+  }
 
   .rodape-card{
-    margin-top:0.2em; padding-top:0.12em; border-top:1px dashed var(--borda);
-    font-size:0.72em; color:#8a97a3; display:flex; justify-content:space-between;
+    margin-top:2px; padding-top:1.5px; border-top:1px dashed var(--borda);
+    font-size:8.5px; color:#8a97a3; display:flex; justify-content:space-between;
   }
 
   .card-vazio{ border:none; }
@@ -246,7 +254,7 @@ function coletarAlunos(){
 
 function montarCardHTML(item){
   const linhasTipos = item.tipos.map(t=>
-    `<tr><td>${escapeHtml(t.tipo)}</td><td class="qtd-col">${t.qtd}</td></tr>`
+    `<tr data-qtd="${t.qtd}"><td>${escapeHtml(t.tipo)}</td><td class="qtd-col">${t.qtd}</td></tr>`
   ).join('');
   return `
   <div class="card">
@@ -264,7 +272,7 @@ function montarCardHTML(item){
     </div>
     <table class="tipos">
       <thead><tr><th>Tipo de ocorrência</th><th class="qtd-col">Qtd.</th></tr></thead>
-      <tbody>${linhasTipos}</tbody>
+      <tbody data-original="${escapeHtml(JSON.stringify(item.tipos))}">${linhasTipos}</tbody>
     </table>
     <div class="rodape-card">
       <span>Registro de Ocorrências Escolares</span>
@@ -273,38 +281,58 @@ function montarCardHTML(item){
   </div>`;
 }
 
-// Ajusta o font-size de cada card (em px, herdado por toda a hierarquia em "em")
-// para ocupar o maximo de espaco possivel sem que o conteudo transborde.
-const FS_MIN = 6, FS_MAX = 19, FS_STEP = 0.5;
-function ajustarFonteCard(card){
-  card.style.fontSize = FS_MAX + 'px';
-  let fs = FS_MAX;
-  // desce ate caber (scrollHeight/scrollWidth refletem o conteudo real, mesmo com overflow:hidden)
-  while (fs > FS_MIN && (card.scrollHeight > card.clientHeight + 0.5 || card.scrollWidth > card.clientWidth + 0.5)){
-    fs -= FS_STEP;
-    card.style.fontSize = fs + 'px';
+function cardTransborda(card){
+  return card.scrollHeight > card.clientHeight + 0.5 || card.scrollWidth > card.clientWidth + 0.5;
+}
+
+// A fonte NUNCA muda de tamanho (nome do aluno e lista de tipos ficam sempre
+// no mesmo tamanho em todos os cards, independente da quantidade de
+// ocorrências). O que se ajusta, quando necessário, é apenas o espaçamento
+// vertical entre as linhas da tabela (--rowpad), e só em último caso — se
+// mesmo no espaçamento mínimo não couber — resume as ocorrências menos
+// frequentes em uma única linha "+N outros tipos".
+const ROWPAD_MAX = 2.6, ROWPAD_MIN = 0.5, ROWPAD_STEP = 0.2;
+
+function ajustarEspacamento(card){
+  let pad = ROWPAD_MAX;
+  card.style.setProperty('--rowpad', pad + 'px');
+  while (pad > ROWPAD_MIN && cardTransborda(card)){
+    pad = Math.max(ROWPAD_MIN, pad - ROWPAD_STEP);
+    card.style.setProperty('--rowpad', pad + 'px');
+  }
+  return !cardTransborda(card);
+}
+
+function resumirExcedentes(card){
+  const tbody = card.querySelector('tbody');
+  let tipos;
+  try { tipos = JSON.parse(tbody.dataset.original); } catch(e){ return; }
+  // remove uma linha (a de menor quantidade) por vez e substitui por um
+  // resumo, ate caber com o espacamento minimo
+  card.style.setProperty('--rowpad', ROWPAD_MIN + 'px');
+  let visiveis = tipos.length;
+  while (visiveis > 1 && cardTransborda(card)){
+    visiveis -= 1;
+    const mostrados = tipos.slice(0, visiveis);
+    const ocultos = tipos.slice(visiveis);
+    const qtdOcultos = ocultos.reduce((s,t)=> s + t.qtd, 0);
+    let html = mostrados.map(t=>
+      `<tr data-qtd="${t.qtd}"><td>${escapeHtml(t.tipo)}</td><td class="qtd-col">${t.qtd}</td></tr>`
+    ).join('');
+    html += `<tr class="linha-resumo"><td>+ ${ocultos.length} outro(s) tipo(s)</td><td class="qtd-col">${qtdOcultos}</td></tr>`;
+    tbody.innerHTML = html;
+  }
+}
+
+function ajustarCard(card){
+  const coube = ajustarEspacamento(card);
+  if (!coube){
+    resumirExcedentes(card);
   }
 }
 
 function ajustarTodosOsCards(){
-  document.querySelectorAll('.card:not(.card-vazio)').forEach(ajustarCardComTabela);
-}
-
-// Para cards com poucas linhas de tipo, tentar aumentar um pouco mais alem do
-// FS_MAX padrao, ate o limite de nao transbordar - maximiza uso do espaco.
-function ajustarCardComTabela(card){
-  ajustarFonteCard(card);
-  let fs = parseFloat(card.style.fontSize);
-  const TOPO_ABS = 26;
-  while (fs < TOPO_ABS){
-    const proximo = fs + FS_STEP;
-    card.style.fontSize = proximo + 'px';
-    if (card.scrollHeight > card.clientHeight + 0.5 || card.scrollWidth > card.clientWidth + 0.5){
-      card.style.fontSize = fs + 'px';
-      break;
-    }
-    fs = proximo;
-  }
+  document.querySelectorAll('.card:not(.card-vazio)').forEach(ajustarCard);
 }
 
 function renderizar(){
@@ -336,6 +364,7 @@ function renderizar(){
 
 window.addEventListener('beforeprint', ajustarTodosOsCards);
 window.addEventListener('resize', ()=> clearTimeout(window._rzTimer) || (window._rzTimer = setTimeout(ajustarTodosOsCards, 200)));
+
 
 [turmaSel, buscaAluno, ordenarSel, minOcorr].forEach(el=>{
   el.addEventListener('input', renderizar);
