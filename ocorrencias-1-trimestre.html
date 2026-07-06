@@ -540,24 +540,26 @@ function coletarAlunos(){
   const min = parseInt(minOcorr.value) || 0;
   let lista = [];
   const turmasParaPercorrer = turmasSelecionadas(turmaAtual);
+  const modo = ordenarSel.value;
   turmasParaPercorrer.forEach(t=>{
     const alunos = DATA[t];
+    let doTurma = [];
     Object.keys(alunos).forEach(nome=>{
       const info = alunos[nome];
       if (info.total < min) return;
       if (termo && !nome.toUpperCase().includes(termo)) return;
-      lista.push({ turma:t, nome, ...info });
+      doTurma.push({ turma:t, nome, ...info });
     });
+    if (modo === 'nome'){
+      doTurma.sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'));
+    } else if (modo === 'total_desc'){
+      doTurma.sort((a,b)=> b.total - a.total || a.nome.localeCompare(b.nome,'pt-BR'));
+    } else if (modo === 'total_asc'){
+      doTurma.sort((a,b)=> a.total - b.total || a.nome.localeCompare(b.nome,'pt-BR'));
+    }
+    lista.push(...doTurma);
   });
 
-  const modo = ordenarSel.value;
-  if (modo === 'nome'){
-    lista.sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'));
-  } else if (modo === 'total_desc'){
-    lista.sort((a,b)=> b.total - a.total || a.nome.localeCompare(b.nome,'pt-BR'));
-  } else if (modo === 'total_asc'){
-    lista.sort((a,b)=> a.total - b.total || a.nome.localeCompare(b.nome,'pt-BR'));
-  }
   return lista;
 }
 
@@ -655,28 +657,49 @@ function ajustarTodosOsCards(){
 function renderizar(){
   const lista = coletarAlunos();
   folhasEl.innerHTML = '';
-  contadorEl.textContent = lista.length + ' aluno(s) · ' + Math.ceil(lista.length/4) + ' folha(s) A4';
 
   if (lista.length === 0){
+    contadorEl.textContent = '0 aluno(s) · 0 folha(s) A4';
     vazioMsg.style.display = 'block';
     return;
   }
   vazioMsg.style.display = 'none';
 
-  for (let i=0; i<lista.length; i+=4){
-    const grupo = lista.slice(i, i+4);
-    const folha = document.createElement('div');
-    folha.className = 'folha';
-    let html = '';
-    grupo.forEach(item=> html += montarCardHTML(item));
-    for (let j=grupo.length; j<4; j++){
-      html += '<div class="card card-vazio"></div>';
+  // Agrupa os alunos por turma, na ordem em que aparecem na lista (que já
+  // respeita a ordem de turmasSelecionadas). Cada turma sempre começa numa
+  // folha nova — nunca divide a última folha de uma turma com a turma
+  // seguinte, mesmo que sobrem "vagas" de cards naquela folha.
+  const gruposPorTurma = [];
+  let turmaCorrente = null, grupoCorrente = null;
+  lista.forEach(item=>{
+    if (item.turma !== turmaCorrente){
+      turmaCorrente = item.turma;
+      grupoCorrente = [];
+      gruposPorTurma.push(grupoCorrente);
     }
-    folha.innerHTML = html +
-      '<div class="corte-v"></div><div class="corte-h"></div>' +
-      '<span class="corte-icone esquerda">✂</span><span class="corte-icone topo">✂</span>';
-    folhasEl.appendChild(folha);
-  }
+    grupoCorrente.push(item);
+  });
+
+  let totalFolhas = 0;
+  gruposPorTurma.forEach(itensDaTurma=>{
+    for (let i=0; i<itensDaTurma.length; i+=4){
+      const grupo = itensDaTurma.slice(i, i+4);
+      const folha = document.createElement('div');
+      folha.className = 'folha';
+      let html = '';
+      grupo.forEach(item=> html += montarCardHTML(item));
+      for (let j=grupo.length; j<4; j++){
+        html += '<div class="card card-vazio"></div>';
+      }
+      folha.innerHTML = html +
+        '<div class="corte-v"></div><div class="corte-h"></div>' +
+        '<span class="corte-icone esquerda">✂</span><span class="corte-icone topo">✂</span>';
+      folhasEl.appendChild(folha);
+      totalFolhas++;
+    }
+  });
+
+  contadorEl.textContent = lista.length + ' aluno(s) · ' + totalFolhas + ' folha(s) A4';
   // aguarda o layout ser aplicado antes de medir os cards
   requestAnimationFrame(()=> requestAnimationFrame(ajustarTodosOsCards));
 }
