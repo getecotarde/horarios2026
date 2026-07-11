@@ -2494,7 +2494,10 @@ function initSubstituicoes() {
 
   let html = `
     <div style="background:white;border-radius:16px;padding:20px 24px 14px;box-shadow:0 2px 12px rgba(0,0,0,.07);margin-bottom:20px">
-      <div style="font-size:20px;font-weight:900;color:var(--cinza-escuro);margin-bottom:4px">🔄 Quadro de Substituições</div>
+      <div style="font-size:20px;font-weight:900;color:var(--cinza-escuro);margin-bottom:4px;display:flex;align-items:center;gap:10px">
+        <span>🔄 Quadro de Substituições</span>
+        <a href="https://docs.google.com/spreadsheets/d/1Iy8fqI39XEnS5lFFFGgQqsIew6e39PMll8Wq_s_aDek/edit?usp=sharing" target="_blank" rel="noopener noreferrer" title="Abrir Atividades" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#eef2ff;color:#4338ca;text-decoration:none;font-size:16px;transition:background .15s" onmouseover="this.style.background='#e0e7ff'" onmouseout="this.style.background='#eef2ff'">📋</a>
+      </div>
       <div style="font-size:13px;color:#666">Professores disponíveis para cobrir ausências · 2º Turno · Junho 2026</div>
       <div style="margin-top:10px;padding:10px 14px;background:#fff9e6;border-radius:8px;border-left:4px solid var(--amarelo);font-size:12px;color:#92400e">
         <strong>Prioridade:</strong> Professores com maior número de substituições em suas respectivas distribuições de horários. A substituição tem prioridade sobre possíveis projetos.
