@@ -1222,6 +1222,122 @@
     position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
     color: var(--cinza-medio); font-size: 15px; pointer-events: none;
   }
+
+  /* ══════════════════════════════════════════════════════════
+     CALENDÁRIO PEDAGÓGICO
+  ══════════════════════════════════════════════════════════ */
+  .cal-header {
+    background: linear-gradient(135deg, var(--verde) 0%, var(--azul) 100%);
+    border-radius: 16px;
+    padding: 22px 26px;
+    color: white;
+    margin-bottom: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  }
+  .cal-header h2 { font-size: 21px; font-weight: 900; margin-bottom: 4px; }
+  .cal-header p { font-size: 12.5px; opacity: 0.85; }
+
+  .cal-viewtoggle {
+    display: inline-flex; background: rgba(255,255,255,0.14);
+    border-radius: 10px; padding: 3px; margin-top: 14px; gap: 2px;
+  }
+  .cal-viewtoggle button {
+    border: none; background: transparent; color: rgba(255,255,255,0.75);
+    font-family: 'Inter',sans-serif; font-size: 12px; font-weight: 700;
+    padding: 7px 16px; border-radius: 8px; cursor: pointer; transition: all .15s;
+  }
+  .cal-viewtoggle button.on { background: white; color: var(--verde); }
+
+  .cal-filterbar {
+    background: white; border-radius: 14px; padding: 16px 20px; margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-end;
+  }
+  .cal-filterbar .filter-group { min-width: 150px; }
+  .cal-filterbar .filter-group.grow { flex: 2; min-width: 200px; }
+  .cal-resetbtn {
+    border: 2px solid var(--borda); background: white; color: var(--cinza-medio);
+    font-family: 'Inter',sans-serif; font-size: 12.5px; font-weight: 700;
+    padding: 9px 16px; border-radius: 8px; cursor: pointer; transition: all .15s;
+    white-space: nowrap;
+  }
+  .cal-resetbtn:hover { border-color: var(--laranja); color: var(--laranja); }
+
+  .cal-legend {
+    display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 18px;
+    background: white; border-radius: 12px; padding: 12px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-size: 11.5px;
+  }
+  .cal-legend-item { display: flex; align-items: center; gap: 6px; color: var(--cinza-medio); font-weight: 600; }
+  .cal-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  .cal-month-card {
+    background: white; border-radius: 16px; overflow: hidden;
+    box-shadow: 0 2px 14px rgba(0,0,0,0.08); margin-bottom: 22px;
+  }
+  .cal-month-head {
+    padding: 16px 22px; color: white; position: relative;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;
+  }
+  .cal-month-head .nome { font-size: 18px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.03em; }
+  .cal-month-head .tema { font-size: 12px; opacity: 0.88; font-style: italic; max-width: 480px; }
+  .cal-month-head .count { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 6px; padding: 16px;
+  }
+  .cal-grid .dow {
+    text-align: center; font-size: 10.5px; font-weight: 800; color: var(--cinza-medio);
+    text-transform: uppercase; letter-spacing: 0.05em; padding-bottom: 4px;
+  }
+  .cal-day {
+    min-height: 74px; border-radius: 9px; background: var(--cinza-claro);
+    padding: 5px 5px 6px; display: flex; flex-direction: column; gap: 3px;
+    border: 1px solid transparent; transition: all .15s;
+  }
+  .cal-day.empty-cell { background: transparent; }
+  .cal-day.has-event { background: white; border-color: var(--borda); }
+  .cal-day.weekend { background: #f7f2ec; }
+  .cal-day.dimmed { opacity: 0.25; }
+  .cal-day .daynum { font-size: 11px; font-weight: 800; color: var(--cinza-medio); }
+  .cal-day.has-event .daynum { color: var(--cinza-escuro); }
+  .cal-chip {
+    font-size: 9.5px; font-weight: 700; line-height: 1.25; padding: 2px 5px;
+    border-radius: 5px; color: white; cursor: default;
+    overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  }
+
+  .cal-list-day {
+    display: flex; gap: 14px; padding: 12px 22px; border-bottom: 1px solid var(--cinza-claro);
+    align-items: flex-start;
+  }
+  .cal-list-day:last-child { border-bottom: none; }
+  .cal-list-daybadge {
+    flex-shrink: 0; width: 46px; text-align: center; padding-top: 2px;
+  }
+  .cal-list-daybadge .num { font-size: 20px; font-weight: 900; color: var(--cinza-escuro); line-height: 1; }
+  .cal-list-daybadge .dow { font-size: 9px; font-weight: 700; color: var(--cinza-medio); text-transform: uppercase; }
+  .cal-list-events { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .cal-list-event {
+    display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--cinza-escuro);
+    background: var(--cinza-claro); border-radius: 8px; padding: 6px 10px;
+  }
+  .cal-list-event .catdot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+  .cal-list-event .pub-badge {
+    font-size: 9.5px; font-weight: 800; padding: 1px 6px; border-radius: 20px;
+    background: white; color: var(--cinza-medio); flex-shrink: 0; margin-left: auto;
+  }
+
+  .cal-empty-month { padding: 30px; text-align: center; color: #aaa; font-size: 13px; }
+
+  @media (max-width: 900px) {
+    .cal-grid { grid-template-columns: repeat(7, 1fr); gap: 3px; padding: 10px; }
+    .cal-day { min-height: 54px; }
+    .cal-chip { font-size: 8px; -webkit-line-clamp: 2; }
+    .cal-day .daynum { font-size: 9px; }
+  }
 </style>
 </head>
 <body>
@@ -1276,6 +1392,7 @@
     <button onclick="showSection('disciplinas')">📚 Por Disciplina</button>
     <button onclick="showSection('substituicoes')">🔄 Substituições</button>
     <button onclick="showSection('acepat')">⭐ ACEPAT</button>
+    <button onclick="showSection('calendario')">🗓️ Calendário Pedagógico</button>
     <button onclick="openExternal('https://monitoramento-pedagogico.vercel.app/', 'Monitoramento Pedagógico', 'Pode ser solicitado login com conta institucional Google (@rededeensino.educacao.mg.gov.br).')">📋 Gestão Ped.</button>
     <button onclick="openExternal('https://copiafacil.vercel.app/', 'Mecanografia – Cópia Fácil', 'Acesso aberto, sem necessidade de credenciais.')">🖨️ Mecanografia</button>
     <button onclick="openExternal('https://sites.google.com/view/getecotarde2026/geral', 'Mapeamento GETECO', 'Acesso aberto via Google Sites, sem necessidade de credenciais.')">🗺️ Mapeamento</button>
@@ -1523,6 +1640,11 @@
 <!-- ACEPAT -->
 <div id="sec-acepat" class="section">
   <div id="acepat-content"></div>
+</div>
+
+<!-- CALENDÁRIO PEDAGÓGICO -->
+<div id="sec-calendario" class="section">
+  <div id="calendario-content"></div>
 </div>
 
 <!-- ACESSOS (admin only) -->
@@ -2630,6 +2752,409 @@ function initAcepat() {
   html += `</div>`;
   container.innerHTML = html;
 }
+// ============================================================
+// CALENDÁRIO PEDAGÓGICO 2026
+// ============================================================
+const CAL_ANO = 2026;
+
+const CAL_MESES = [
+  { key:'junho',     nome:'Junho',     mes:5,  tema:'Refletir',    frase:'"Educar é impregnar de sentido o que fazemos a cada instante." — Carlos Drummond de Andrade', cor:'#1a6b3a' },
+  { key:'julho',     nome:'Julho',     mes:6,  tema:'Cuidar de si', frase:'"Precisamos reaprender a sonhar." — Ailton Krenak', cor:'#2563c5' },
+  { key:'agosto',    nome:'Agosto',    mes:7,  tema:'Recomeçar',    frase:'"Liberdade é pouco." — Clarice Lispector', cor:'#7c3aed' },
+  { key:'setembro',  nome:'Setembro',  mes:8,  tema:'Incluir',      frase:'"Cada pessoa é um mundo." — Guimarães Rosa', cor:'#0891b2' },
+  { key:'outubro',   nome:'Outubro',   mes:9,  tema:'Consolidar',   frase:'"Caminhando e semeando, no fim terás o que colher." — Cora Coralina', cor:'#ea580c' },
+  { key:'novembro',  nome:'Novembro',  mes:10, tema:'Inspirar',     frase:'"A educação é um ato de amor." — Paulo Freire', cor:'#1a4480' },
+  { key:'dezembro',  nome:'Dezembro',  mes:11, tema:'Agradecer',    frase:'"Tudo vale a pena quando a alma não é pequena." — Fernando Pessoa', cor:'#be123c' }
+];
+
+const CAL_CATEGORIAS = {
+  feriado:        { label:'Feriado',              cor:'#dc2626' },
+  recesso:        { label:'Recesso',               cor:'#ea580c' },
+  avaliacao:      { label:'Avaliação / Revisão',   cor:'#2563c5' },
+  reuniao:        { label:'Reunião / Conselho',    cor:'#7c3aed' },
+  recuperacao:    { label:'Recuperação / Reposição', cor:'#d97706' },
+  acepat:         { label:'ACEPAT',                cor:'#0891b2' },
+  evento:         { label:'Evento / Comemoração',  cor:'#db2777' },
+  formacao:       { label:'Formação',              cor:'#059669' },
+  administrativo: { label:'Administrativo / SGE',  cor:'#4a5568' },
+  comemorativa:   { label:'Data Comemorativa',     cor:'#0d9488' },
+  letivo:         { label:'Marco Letivo',          cor:'#1a6b3a' }
+};
+
+const CAL_TURMAS_AF = [
+  { v:'todas', label:'Todas as turmas (AF)' },
+  { v:'6',     label:'6º ano (A–F)' },
+  { v:'7',     label:'7º ano (A–E)' },
+  { v:'8X',    label:'8º X' },
+  { v:'9',     label:'9º ano / EJA' }
+];
+
+// pub: AI (Anos Iniciais) · AF (Anos Finais) · AMBOS (AI e AF) · GERAL (toda a escola/administrativo)
+const CAL_EVENTOS = {
+  junho: [
+    { d:4,  texto:'Feriado — Corpus Christi', cat:'feriado', pub:'GERAL' },
+    { d:5,  texto:'Recesso — Dia do Meio Ambiente', cat:'recesso', pub:'GERAL' },
+    { d:9,  texto:'OBMEP — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:9,  texto:'Dia do Porteiro', cat:'comemorativa', pub:'GERAL' },
+    { d:11, texto:'Reunião CPG/DIRE', cat:'reuniao', pub:'GERAL' },
+    { d:13, texto:'Conexão Família/Escola — Formação 1º e 2º ano (CNCA)', cat:'formacao', pub:'AI' },
+    { d:15, texto:'Revisão/Avaliação — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:16, texto:'Revisão/Avaliação — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:17, texto:'Revisão/Avaliação — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:18, texto:'Revisão/Avaliação — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:19, texto:'Revisão/Avaliação — Anos Finais', cat:'avaliacao', pub:'AF' },
+    { d:22, texto:'Reunião Pedagógica (Anos Iniciais) · ACEPAT na escola', cat:'reuniao', pub:'AI' },
+    { d:22, texto:'Recuperação 1ª etapa — Anos Finais', cat:'recuperacao', pub:'AF' },
+    { d:23, texto:'Recuperação 1ª etapa — Anos Finais', cat:'recuperacao', pub:'AF' },
+    { d:24, texto:'Recuperação 1ª etapa — Anos Finais', cat:'recuperacao', pub:'AF' },
+    { d:25, texto:'Recuperação 1ª etapa — Anos Finais', cat:'recuperacao', pub:'AF' },
+    { d:26, texto:'Reunião Pedagógica — Conselho de Classe (Anos Finais) · ACEPAT na escola', cat:'reuniao', pub:'AF' },
+    { d:28, texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:29, texto:'Avaliações Mensais (Anos Iniciais) · UMA AEE/PAS 7h30', cat:'avaliacao', pub:'AI' }
+  ],
+  julho: [
+    { d:1,  texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:2,  texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:3,  texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:3,  texto:'Prazo final lançamento SGE — Anos Finais', cat:'administrativo', pub:'AF' },
+    { d:4,  texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:7,  texto:'Reunião de Pais — 7º e 8º ano · ACEPAT na escola', cat:'reuniao', pub:'AF', turma:['7','8X'] },
+    { d:8,  texto:'Reunião de Pais — 6º e 9º ano · ACEPAT na escola', cat:'reuniao', pub:'AF', turma:['6','9'] },
+    { d:11, texto:'Festa Junina', cat:'evento', pub:'GERAL' },
+    { d:15, texto:'Reunião Pedagógica · ACEPAT na escola · Aniversariantes', cat:'reuniao', pub:'GERAL' },
+    { d:16, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:17, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:18, texto:'Reposição — Somente 9ºs e turma X', cat:'recuperacao', pub:'AF', turma:['9','8X'] },
+    { d:20, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:21, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:22, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:23, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:24, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:25, texto:'Reposição — Somente 9ºs e turma X', cat:'recuperacao', pub:'AF', turma:['9','8X'] },
+    { d:27, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:28, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:29, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:30, texto:'Reposição', cat:'recuperacao', pub:'AF' },
+    { d:31, texto:'Reposição', cat:'recuperacao', pub:'AF' }
+  ],
+  agosto: [
+    { d:3,  texto:'Retorno às aulas', cat:'letivo', pub:'GERAL' },
+    { d:7,  texto:'Homenagem aos Pais (somente interno)', cat:'evento', pub:'GERAL' },
+    { d:9,  texto:'Dia dos Pais', cat:'comemorativa', pub:'GERAL' },
+    { d:10, texto:'Avaliações Mensais (AF) · AVALIA-BH (2º, 4º e 8º)', cat:'avaliacao', pub:'AF' },
+    { d:11, texto:'Avaliações Mensais (AF) · AVALIA-BH (2º, 4º e 8º) · Dia do Estudante', cat:'avaliacao', pub:'AF' },
+    { d:12, texto:'Avaliações Mensais (AF) · AVALIA-BH (2º, 4º e 8º)', cat:'avaliacao', pub:'AF' },
+    { d:13, texto:'Avaliações Mensais (AF) · AVALIA-BH (2º, 4º e 8º)', cat:'avaliacao', pub:'AF' },
+    { d:14, texto:'Avaliações Mensais (AF) · AVALIA-BH (2º, 4º e 8º)', cat:'avaliacao', pub:'AF' },
+    { d:15, texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:17, texto:'AVALIA-BH — Aplicação e lançamento (1º,3º,5º,6º,7º,9º e EJA)', cat:'avaliacao', pub:'AMBOS' },
+    { d:18, texto:'AVALIA-BH — Aplicação e lançamento (1º,3º,5º,6º,7º,9º e EJA)', cat:'avaliacao', pub:'AMBOS' },
+    { d:19, texto:'AVALIA-BH — Aplicação e lançamento (1º,3º,5º,6º,7º,9º e EJA)', cat:'avaliacao', pub:'AMBOS' },
+    { d:21, texto:'Prazo final para lançamento AVALIA-BH', cat:'administrativo', pub:'AMBOS' },
+    { d:22, texto:'Reunião Pedagógica (AI/AF) — Conselho de Classe, Atitudes e Valores · Dia do Coordenador Pedagógico', cat:'reuniao', pub:'AMBOS' },
+    { d:24, texto:'Avaliação Trimestral (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:25, texto:'Avaliação Trimestral (Anos Iniciais) · Conexão Família & Escola (PAS 19h)', cat:'avaliacao', pub:'AI' },
+    { d:26, texto:'Avaliação Trimestral (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:27, texto:'Avaliação Trimestral (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:28, texto:'Reunião Pedagógica (AI/AF) · ACEPAT na escola · Formação', cat:'reuniao', pub:'AMBOS' },
+    { d:31, texto:'Final do 2º Trimestre (AI) · Resultado dos indicados à recuperação', cat:'administrativo', pub:'AI' }
+  ],
+  setembro: [
+    { d:1,  texto:'Início do 3º Trimestre (AI) · Recuperação 2ºT (AI)', cat:'letivo', pub:'AI' },
+    { d:2,  texto:'Recuperação 2ºT (Anos Iniciais)', cat:'recuperacao', pub:'AI' },
+    { d:3,  texto:'Recuperação 2ºT (Anos Iniciais)', cat:'recuperacao', pub:'AI' },
+    { d:7,  texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:8,  texto:'Torneio Esportivo (Anos Finais)', cat:'evento', pub:'AF' },
+    { d:8,  texto:'Reunião Pedagógica — Conselho de Classe (AI) · ACEPAT na escola · Prazo final lançamento SGE (AI)', cat:'reuniao', pub:'AI' },
+    { d:9,  texto:'Torneio Esportivo (Anos Finais)', cat:'evento', pub:'AF' },
+    { d:10, texto:'Torneio Esportivo (Anos Finais)', cat:'evento', pub:'AF' },
+    { d:10, texto:'Reunião de Pais 2ºT (AI) · ACEPAT na escola', cat:'reuniao', pub:'AI' },
+    { d:11, texto:'Torneio Esportivo (Anos Finais)', cat:'evento', pub:'AF' },
+    { d:11, texto:'Reunião de Pais 2ºT (AI) · ACEPAT na escola', cat:'reuniao', pub:'AI' },
+    { d:13, texto:'Reunião Pedagógica — Conselho de Classe, Atitudes e Valores (AF) · ACEPAT na escola', cat:'reuniao', pub:'AF' },
+    { d:14, texto:'Avaliação Trimestral (Anos Finais)', cat:'avaliacao', pub:'AF' },
+    { d:15, texto:'Avaliação Trimestral (Anos Finais)', cat:'avaliacao', pub:'AF' },
+    { d:16, texto:'Avaliação Trimestral (Anos Finais)', cat:'avaliacao', pub:'AF' },
+    { d:17, texto:'Avaliação Trimestral (Anos Finais)', cat:'avaliacao', pub:'AF' },
+    { d:20, texto:'Final do 2ºT (AF) · Resultado dos indicados à recuperação', cat:'administrativo', pub:'AF' },
+    { d:20, texto:'Reunião Pedagógica (AI) · ACEPAT na escola', cat:'reuniao', pub:'AI' },
+    { d:21, texto:'Início do 3º Trimestre (Anos Finais)', cat:'letivo', pub:'AF' },
+    { d:21, texto:'Show de Talentos (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:22, texto:'Recuperação 2ºT (Anos Finais)', cat:'recuperacao', pub:'AF' },
+    { d:23, texto:'Recuperação 2ºT (Anos Finais)', cat:'recuperacao', pub:'AF' },
+    { d:24, texto:'Recuperação 2ºT (Anos Finais)', cat:'recuperacao', pub:'AF' },
+    { d:25, texto:'Recuperação 2ºT (Anos Finais)', cat:'recuperacao', pub:'AF' },
+    { d:28, texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:29, texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:29, texto:'Reunião Pedagógica — Conselho de Classe (AF) · ACEPAT na escola · Prazo final lançamento SGE (AF)', cat:'reuniao', pub:'AF' },
+    { d:30, texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:30, texto:'Dia do Secretário Escolar', cat:'comemorativa', pub:'GERAL' }
+  ],
+  outubro: [
+    { d:1,  texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:1,  texto:'Reunião de Pais 2ºT (AF) · ACEPAT na escola', cat:'reuniao', pub:'AF' },
+    { d:2,  texto:'Avaliações Mensais (Anos Iniciais)', cat:'avaliacao', pub:'AI' },
+    { d:2,  texto:'Reunião de Pais 2ºT (AF) · ACEPAT na escola', cat:'reuniao', pub:'AF' },
+    { d:5,  texto:'Semana das Crianças · Torneio Esportivo (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:6,  texto:'Semana das Crianças · Torneio Esportivo (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:7,  texto:'Semana das Crianças · Torneio Esportivo (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:8,  texto:'Semana das Crianças · Torneio Esportivo (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:9,  texto:'Semana das Crianças · Torneio Esportivo (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:12, texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:13, texto:'Recesso · Reposição', cat:'recesso', pub:'GERAL' },
+    { d:14, texto:'Recesso · Reposição', cat:'recesso', pub:'GERAL' },
+    { d:15, texto:'Recesso · Reposição · Dia do Professor', cat:'recesso', pub:'GERAL' },
+    { d:16, texto:'Recesso · Reposição', cat:'recesso', pub:'GERAL' },
+    { d:21, texto:'Reunião Pedagógica (AI/AF) · ACEPAT na escola', cat:'reuniao', pub:'AMBOS' },
+    { d:30, texto:'Dia do Cantineiro', cat:'comemorativa', pub:'GERAL' },
+    { d:31, texto:'Getecultura', cat:'evento', pub:'GERAL' }
+  ],
+  novembro: [
+    { d:2,  texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:5,  texto:'Reunião Pedagógica (AI/AF) · ACEPAT na escola', cat:'reuniao', pub:'AMBOS' },
+    { d:12, texto:'Premiação Estrelas do Geteco · Premiação Torneio Esportivo (AF)', cat:'evento', pub:'AF' },
+    { d:12, texto:'Dia do Diretor', cat:'comemorativa', pub:'GERAL' },
+    { d:13, texto:'Revisão para a prova · Feira de Ciências (AF, manhã)', cat:'avaliacao', pub:'AMBOS' },
+    { d:15, texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:16, texto:'Revisão para a prova', cat:'avaliacao', pub:'AMBOS' },
+    { d:17, texto:'Revisão para a prova', cat:'avaliacao', pub:'AMBOS' },
+    { d:18, texto:'Revisão para a prova', cat:'avaliacao', pub:'AMBOS' },
+    { d:19, texto:'Revisão para a prova', cat:'avaliacao', pub:'AMBOS' },
+    { d:20, texto:'Feriado', cat:'feriado', pub:'GERAL' },
+    { d:23, texto:'Avaliação Trimestral (AI e AF)', cat:'avaliacao', pub:'AMBOS' },
+    { d:24, texto:'Avaliação Trimestral (AI e AF)', cat:'avaliacao', pub:'AMBOS' },
+    { d:25, texto:'Avaliação Trimestral (AI e AF)', cat:'avaliacao', pub:'AMBOS' },
+    { d:26, texto:'Avaliação Trimestral (AI e AF)', cat:'avaliacao', pub:'AMBOS' },
+    { d:27, texto:'Estrelas do Geteco', cat:'evento', pub:'GERAL' },
+    { d:30, texto:'Reunião Pedagógica — Conselho de Classe (AI/AF) · ACEPAT na escola · Resultados dos indicados à OER', cat:'reuniao', pub:'AMBOS' }
+  ],
+  dezembro: [
+    { d:3,  texto:'Recuperação/OER', cat:'recuperacao', pub:'AMBOS' },
+    { d:4,  texto:'Recuperação/OER', cat:'recuperacao', pub:'AMBOS' },
+    { d:5,  texto:'Recuperação/OER', cat:'recuperacao', pub:'AMBOS' },
+    { d:5,  texto:'Show de Talentos em Família (Anos Iniciais)', cat:'evento', pub:'AI' },
+    { d:7,  texto:'Recesso · Reposição', cat:'recesso', pub:'GERAL' },
+    { d:8,  texto:'Feriado · Reposição', cat:'feriado', pub:'GERAL' },
+    { d:9,  texto:'ACEPAT na escola', cat:'acepat', pub:'GERAL' },
+    { d:10, texto:'ACEPAT na escola · Conselho de Classe Final — 9º ano/EJA · Prazo final lançamento SGE (9º/EJA)', cat:'reuniao', pub:'AF', turma:['9'] },
+    { d:11, texto:'ACEPAT na escola · Conselho de Classe Final — 1º ao 8º ano', cat:'reuniao', pub:'AMBOS' },
+    { d:14, texto:'ACEPAT na escola · Informar resultados 9º/EJA · Almoço de confraternização · Prazo final lançamento SGE (1º ao 8º)', cat:'administrativo', pub:'AMBOS' },
+    { d:15, texto:'ACEPAT na escola · Assembleia Escolar (à noite) · Não há aula em nenhum turno', cat:'evento', pub:'GERAL' },
+    { d:16, texto:'ACEPAT na escola · Entrega de boletins (1º ao 9º) · Escolha de turmas', cat:'administrativo', pub:'AMBOS' },
+    { d:17, texto:'ACEPAT na escola · Reunião Geral/Confraternização · Aniversariantes', cat:'evento', pub:'GERAL' },
+    { d:18, texto:'Final do 3º Trimestre · ACEPAT na escola · Formatura 9º ano/EJA', cat:'evento', pub:'AF', turma:['9'] },
+    { d:21, texto:'Reposição', cat:'recuperacao', pub:'GERAL' },
+    { d:22, texto:'Reposição', cat:'recuperacao', pub:'GERAL' },
+    { d:23, texto:'Reposição', cat:'recuperacao', pub:'GERAL' },
+    { d:25, texto:'Feriado — Natal', cat:'feriado', pub:'GERAL' }
+  ]
+};
+
+const CAL_DOW = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+let calViewMode = 'grade';
+
+function calEsc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+function calMatchesPub(ev, filtroPub) {
+  if (filtroPub === 'todos') return true;
+  if (ev.pub === 'AMBOS' || ev.pub === 'GERAL') return true;
+  return ev.pub === filtroPub;
+}
+function calMatchesTurma(ev, filtroTurma) {
+  if (filtroTurma === 'todas') return true;
+  if (ev.turma) return ev.turma.includes(filtroTurma);
+  return ev.pub === 'AF' || ev.pub === 'AMBOS' || ev.pub === 'GERAL';
+}
+function calMatchesCat(ev, filtroCat) {
+  return filtroCat === 'todas' || ev.cat === filtroCat;
+}
+function calMatchesBusca(ev, termo) {
+  return !termo || ev.texto.toLowerCase().includes(termo);
+}
+
+function initCalendario() {
+  const container = document.getElementById('calendario-content');
+  const mesOptions = `<option value="todos">Todos os meses</option>` +
+    CAL_MESES.map(m => `<option value="${m.key}">${m.nome}</option>`).join('');
+  const catOptions = `<option value="todas">Todas as categorias</option>` +
+    Object.entries(CAL_CATEGORIAS).map(([k,v]) => `<option value="${k}">${v.label}</option>`).join('');
+  const turmaOptions = CAL_TURMAS_AF.map(t => `<option value="${t.v}">${t.label}</option>`).join('');
+
+  container.innerHTML = `
+    <div class="cal-header">
+      <h2>🗓️ Calendário Pedagógico 2026</h2>
+      <p>E.M. Geraldo Teixeira da Costa · Escola Pública de Qualidade · Anos Iniciais e Anos Finais</p>
+      <div class="cal-viewtoggle">
+        <button id="cal-btn-grade" class="on" onclick="setCalView('grade')">📅 Grade</button>
+        <button id="cal-btn-lista" onclick="setCalView('lista')">📋 Lista</button>
+      </div>
+    </div>
+
+    <div class="cal-filterbar">
+      <div class="filter-group">
+        <label>Mês</label>
+        <select id="cal-f-mes" onchange="renderCalendarBody()">${mesOptions}</select>
+      </div>
+      <div class="filter-group">
+        <label>Segmento</label>
+        <select id="cal-f-pub" onchange="renderCalendarBody()">
+          <option value="todos">Todos (AI e AF)</option>
+          <option value="AI">Anos Iniciais (AI)</option>
+          <option value="AF">Anos Finais (AF)</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Turma (Anos Finais)</label>
+        <select id="cal-f-turma" onchange="renderCalendarBody()">${turmaOptions}</select>
+      </div>
+      <div class="filter-group">
+        <label>Categoria</label>
+        <select id="cal-f-cat" onchange="renderCalendarBody()">${catOptions}</select>
+      </div>
+      <div class="filter-group grow">
+        <label>Buscar</label>
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="cal-f-busca" placeholder="Ex.: avaliação, feriado, reunião..." oninput="renderCalendarBody()">
+        </div>
+      </div>
+      <button class="cal-resetbtn" onclick="resetCalFiltros()">✕ Limpar filtros</button>
+    </div>
+
+    <div class="cal-legend" id="cal-legend"></div>
+
+    <div id="calendario-body"></div>
+  `;
+
+  const legend = document.getElementById('cal-legend');
+  legend.innerHTML = Object.values(CAL_CATEGORIAS).map(c =>
+    `<div class="cal-legend-item"><span class="cal-legend-dot" style="background:${c.cor}"></span>${c.label}</div>`
+  ).join('');
+
+  renderCalendarBody();
+}
+
+function setCalView(mode) {
+  calViewMode = mode;
+  document.getElementById('cal-btn-grade').classList.toggle('on', mode === 'grade');
+  document.getElementById('cal-btn-lista').classList.toggle('on', mode === 'lista');
+  renderCalendarBody();
+}
+
+function resetCalFiltros() {
+  document.getElementById('cal-f-mes').value = 'todos';
+  document.getElementById('cal-f-pub').value = 'todos';
+  document.getElementById('cal-f-turma').value = 'todas';
+  document.getElementById('cal-f-cat').value = 'todas';
+  document.getElementById('cal-f-busca').value = '';
+  renderCalendarBody();
+}
+
+function renderCalendarBody() {
+  const body = document.getElementById('calendario-body');
+  if (!body) return;
+
+  const fMes = document.getElementById('cal-f-mes').value;
+  const fPub = document.getElementById('cal-f-pub').value;
+  const fTurma = document.getElementById('cal-f-turma').value;
+  const fCat = document.getElementById('cal-f-cat').value;
+  const fBusca = document.getElementById('cal-f-busca').value.trim().toLowerCase();
+
+  const meses = fMes === 'todos' ? CAL_MESES : CAL_MESES.filter(m => m.key === fMes);
+  let totalEventos = 0;
+  let html = '';
+
+  meses.forEach(mes => {
+    const todosEventos = CAL_EVENTOS[mes.key] || [];
+    const eventosFiltrados = todosEventos.filter(ev =>
+      calMatchesPub(ev, fPub) && calMatchesTurma(ev, fTurma) && calMatchesCat(ev, fCat) && calMatchesBusca(ev, fBusca)
+    );
+
+    // Se "todos os meses" está selecionado, oculta meses sem nenhum resultado
+    if (fMes === 'todos' && eventosFiltrados.length === 0) return;
+
+    totalEventos += eventosFiltrados.length;
+    html += calViewMode === 'grade'
+      ? calBuildMonthGrid(mes, eventosFiltrados)
+      : calBuildMonthList(mes, eventosFiltrados);
+  });
+
+  if (!html) {
+    html = `<div class="cal-month-card"><div class="cal-empty-month">🔍 Nenhum evento encontrado com os filtros selecionados.</div></div>`;
+  }
+
+  body.innerHTML = html;
+}
+
+function calBuildMonthGrid(mes, eventos) {
+  const daysInMonth = new Date(CAL_ANO, mes.mes + 1, 0).getDate();
+  const firstDow = new Date(CAL_ANO, mes.mes, 1).getDay();
+  const byDay = {};
+  eventos.forEach(e => { (byDay[e.d] = byDay[e.d] || []).push(e); });
+
+  let cells = CAL_DOW.map(d => `<div class="dow">${d}</div>`).join('');
+  for (let i = 0; i < firstDow; i++) cells += `<div class="cal-day empty-cell"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dow = new Date(CAL_ANO, mes.mes, d).getDay();
+    const isWeekend = dow === 0 || dow === 6;
+    const evs = byDay[d] || [];
+    const hasEvent = evs.length > 0;
+    const chips = evs.map(e => {
+      const c = CAL_CATEGORIAS[e.cat] || { cor:'#888' };
+      return `<div class="cal-chip" style="background:${c.cor}" title="${calEsc(e.texto)}">${calEsc(e.texto)}</div>`;
+    }).join('');
+    cells += `<div class="cal-day ${hasEvent ? 'has-event' : ''} ${isWeekend ? 'weekend' : ''}"><span class="daynum">${d}</span>${chips}</div>`;
+  }
+
+  return `
+    <div class="cal-month-card">
+      <div class="cal-month-head" style="background:${mes.cor}">
+        <div>
+          <div class="nome">${mes.nome} · ${mes.tema}</div>
+          <div class="tema">${calEsc(mes.frase)}</div>
+        </div>
+        <div class="count">${eventos.length} evento${eventos.length === 1 ? '' : 's'}</div>
+      </div>
+      <div class="cal-grid">${cells}</div>
+    </div>`;
+}
+
+function calBuildMonthList(mes, eventos) {
+  const byDay = {};
+  eventos.forEach(e => { (byDay[e.d] = byDay[e.d] || []).push(e); });
+  const dias = Object.keys(byDay).map(Number).sort((a,b) => a - b);
+
+  const rows = dias.length ? dias.map(d => {
+    const dow = CAL_DOW[new Date(CAL_ANO, mes.mes, d).getDay()];
+    const evsHtml = byDay[d].map(e => {
+      const c = CAL_CATEGORIAS[e.cat] || { cor:'#888' };
+      return `<div class="cal-list-event">
+        <span class="catdot" style="background:${c.cor}"></span>
+        <span>${calEsc(e.texto)}</span>
+        <span class="pub-badge">${e.pub}</span>
+      </div>`;
+    }).join('');
+    return `<div class="cal-list-day">
+      <div class="cal-list-daybadge"><div class="num">${d}</div><div class="dow">${dow}</div></div>
+      <div class="cal-list-events">${evsHtml}</div>
+    </div>`;
+  }).join('') : `<div class="cal-empty-month">Nenhum evento neste mês com os filtros selecionados.</div>`;
+
+  return `
+    <div class="cal-month-card">
+      <div class="cal-month-head" style="background:${mes.cor}">
+        <div>
+          <div class="nome">${mes.nome} · ${mes.tema}</div>
+          <div class="tema">${calEsc(mes.frase)}</div>
+        </div>
+        <div class="count">${eventos.length} evento${eventos.length === 1 ? '' : 's'}</div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
 function goToProf(name) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -2691,10 +3216,10 @@ const USERS = [
 // ── Permissões fixas por perfil ───────────────────────────────
 // admin (Everton) sempre tem acesso a tudo — definido em applyAccess()
 const PERFIL_ACCESS = {
-  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia','ocorrencias'],
-  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','mecano','mapeamento','linktree','advertencia','ocorrencias'],
-  gabriela: ['dashboard','professores','turmas','acepat','mecano','linktree','advertencia','ocorrencias'],
-  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','mecano','advertencia','ocorrencias']
+  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','mecano','mapeamento','linktree','advertencia','ocorrencias'],
+  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','mecano','mapeamento','linktree','advertencia','ocorrencias'],
+  gabriela: ['dashboard','professores','turmas','acepat','calendario','mecano','linktree','advertencia','ocorrencias'],
+  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','calendario','mecano','advertencia','ocorrencias']
 };
 
 let currentUser = null;
@@ -2739,6 +3264,7 @@ async function doLogin() {
   initAlunos();
   initSubstituicoes();
   initAcepat();
+  initCalendario();
   if (found.perfil === 'admin') initAcessoPanel();
 }
 
@@ -2777,22 +3303,23 @@ function applyAccess() {
     { tab: 'disciplinas',   idx: 3 },
     { tab: 'substituicoes', idx: 4 },
     { tab: 'acepat',        idx: 5 },
-    { tab: 'gestao',        idx: 6 },
-    { tab: 'mecano',        idx: 7 },
-    { tab: 'mapeamento',    idx: 8 },
-    { tab: 'linktree',      idx: 9 },
-    { tab: 'smae',          idx: 10 },
-    { tab: 'sge',           idx: 11 },
-    { tab: 'advertencia',   idx: 12 },
-    { tab: 'greve',         idx: 13 },
-    { tab: 'ocorrencias',   idx: 14 }
+    { tab: 'calendario',    idx: 6 },
+    { tab: 'gestao',        idx: 7 },
+    { tab: 'mecano',        idx: 8 },
+    { tab: 'mapeamento',    idx: 9 },
+    { tab: 'linktree',      idx: 10 },
+    { tab: 'smae',          idx: 11 },
+    { tab: 'sge',           idx: 12 },
+    { tab: 'advertencia',   idx: 13 },
+    { tab: 'greve',         idx: 14 },
+    { tab: 'ocorrencias',   idx: 15 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
   });
 
   // Navegar para a primeira aba interna permitida
-  const internals = ['dashboard','professores','turmas','disciplinas','substituicoes','acepat'];
+  const internals = ['dashboard','professores','turmas','disciplinas','substituicoes','acepat','calendario'];
   const firstInternal = allowed.find(t => internals.includes(t)) || 'dashboard';
   showSectionDirect(firstInternal);
 }
@@ -2862,6 +3389,7 @@ window.addEventListener('load', async () => {
       initAlunos();
       initSubstituicoes();
       initAcepat();
+      initCalendario();
       if (found.perfil === 'admin') initAcessoPanel();
       return;
     }
