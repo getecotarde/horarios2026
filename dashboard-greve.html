@@ -409,6 +409,44 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 .cal-resumo-card .cal-num{font-family:var(--font-mono);font-size:26px;font-weight:700;line-height:1}
 .cal-resumo-card .cal-label{font-size:12px;color:var(--ink-soft);margin-top:5px;font-weight:600}
 
+/* ---------- Horários Reposição ---------- */
+.hr-resumo-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.hr-resumo-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;box-shadow:var(--shadow);text-align:center}
+.hr-resumo-card .hr-num{font-family:var(--font-mono);font-size:26px;font-weight:700;line-height:1}
+.hr-resumo-card .hr-label{font-size:12px;color:var(--ink-soft);margin-top:5px;font-weight:600}
+
+.hr-dia-bloco{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:18px}
+.hr-dia-bloco h3{margin:0 0 2px;font-size:16px;font-weight:700}
+.hr-dia-bloco .hr-dia-sub{margin:0 0 14px;color:var(--ink-soft);font-size:13px}
+
+.hr-turma-card{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface-2);padding:14px 16px;margin-bottom:12px}
+.hr-turma-card h4{margin:0 0 8px;font-family:var(--font-mono);font-size:14.5px;font-weight:700;color:var(--ink)}
+.hr-aula-linha{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13.5px;border-bottom:1px dashed var(--line)}
+.hr-aula-linha:last-child{border-bottom:none}
+.hr-aula-num{font-family:var(--font-mono);font-size:11.5px;font-weight:700;color:var(--ink-soft);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px 8px;min-width:52px;text-align:center}
+.hr-prof-tag{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:#e0f2fe;color:#0369a1}
+.hr-livre-tag{font-size:12.5px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--ink-faint);font-style:italic;border:1px solid var(--line)}
+
+.hr-turmas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+
+.hr-prof-card{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);padding:16px 18px;box-shadow:var(--shadow);margin-bottom:14px}
+.hr-prof-card h4{margin:0 0 10px;font-size:15px;font-weight:700}
+.hr-prof-dia-titulo{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin:10px 0 4px}
+.hr-prof-dia-titulo:first-of-type{margin-top:0}
+.hr-atrib-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;background:var(--danger-bg);color:var(--danger);border-radius:999px;padding:4px 10px;margin:2px 4px 2px 0}
+
+.hr-grade-tabela{width:100%;border-collapse:collapse;margin-top:6px}
+.hr-grade-tabela th{position:sticky;top:0;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);padding:8px 6px;border-bottom:1px solid var(--line);background:var(--surface)}
+.hr-grade-tabela td{text-align:center;padding:7px 6px;font-size:12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.hr-grade-tabela th:first-child,.hr-grade-tabela td:first-child{text-align:left;font-family:var(--font-mono);font-weight:700;white-space:nowrap}
+.hr-grade-tabela tr:last-child td{border-bottom:none}
+.hr-cell-livre{color:var(--ink-faint);font-style:italic;font-size:11.5px}
+
+.hr-livres-turma{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.hr-livres-turma:last-child{border-bottom:none}
+.hr-livres-turma .hr-livres-nome{font-family:var(--font-mono);font-weight:700;min-width:34px}
+.hr-livres-total{background:var(--success-bg);color:var(--success);font-family:var(--font-mono);font-weight:700;font-size:11.5px;border-radius:999px;padding:2px 9px}
+
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
   .sidebar{position:fixed;width:100%;height:auto;flex-direction:row;align-items:center;
@@ -458,6 +496,10 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
     <button class="nav-btn" data-aba="blocos" onclick="abrir('blocos',this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
       Blocos por Dia
+    </button>
+    <button class="nav-btn" data-aba="horariosreposicao" onclick="abrir('horariosreposicao',this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9.2"/><path d="M12 7v5.5l3.5 2"/></svg>
+      Horários Reposição
     </button>
     <button class="nav-btn" data-aba="pendencias" onclick="abrir('pendencias',this)">
       <svg viewBox="0 0 24 24"><path d="M12 3.5 21.5 20h-19L12 3.5Z"/><path d="M12 9.5v5"/><circle cx="12" cy="17.2" r=".4" fill="currentColor" stroke="none"/></svg>
@@ -683,6 +725,24 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 
     <div id="blocosConteudo"></div>
   </section>
+  <section id="horariosreposicao" class="aba">
+    <p class="eyebrow">Escala de substitutos</p>
+    <h1 class="titulo">Horários de Reposição — 16/07 a 17/07</h1>
+    <p class="subtitulo">Turmas da tarde, 2026. Escala dos professores substitutos por horário (aula) nos dois dias de reposição, organizada por turma, por professor e por horários livres — conforme a planilha de reposição do período.</p>
+
+    <div class="hr-resumo-row" id="hrResumo"></div>
+
+    <div class="blocos-filtros">
+      <label>Ver:</label>
+      <button class="bloco-btn ativo" data-hr="turma" onclick="hrFiltrar('turma',this)">Por Turma</button>
+      <button class="bloco-btn" data-hr="professor" onclick="hrFiltrar('professor',this)">Por Professor</button>
+      <button class="bloco-btn" data-hr="livres" onclick="hrFiltrar('livres',this)">Horários Livres</button>
+      <button class="bloco-btn" data-hr="grade" onclick="hrFiltrar('grade',this)">Grade completa</button>
+    </div>
+
+    <div id="hrConteudo"></div>
+  </section>
+
   <section id="pendencias" class="aba">
     <p class="eyebrow">Observações</p>
     <h1 class="titulo">Pendências</h1>
@@ -1701,6 +1761,171 @@ function renderBlocos(){
   document.getElementById('blocosConteudo').innerHTML = html;
 }
 
+/* ============================================================
+   HORÁRIOS REPOSIÇÃO — 16/07 e 17/07 (turmas da tarde)
+   Fonte: planilha "Reposição do período - 16/07 à 17/07"
+   ============================================================ */
+
+const HR_TURMAS = ['6ºA','6ºB','6ºC','6ºD','6ºE','6ºF','7ºA','7ºB','7ºC','7ºD','7ºE'];
+
+const HR_DIAS = [
+  {
+    data: '16/07', semana: '5ª FEIRA',
+    aulas: [
+      /* 6ºA   6ºB              6ºC             6ºD   6ºE                6ºF                7ºA   7ºB               7ºC              7ºD             7ºE */
+      [null, 'Juscele',        'Adilson',       null, 'Fernanda',        'João Marcelo',    null, 'Guilherme',      'Fabiana',       'Magna',        'Juliana'],
+      [null, 'Adilson',        'João Marcelo',  null, 'Fernanda',        'Juscele',         null, 'Guilherme',      'Juliana',       'Magna',        'Fabiana'],
+      [null, 'Adilson',        'João Marcelo',  null, 'Juscele',         'Fernanda',        null, 'Fabiana',        'Magna',         'Juliana',      'Guilherme'],
+      [null, 'João Marcelo',   'Juscele',       null, 'Adilson',         'Fernanda',        null, 'Juliana',        'Guilherme',     'Fabiana',      'Magna'],
+      [null, 'Fernanda',       'Juscele',       null, 'Adilson',         'Adilson',         null, 'Juliana',        'Guilherme',     'Fabiana',      'Magna'],
+    ]
+  },
+  {
+    data: '17/07', semana: '6ª FEIRA',
+    aulas: [
+      [null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, null, 'Fabiana', null, null],
+      [null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, null, 'Juliana', null, null],
+      [null, null, 'Adilson', null, 'Ronei', 'Magna',    null, null, 'Juliana', null, null],
+      [null, null, 'Adilson', null, 'Ronei', 'Juliana',  null, null, 'Guilherme', null, null],
+      [null, null, 'Adilson', null, 'Ronei', 'Fabiana',  null, null, 'Guilherme', null, null],
+    ]
+  }
+];
+
+let hrModoAtual = 'turma';
+
+function hrFiltrar(modo, btn){
+  hrModoAtual = modo;
+  document.querySelectorAll('#horariosreposicao .bloco-btn').forEach(b=> b.classList.remove('ativo'));
+  if(btn) btn.classList.add('ativo');
+  renderHR();
+}
+
+function hrResumo(){
+  const profs = new Set();
+  let atribuicoes = 0, livres = 0;
+  HR_DIAS.forEach(d=> d.aulas.forEach(linha=>{
+    linha.forEach(cel=>{
+      if(cel){ profs.add(cel); atribuicoes++; }
+      else livres++;
+    });
+  }));
+  document.getElementById('hrResumo').innerHTML = `
+    <div class="hr-resumo-card"><div class="hr-num">2</div><div class="hr-label">Dias de reposição</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${HR_TURMAS.length}</div><div class="hr-label">Turmas</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${profs.size}</div><div class="hr-label">Professores escalados</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${atribuicoes}</div><div class="hr-label">Horários preenchidos</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${livres}</div><div class="hr-label">Horários livres</div></div>
+  `;
+}
+
+/* ---------- Por turma ---------- */
+function renderHRPorTurma(){
+  let html = '';
+  HR_DIAS.forEach(dia=>{
+    html += `<div class="hr-dia-bloco"><h3>${dia.data} — ${dia.semana}</h3><p class="hr-dia-sub">Escala por turma, aula a aula</p><div class="hr-turmas-grid">`;
+    HR_TURMAS.forEach((turma, tIdx)=>{
+      const linhas = dia.aulas.map((linha, aIdx)=>{
+        const cel = linha[tIdx];
+        const conteudo = cel
+          ? `<span class="hr-prof-tag">${escapeHtml(cel)}</span>`
+          : `<span class="hr-livre-tag">livre</span>`;
+        return `<div class="hr-aula-linha"><span class="hr-aula-num">${aIdx+1}ª aula</span>${conteudo}</div>`;
+      }).join('');
+      html += `<div class="hr-turma-card"><h4>${turma}</h4>${linhas}</div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('hrConteudo').innerHTML = html;
+}
+
+/* ---------- Por professor ---------- */
+function renderHRPorProfessor(){
+  const porProf = {}; // nome -> [{dia, semana, turma, aula}]
+  HR_DIAS.forEach(dia=>{
+    dia.aulas.forEach((linha, aIdx)=>{
+      linha.forEach((cel, tIdx)=>{
+        if(!cel) return;
+        if(!porProf[cel]) porProf[cel] = [];
+        porProf[cel].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx], aula: aIdx+1});
+      });
+    });
+  });
+  const nomes = Object.keys(porProf).sort((a,b)=> a.localeCompare(b,'pt-BR',{sensitivity:'base'}));
+  let html = '';
+  nomes.forEach(nome=>{
+    const itens = porProf[nome];
+    let porDia = {};
+    itens.forEach(it=>{
+      const chave = `${it.dia} — ${it.semana}`;
+      if(!porDia[chave]) porDia[chave] = [];
+      porDia[chave].push(it);
+    });
+    let corpoDias = '';
+    Object.keys(porDia).forEach(chave=>{
+      corpoDias += `<div class="hr-prof-dia-titulo">${chave}</div>`;
+      porDia[chave].sort((a,b)=>a.aula-b.aula).forEach(it=>{
+        corpoDias += `<span class="hr-atrib-chip">${it.aula}ª aula · ${it.turma}</span>`;
+      });
+    });
+    html += `<div class="hr-prof-card"><h4>${escapeHtml(nome)} <span style="font-weight:400;color:var(--ink-soft);font-size:12.5px">(${itens.length} horário${itens.length!==1?'s':''})</span></h4>${corpoDias}</div>`;
+  });
+  document.getElementById('hrConteudo').innerHTML = html || '<p class="subtitulo">Nenhum professor escalado.</p>';
+}
+
+/* ---------- Horários livres ---------- */
+function renderHRLivres(){
+  let html = '';
+  HR_DIAS.forEach(dia=>{
+    html += `<div class="hr-dia-bloco"><h3>${dia.data} — ${dia.semana}</h3><p class="hr-dia-sub">Aulas sem professor substituto escalado, por turma</p>`;
+    HR_TURMAS.forEach((turma, tIdx)=>{
+      const livres = [];
+      dia.aulas.forEach((linha, aIdx)=>{ if(!linha[tIdx]) livres.push(aIdx+1); });
+      const tagsAulas = livres.length
+        ? livres.map(n=>`<span class="hr-aula-num">${n}ª aula</span>`).join('')
+        : '<span class="hr-cell-livre">sem horário livre</span>';
+      html += `<div class="hr-livres-turma">
+        <span class="hr-livres-nome">${turma}</span>
+        <span class="hr-livres-total">${livres.length}/5 livre${livres.length!==1?'s':''}</span>
+        ${tagsAulas}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  document.getElementById('hrConteudo').innerHTML = html;
+}
+
+/* ---------- Grade completa ---------- */
+function renderHRGrade(){
+  let html = '';
+  HR_DIAS.forEach(dia=>{
+    const linhas = dia.aulas.map((linha, aIdx)=>{
+      const celulas = linha.map(cel=> cel
+        ? `<td>${escapeHtml(cel)}</td>`
+        : `<td class="hr-cell-livre">livre</td>`
+      ).join('');
+      return `<tr><td>${aIdx+1}ª aula</td>${celulas}</tr>`;
+    }).join('');
+    html += `<div class="hr-dia-bloco"><h3>${dia.data} — ${dia.semana}</h3><p class="hr-dia-sub">Grade completa, turmas da tarde</p>
+      <div style="overflow-x:auto">
+        <table class="hr-grade-tabela">
+          <thead><tr><th>Aula</th>${HR_TURMAS.map(t=>`<th>${t}</th>`).join('')}</tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>
+    </div>`;
+  });
+  document.getElementById('hrConteudo').innerHTML = html;
+}
+
+function renderHR(){
+  hrResumo();
+  if(hrModoAtual === 'turma') renderHRPorTurma();
+  else if(hrModoAtual === 'professor') renderHRPorProfessor();
+  else if(hrModoAtual === 'livres') renderHRLivres();
+  else renderHRGrade();
+}
+
 /* ---------------- Inicialização ---------------- */
 renderInicio();
 renderCards();
@@ -1710,6 +1935,7 @@ renderRodape();
 calFiltrar('todos');
 renderCalendario();
 renderBlocos();
+renderHR();
 </script>
 </body>
 </html>
