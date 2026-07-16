@@ -175,6 +175,41 @@
     background: rgba(255,255,255,0.12);
   }
 
+  /* GRUPOS COLAPSÁVEIS DA SIDEBAR */
+  .nav-group-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    text-transform: uppercase;
+    font-size: 11.5px;
+    letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.55);
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+  }
+  .nav-group-toggle:first-child { border-top: none; margin-top: 0; padding-top: 9px; }
+  .nav-group-toggle:hover { color: white; background: rgba(255,255,255,0.06); }
+  .nav-group-toggle.has-active { color: white; }
+  .nav-arrow {
+    display: inline-block;
+    font-size: 10px;
+    transition: transform 0.2s;
+    opacity: 0.7;
+  }
+  .nav-group-toggle.open .nav-arrow { transform: rotate(180deg); }
+
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+  }
+  .nav-group.open { max-height: 600px; }
+  .nav-group button { padding-left: 26px; font-size: 13.5px; }
+
   /* MAIN deslocado para a direita */
   main {
     margin-left: 200px;
@@ -1387,21 +1422,39 @@
 <div id="sidebar">
   <nav id="main-nav">
     <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
-    <button onclick="showSection('professores')">👩‍🏫 Por Professor</button>
-    <button onclick="showSection('turmas')">🏫 Por Turma</button>
-    <button onclick="showSection('disciplinas')">📚 Por Disciplina</button>
-    <button onclick="showSection('substituicoes')">🔄 Substituições</button>
-    <button onclick="showSection('acepat')">⭐ ACEPAT</button>
-    <button onclick="showSection('calendario')">🗓️ Calendário Pedagógico</button>
-    <button onclick="openExternal('https://monitoramento-pedagogico.vercel.app/', 'Monitoramento Pedagógico', 'Pode ser solicitado login com conta institucional Google (@rededeensino.educacao.mg.gov.br).')">📋 Gestão Ped.</button>
-    <button onclick="openExternal('https://copiafacil.vercel.app/', 'Mecanografia – Cópia Fácil', 'Acesso aberto, sem necessidade de credenciais.')">🖨️ Mecanografia</button>
-    <button onclick="openExternal('https://sites.google.com/view/getecotarde2026/geral', 'Mapeamento GETECO', 'Acesso aberto via Google Sites, sem necessidade de credenciais.')">🗺️ Mapeamento</button>
-    <button onclick="openExternal('https://linktr.ee/geteco_tarde', 'LinkTree GETECO Tarde', 'Acesso público, sem necessidade de credenciais.')">🔗 LinkTree</button>
-    <button onclick="openExternal('https://sistemaseducacao.pbh.gov.br/smae/default/user/login?_next=/smae/default/index', 'SMAE – Sistema de Monitoramento das Aprendizagens dos(as) Estudantes', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">📈 SMAE</button>
-    <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
-    <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
-    <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
-    <button onclick="requestProtectedAccess('ocorrencias-1-trimestre.html', 'Ocorrências 1º Trimestre')">📑 Ocorrências 1º Trimestre</button>
+
+    <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🗓️ Horários <span class="nav-arrow">▾</span></button>
+    <div class="nav-group">
+      <button onclick="showSection('professores')">👩‍🏫 Por Professor</button>
+      <button onclick="showSection('turmas')">🏫 Por Turma</button>
+      <button onclick="showSection('disciplinas')">📚 Por Disciplina</button>
+      <button onclick="showSection('substituicoes')">🔄 Substituições</button>
+      <button onclick="showSection('acepat')">⭐ ACEPAT</button>
+      <button onclick="showSection('calendario')">🗓️ Calendário Pedagógico</button>
+    </div>
+
+    <button class="nav-group-toggle" onclick="toggleNavGroup(this)">📊 Boletins & Análises <span class="nav-arrow">▾</span></button>
+    <div class="nav-group">
+      <button onclick="requestProtectedAccess('ocorrencias-1-trimestre.html', 'Ocorrências 1º Trimestre')">📑 Ocorrências 1º Trimestre</button>
+      <button onclick="requestProtectedAccess('analise-trimestral.html', 'Análise Trimestral')">📈 Análise Trimestral</button>
+    </div>
+
+    <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🗂️ Registros & Documentos <span class="nav-arrow">▾</span></button>
+    <div class="nav-group">
+      <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
+      <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
+    </div>
+
+    <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🌐 Sistemas Externos <span class="nav-arrow">▾</span></button>
+    <div class="nav-group">
+      <button onclick="openExternal('https://monitoramento-pedagogico.vercel.app/', 'Monitoramento Pedagógico', 'Pode ser solicitado login com conta institucional Google (@rededeensino.educacao.mg.gov.br).')">📋 Gestão Ped.</button>
+      <button onclick="openExternal('https://copiafacil.vercel.app/', 'Mecanografia – Cópia Fácil', 'Acesso aberto, sem necessidade de credenciais.')">🖨️ Mecanografia</button>
+      <button onclick="openExternal('https://sites.google.com/view/getecotarde2026/geral', 'Mapeamento GETECO', 'Acesso aberto via Google Sites, sem necessidade de credenciais.')">🗺️ Mapeamento</button>
+      <button onclick="openExternal('https://linktr.ee/geteco_tarde', 'LinkTree GETECO Tarde', 'Acesso público, sem necessidade de credenciais.')">🔗 LinkTree</button>
+      <button onclick="openExternal('https://sistemaseducacao.pbh.gov.br/smae/default/user/login?_next=/smae/default/index', 'SMAE – Sistema de Monitoramento das Aprendizagens dos(as) Estudantes', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">📈 SMAE</button>
+      <button onclick="openExternal('https://sge.pbh.gov.br', 'SGE – Sistema de Gestão Escolar', 'Acesso com login institucional da Prefeitura de Belo Horizonte (PBH).')">🗂️ SGE</button>
+    </div>
+
     <button id="nav-acesso" onclick="showSection('acesso')" style="display:none">🔑 Acessos</button>
   </nav>
 </div>
@@ -1892,12 +1945,24 @@ function buildTimetableHTML(activities, titleLabel, showField, contextTeacher) {
 function showSection(name) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('#main-nav button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-group-toggle').forEach(b => b.classList.remove('has-active'));
   const sec = document.getElementById(`sec-${name}`);
   if (sec) sec.classList.add('active');
   // Marcar o botão ativo pelo atributo onclick (funciona tanto no clique quanto na chamada programática)
   document.querySelectorAll('#main-nav button').forEach(b => {
     const oc = b.getAttribute('onclick') || '';
-    if (oc.includes(`'${name}'`) || oc.includes(`"${name}"`)) b.classList.add('active');
+    if (oc.includes(`'${name}'`) || oc.includes(`"${name}"`)) {
+      b.classList.add('active');
+      // Se o botão estiver dentro de um grupo colapsável, abre o grupo e destaca o cabeçalho
+      const group = b.closest('.nav-group');
+      if (group) {
+        group.classList.add('open');
+        const toggle = group.previousElementSibling;
+        if (toggle && toggle.classList.contains('nav-group-toggle')) {
+          toggle.classList.add('open', 'has-active');
+        }
+      }
+    }
   });
   // Caso especial: aba de acessos tem id próprio
   if (name === 'acesso') {
@@ -1905,6 +1970,17 @@ function showSection(name) {
     if (navAcesso) navAcesso.classList.add('active');
   }
   currentView = name;
+}
+
+// ============================================================
+// GRUPOS COLAPSÁVEIS DA SIDEBAR
+// ============================================================
+function toggleNavGroup(btn) {
+  const group = btn.nextElementSibling;
+  if (!group || !group.classList.contains('nav-group')) return;
+  const isOpen = group.classList.contains('open');
+  group.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
 }
 
 // ============================================================
