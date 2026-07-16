@@ -1422,6 +1422,7 @@
 <div id="sidebar">
   <nav id="main-nav">
     <button class="active" onclick="showSection('dashboard')">📊 Dashboard</button>
+    <button onclick="showSection('sistema')">ℹ️ Sistema</button>
 
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🗓️ Horários <span class="nav-arrow">▾</span></button>
     <div class="nav-group">
@@ -1525,6 +1526,139 @@
         onerror="this.parentElement.innerHTML='<div style=padding:40px;color:#aaa;font-size:13px;>Imagem nao encontrada. Certifique-se de que o arquivo Junho_CORES_page-0001.jpg esta na mesma pasta do HTML.</div>'"
       />
     </div>
+  </div>
+
+</div>
+
+<!-- SISTEMA (Sobre / Como usar) -->
+<div id="sec-sistema" class="section">
+
+  <div style="background:linear-gradient(135deg,var(--verde),var(--azul));border-radius:16px;padding:26px 28px;color:white;box-shadow:0 4px 20px rgba(0,0,0,0.15);margin-bottom:24px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+      <span style="font-size:26px;">ℹ️</span>
+      <div style="font-size:20px;font-weight:800;">Sobre o Sistema</div>
+    </div>
+    <p style="font-size:14px;line-height:1.7;opacity:0.95;max-width:820px;">
+      O <strong>Sistema de Horários GETECO 2026</strong> é a plataforma central de organização pedagógica
+      da E.M. Geraldo Teixeira da Costa (GETECO), 2º Turno. Aqui você consulta horários de aulas, acompanha
+      substituições, acessa boletins e análises, gera documentos e chega, em poucos cliques, a todos os
+      outros sistemas usados pela escola (SMAE, SGE, Mecanografia etc.), sem precisar guardar vários links
+      separados.
+    </p>
+    <p style="font-size:13px;line-height:1.7;opacity:0.85;max-width:820px;margin-top:10px;">
+      O sistema foi idealizado e desenvolvido pelo coordenador pedagógico <strong>Prof. Everton Correa Alves</strong>,
+      com o objetivo de reunir em um só lugar as informações que antes ficavam espalhadas em planilhas,
+      grupos e documentos avulsos — facilitando o dia a dia de professores, coordenação e direção.
+    </p>
+  </div>
+
+  <div style="font-size:15px;font-weight:800;color:var(--cinza-escuro);margin-bottom:12px;">🧭 O que tem em cada área do menu</div>
+  <div class="accordion-charts-grid" style="margin-bottom:28px;">
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--verde);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">📊 Dashboard</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Visão geral do turno: números de turmas, professores, disciplinas e aulas, gráficos rápidos e o quadro geral de horários da escola.</div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--azul-claro);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">🗓️ Horários</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Consulta de horários por professor, turma ou disciplina, controle de substituições, ACEPAT e o calendário pedagógico do ano letivo.</div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--amarelo);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">📊 Boletins & Análises</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Ocorrências do trimestre e a Análise Trimestral, com o desempenho das turmas por disciplina, aprovação e alunos em atenção.</div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--roxo);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">🗂️ Registros & Documentos</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Geração de advertências e o dashboard de acompanhamento da greve. São páginas protegidas por código de acesso.</div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--ciano);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">🌐 Sistemas Externos</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Atalhos para Gestão Pedagógica, Mecanografia, Mapeamento, LinkTree, SMAE e SGE — cada um abre em uma nova aba, com aviso de credenciais quando necessário.</div>
+    </div>
+
+    <div style="background:white;border-radius:14px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);border-left:4px solid var(--laranja);">
+      <div style="font-weight:700;color:var(--cinza-escuro);margin-bottom:6px;font-size:14px;">🔑 Acessos</div>
+      <div style="font-size:12.5px;color:var(--cinza-medio);line-height:1.6;">Área administrativa, visível apenas para quem tem permissão, usada para gerenciar quem pode entrar no sistema.</div>
+    </div>
+
+  </div>
+
+  <div style="font-size:15px;font-weight:800;color:var(--cinza-escuro);margin-bottom:12px;">💡 Pequenos tutoriais de consulta</div>
+  <div class="accordion-charts-grid">
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>👩‍🏫 Ver o horário de um professor</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Vá em <strong>Horários → Por Professor</strong>, use a busca ou a lista lateral para localizar o nome
+        desejado e clique nele. O horário completo aparece na tela, e você pode imprimir usando o botão
+        "🖨 Este Professor" no topo da página.
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>🏫 Ver o horário de uma turma</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Vá em <strong>Horários → Por Turma</strong>, selecione a turma na lista lateral. Para imprimir várias
+        turmas de uma vez, use o botão "🖨 Imprimir Seleção..." no topo.
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>🔄 Consultar substituições e ACEPAT</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Em <strong>Horários → Substituições</strong> ou <strong>ACEPAT</strong> você vê, dia a dia, quem está
+        cobrindo cada aula. As informações são organizadas por dia da semana e horário.
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>📈 Consultar a Análise Trimestral</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Vá em <strong>Boletins & Análises → Análise Trimestral</strong> e informe o código de acesso quando
+        solicitado. A página abre em uma nova aba, onde é possível enviar boletins em PDF e ver o desempenho
+        das turmas por disciplina.
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>🔒 Acessar áreas protegidas por código</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Páginas como <strong>Gerar Advertência</strong>, <strong>Dashboard da Greve</strong>, <strong>Ocorrências
+        1º Trimestre</strong> e <strong>Análise Trimestral</strong> pedem um código de acesso antes de abrir.
+        Digite o código combinado com a coordenação e clique em "Acessar →".
+      </div>
+    </div>
+
+    <div class="accordion-chart-card">
+      <button class="accordion-chart-btn" onclick="toggleAccordion(this)">
+        <span>🌐 Abrir um sistema externo (SMAE, SGE...)</span>
+        <span class="accordion-arrow">▼</span>
+      </button>
+      <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
+        Em <strong>Sistemas Externos</strong>, clique no sistema desejado. Um aviso mostra se é preciso login
+        institucional antes de continuar; clique em "Continuar →" para abrir o site em uma nova aba.
+      </div>
+    </div>
+
   </div>
 
 </div>
