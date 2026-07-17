@@ -92,13 +92,57 @@
   .hero {
     background: white; border-radius: 16px; padding: 24px 26px; margin-bottom: 20px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    display: flex; align-items: center; gap: 18px;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
     border-left: 4px solid var(--ouro);
   }
   .hero .icon { font-size: 36px; flex-shrink: 0; }
   .hero .eyebrow { font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--verde); }
   .hero h1 { font-size: 21px; font-weight: 800; color: var(--cinza-escuro); margin-top: 2px; }
   .hero p { font-size: 13px; color: var(--cinza-medio); margin-top: 6px; max-width: 640px; line-height: 1.5; }
+  .hero-info { flex: 1; min-width: 240px; }
+  .hero-resp {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    margin-top: 10px; font-size: 11.5px; color: var(--cinza-medio);
+  }
+  .hero-resp .lbl {
+    font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--azul); font-size: 10.5px;
+  }
+  .hero-resp .nome {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #eff6ff; color: var(--azul); font-weight: 700;
+    border-radius: 5px; padding: 2px 8px; font-size: 11.5px;
+  }
+  .hero-links { display: flex; flex-direction: column; gap: 8px; margin-left: auto; flex-shrink: 0; }
+  .hero-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 9px; border: 2px solid var(--borda);
+    background: white; color: var(--cinza-escuro);
+    font-size: 12.5px; font-weight: 700; text-decoration: none;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .hero-link:hover { border-color: var(--verde); color: var(--verde); background: var(--verde-fundo); }
+  .hero-link .emoji { font-size: 15px; }
+  @media (max-width: 640px) {
+    .hero-links { margin-left: 0; flex-direction: row; flex-wrap: wrap; }
+  }
+
+  /* PAINEL TURMAS / SELEÇÕES */
+  .roster-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;
+  }
+  .roster-card {
+    background: var(--cinza-claro); border: 1px solid var(--borda); border-radius: 10px;
+    padding: 7px 10px; display: flex; flex-direction: row; align-items: center; gap: 8px;
+    text-align: left; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .roster-card:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); border-color: var(--verde-claro); }
+  .roster-flag { font-size: 19px; line-height: 1; flex-shrink: 0; width: 24px; text-align: center; }
+  .roster-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .roster-country { font-weight: 800; font-size: 11.5px; color: var(--cinza-escuro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .roster-turma {
+    font-size: 9.5px; font-weight: 700; color: var(--azul); background: #eff6ff;
+    border-radius: 4px; padding: 1px 6px; font-family: 'DM Mono', monospace; align-self: flex-start;
+  }
 
   /* PAINÉIS */
   .panel {
@@ -116,6 +160,8 @@
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 11.5px; font-weight: 800; font-family: 'DM Mono', monospace;
   }
+  .roster-panel { padding: 16px 20px; }
+  .roster-panel h2 { margin-bottom: 10px; }
 
   /* DROPZONE */
   #dropzone {
@@ -263,12 +309,22 @@
 
   footer.note { margin-top: 22px; font-size: 11.5px; color: var(--cinza-medio); text-align: center; }
 
+  .print-footer { display: none; }
+
   @media print {
-    #topbar, .actions, footer.note, .upload-panel, .config-panel { display: none; }
+    #topbar, .actions, footer.note, .upload-panel, .config-panel, .roster-panel { display: none; }
     body { background: white; padding: 0; }
     .wrap { padding: 10px 0 0; max-width: 100%; }
     .board-wrapper { box-shadow: none; }
     .total-bar { display: none; }
+
+    .print-footer {
+      display: block; margin-top: 24px; padding-top: 12px;
+      border-top: 1px solid #d1dde8; text-align: center;
+      font-size: 11px; color: #4a5568; line-height: 1.6;
+    }
+    .print-footer .escola { font-weight: 800; color: #1c1f26; text-transform: uppercase; letter-spacing: 0.03em; font-size: 11.5px; }
+    .print-footer .coords { margin-top: 2px; }
   }
 </style>
 </head>
@@ -289,11 +345,29 @@
 
   <section class="hero">
     <div class="icon">🏆</div>
-    <div>
+    <div class="hero-info">
       <div class="eyebrow">Gincana Escolar 2026 · #GeraçãoAtitude</div>
       <h1>Classificação Geral</h1>
       <p>Envie a planilha de respostas (Excel exportado do formulário de avaliação semanal) para gerar automaticamente o placar das turmas — cada uma representando sua seleção sorteada para a Copa.</p>
+      <div class="hero-resp">
+        <span class="lbl">👤 Responsáveis · Coordenadores de Turno:</span>
+        <span class="nome">Cristina Sant'Ana</span>
+        <span class="nome">Vander Lúcio</span>
+      </div>
     </div>
+    <div class="hero-links">
+      <a class="hero-link" href="https://docs.google.com/document/d/16JuOFkOfHYGJsnVHm_ACvsRRTO7tb2S5nnK0ecA6LMc/edit?usp=sharing" target="_blank" rel="noopener">
+        <span class="emoji">📜</span> Regras do Projeto
+      </a>
+      <a class="hero-link" href="https://drive.google.com/file/d/1o8Pn__C8kK5eblj5_v97Nsqub9CTSoSC/view?usp=sharing" target="_blank" rel="noopener">
+        <span class="emoji">👥</span> Turmas/Seleções
+      </a>
+    </div>
+  </section>
+
+  <section class="panel roster-panel">
+    <h2>🌍 Turmas e Seleções</h2>
+    <div class="roster-grid" id="rosterGrid"></div>
   </section>
 
   <section class="panel upload-panel">
@@ -351,6 +425,10 @@
   </div>
 
   <footer class="note" id="genNote"></footer>
+  <footer class="print-footer">
+    <div class="escola">E.M. Geraldo Teixeira da Costa</div>
+    <div class="coords">Coordenadores de Turno: Cristina Sant'Ana e Vander Lúcio</div>
+  </footer>
 </div>
 
 <script>
@@ -369,6 +447,17 @@
     "7ºE": {country:"Estados Unidos", flag:"🇺🇸"},
     "8ºX": {country:"Equador", flag:"🇪🇨"}
   };
+
+  // Painel estático "Turmas e Seleções" — mostra a bandeira de cada turma
+  function renderRoster(){
+    const grid = document.getElementById("rosterGrid");
+    if (!grid) return;
+    grid.innerHTML = Object.keys(TEAM_MAP).map(turmaKey => {
+      const t = TEAM_MAP[turmaKey];
+      return '<div class="roster-card"><div class="roster-flag">'+t.flag+'</div><div class="roster-info"><div class="roster-country">'+t.country+'</div><div class="roster-turma">Turma '+turmaKey+'</div></div></div>';
+    }).join('');
+  }
+  renderRoster();
 
   const META_COLS = ["carimbo de data/hora","respondente","turma avaliada","nome do(a) professor(a) avaliador(a)","mapeamento"];
 
