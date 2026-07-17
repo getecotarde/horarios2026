@@ -163,6 +163,25 @@
   .roster-panel { padding: 16px 20px; }
   .roster-panel h2 { margin-bottom: 10px; }
 
+  /* BLOQUEIO DE CÓDIGO PARA UPLOAD */
+  .upload-gate {
+    border: 2px dashed var(--borda); border-radius: 12px; padding: 28px 20px;
+    text-align: center; background: var(--cinza-claro);
+  }
+  .gate-icon { font-size: 26px; margin-bottom: 8px; }
+  .gate-text { font-size: 13px; color: var(--cinza-medio); max-width: 420px; margin: 0 auto 16px; line-height: 1.5; }
+  .gate-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .gate-row input {
+    border: 2px solid var(--borda); border-radius: 8px; padding: 10px 14px; font-size: 14px;
+    font-family: 'DM Mono', monospace; color: var(--cinza-escuro); outline: none; width: 220px;
+    max-width: 100%; transition: border-color 0.2s; background: white;
+  }
+  .gate-row input:focus { border-color: var(--verde-claro); }
+  .gate-error {
+    display: none; margin-top: 12px; font-size: 12px; color: #c0392b; font-weight: 700;
+  }
+  .gate-error.show { display: block; }
+
   /* DROPZONE */
   #dropzone {
     border: 2px dashed var(--borda); border-radius: 12px; padding: 32px 20px;
@@ -372,13 +391,26 @@
 
   <section class="panel upload-panel">
     <h2><span class="n">1</span>Enviar planilha de avaliação</h2>
-    <div id="dropzone">
-      <div class="icon">📊</div>
-      <div class="main-txt">Arraste o arquivo .xlsx aqui ou clique para escolher</div>
-      <div class="sub-txt">Aceita a planilha exportada do formulário (ex.: "Avaliação da gincana (respostas)")</div>
-      <input type="file" id="fileInput" accept=".xlsx,.xls">
+
+    <div id="uploadGate" class="upload-gate">
+      <div class="gate-icon">🔒</div>
+      <div class="gate-text">Envio protegido — digite o código de acesso para liberar o upload da planilha.</div>
+      <div class="gate-row">
+        <input type="password" id="uploadCode" placeholder="Código de acesso" autocomplete="off">
+        <button class="btn btn-primary" id="btnUnlockUpload">Liberar</button>
+      </div>
+      <div class="gate-error" id="uploadCodeError">Código incorreto.</div>
     </div>
-    <div id="fileStatus">Nenhum arquivo carregado ainda.</div>
+
+    <div id="uploadContent" style="display:none;">
+      <div id="dropzone">
+        <div class="icon">📊</div>
+        <div class="main-txt">Arraste o arquivo .xlsx aqui ou clique para escolher</div>
+        <div class="sub-txt">Aceita a planilha exportada do formulário (ex.: "Avaliação da gincana (respostas)")</div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls">
+      </div>
+      <div id="fileStatus">Nenhum arquivo carregado ainda.</div>
+    </div>
   </section>
 
   <section class="panel config-panel">
@@ -476,6 +508,40 @@
   }
 
   let rawRows = []; // { turmaKey, verde, amarelo, vermelho, deducao, timestamp }
+
+  // ── Bloqueio de código para liberar o upload da planilha ────────
+  // Código: mmxxvi (armazenado como hash SHA-256, nunca em texto puro)
+  const UPLOAD_CODE_HASH = 'f3eaee95a27ef359319a21f0a6af4dccba8704c6d56aa51f125223df7645ed46';
+
+  async function hashSHA256(str){
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  const uploadCodeInput = document.getElementById("uploadCode");
+  const uploadCodeError = document.getElementById("uploadCodeError");
+  const btnUnlockUpload = document.getElementById("btnUnlockUpload");
+
+  async function tryUnlockUpload(){
+    const val = uploadCodeInput.value.trim().toLowerCase();
+    if (!val) return;
+    btnUnlockUpload.textContent = "Verificando...";
+    btnUnlockUpload.disabled = true;
+    const hashed = await hashSHA256(val);
+    btnUnlockUpload.textContent = "Liberar";
+    btnUnlockUpload.disabled = false;
+    if (hashed === UPLOAD_CODE_HASH){
+      uploadCodeError.classList.remove("show");
+      document.getElementById("uploadGate").style.display = "none";
+      document.getElementById("uploadContent").style.display = "block";
+    } else {
+      uploadCodeError.classList.add("show");
+      uploadCodeInput.value = "";
+      uploadCodeInput.focus();
+    }
+  }
+  btnUnlockUpload.addEventListener("click", tryUnlockUpload);
+  uploadCodeInput.addEventListener("keydown", e => { if (e.key === "Enter") tryUnlockUpload(); });
 
   const dropzone = document.getElementById("dropzone");
   const fileInput = document.getElementById("fileInput");
