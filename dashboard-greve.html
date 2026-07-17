@@ -280,6 +280,15 @@ h1.titulo{font-size:30px;margin:0 0 6px;letter-spacing:-.015em;font-weight:800}
 .imp-item th{text-align:left;padding:4px 8px;border-bottom:1px solid #999;background:#f2f2f2}
 .imp-item td{padding:4px 8px;border-bottom:1px solid #ddd}
 .imp-item-divisor{border:none;border-top:1px dashed #bbb;margin:18px 0}
+.imp-hr-pagina{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:start;page-break-after:always;break-after:page}
+.imp-hr-pagina:last-child{page-break-after:auto;break-after:auto}
+.imp-hr-card{border:1px solid #999;border-radius:8px;padding:12px 13px;break-inside:avoid;page-break-inside:avoid}
+.imp-hr-card h3{margin:0 0 3px;font-size:13px}
+.imp-hr-card .imp-hr-sub{margin:0 0 8px;font-size:10px;color:#444}
+.imp-hr-dia-titulo{font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#555;margin:8px 0 3px;font-weight:700}
+.imp-hr-dia-titulo:first-of-type{margin-top:0}
+.imp-hr-linha{font-size:10.5px;padding:2px 0;border-bottom:1px dotted #ddd}
+.imp-hr-linha:last-child{border-bottom:none}
 
 @media print{
   body *{visibility:hidden}
@@ -732,6 +741,13 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 
     <div class="hr-resumo-row" id="hrResumo"></div>
 
+    <div class="aba-acoes">
+      <button class="btn-imprimir" onclick="imprimirHRProfessores()">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
+        Imprimir cards por professor (3 por folha)
+      </button>
+    </div>
+
     <div class="blocos-filtros">
       <label>Ver:</label>
       <button class="bloco-btn ativo" data-hr="turma" onclick="hrFiltrar('turma',this)">Por Turma</button>
@@ -785,6 +801,7 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
   <div id="impTodasTurmasReposicao" class="imp-doc"></div>
   <div id="impCalendario" class="imp-doc"></div>
   <div id="impReposicaoProfessores" class="imp-doc"></div>
+  <div id="impHRProfessores" class="imp-doc"></div>
 </div>
 
 <script>
@@ -1783,8 +1800,8 @@ const HR_DIAS = [
   {
     data: '17/07', semana: '6ª FEIRA',
     aulas: [
-      [null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, null, 'Fabiana', null, null],
-      [null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, null, 'Juliana', null, null],
+      [null, null, 'Ronei', null, 'Adilson', 'Guilherme', null, null, 'Fabiana', null, null],
+      [null, null, 'Ronei', null, 'Adilson', 'Guilherme', null, null, 'Juliana', null, null],
       [null, null, 'Adilson', null, 'Ronei', 'Magna',    null, null, 'Juliana', null, null],
       [null, null, 'Adilson', null, 'Ronei', 'Juliana',  null, null, 'Guilherme', null, null],
       [null, null, 'Adilson', null, 'Ronei', 'Fabiana',  null, null, 'Guilherme', null, null],
@@ -1829,7 +1846,7 @@ function renderHRPorTurma(){
         const cel = linha[tIdx];
         const conteudo = cel
           ? `<span class="hr-prof-tag">${escapeHtml(cel)}</span>`
-          : `<span class="hr-livre-tag">livre</span>`;
+          : `<span class="hr-livre-tag">n/a</span>`;
         return `<div class="hr-aula-linha"><span class="hr-aula-num">${aIdx+1}ª aula</span>${conteudo}</div>`;
       }).join('');
       html += `<div class="hr-turma-card"><h4>${turma}</h4>${linhas}</div>`;
@@ -1902,7 +1919,7 @@ function renderHRGrade(){
     const linhas = dia.aulas.map((linha, aIdx)=>{
       const celulas = linha.map(cel=> cel
         ? `<td>${escapeHtml(cel)}</td>`
-        : `<td class="hr-cell-livre">livre</td>`
+        : `<td class="hr-cell-livre">n/a</td>`
       ).join('');
       return `<tr><td>${aIdx+1}ª aula</td>${celulas}</tr>`;
     }).join('');
@@ -1924,6 +1941,52 @@ function renderHR(){
   else if(hrModoAtual === 'professor') renderHRPorProfessor();
   else if(hrModoAtual === 'livres') renderHRLivres();
   else renderHRGrade();
+}
+
+/* ---------- Impressão: cards por professor, 3 por folha ---------- */
+function impHRProfessorCardHTML(nome, itens){
+  let porDia = {};
+  itens.forEach(it=>{
+    const chave = `${it.dia} — ${it.semana}`;
+    if(!porDia[chave]) porDia[chave] = [];
+    porDia[chave].push(it);
+  });
+  let corpoDias = '';
+  Object.keys(porDia).forEach(chave=>{
+    corpoDias += `<div class="imp-hr-dia-titulo">${escapeHtml(chave)}</div>`;
+    porDia[chave].sort((a,b)=>a.aula-b.aula).forEach(it=>{
+      corpoDias += `<div class="imp-hr-linha">${it.aula}ª aula — Turma ${escapeHtml(it.turma)}</div>`;
+    });
+  });
+  return `<div class="imp-hr-card">
+    <h3>${escapeHtml(nome)}</h3>
+    <p class="imp-hr-sub">${itens.length} horário${itens.length!==1?'s':''} de reposição</p>
+    ${corpoDias}
+  </div>`;
+}
+
+function imprimirHRProfessores(){
+  const porProf = {};
+  HR_DIAS.forEach(dia=>{
+    dia.aulas.forEach((linha, aIdx)=>{
+      linha.forEach((cel, tIdx)=>{
+        if(!cel) return;
+        if(!porProf[cel]) porProf[cel] = [];
+        porProf[cel].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx], aula: aIdx+1});
+      });
+    });
+  });
+  const nomes = Object.keys(porProf).sort((a,b)=> a.localeCompare(b,'pt-BR',{sensitivity:'base'}));
+  const cards = nomes.map(nome => impHRProfessorCardHTML(nome, porProf[nome]));
+
+  let paginasHtml = '';
+  for(let i=0; i<cards.length; i+=3){
+    paginasHtml += `<div class="imp-hr-pagina">${cards.slice(i, i+3).join('')}</div>`;
+  }
+
+  const html = impCabecalhoHTML('Escala de Reposição — Cards por Professor', `${nomes.length} professores · 16/07 e 17/07 · 3 cards por folha`) + paginasHtml;
+  document.getElementById('impHRProfessores').innerHTML = html;
+  dispararImpressao('impHRProfessores');
 }
 
 /* ---------------- Inicialização ---------------- */
