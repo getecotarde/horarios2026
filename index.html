@@ -1443,6 +1443,7 @@
     <div class="nav-group">
       <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
       <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
+      <button onclick="requestProtectedAccess('registro-reunioes.html', 'Gerar ATA Reunião')">🗒️ Gerar ATA Reunião</button>
     </div>
 
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🎉 Eventos <span class="nav-arrow">▾</span></button>
@@ -1648,8 +1649,8 @@
         <span class="accordion-arrow">▼</span>
       </button>
       <div class="accordion-chart-body" style="display:none;padding:14px 16px;font-size:13px;color:var(--cinza-medio);line-height:1.7;">
-        Páginas como <strong>Gerar Advertência</strong>, <strong>Dashboard da Greve</strong>, <strong>Ocorrências
-        1º Trimestre</strong> e <strong>Análise Trimestral</strong> pedem um código de acesso antes de abrir.
+        Páginas como <strong>Gerar Advertência</strong>, <strong>Dashboard da Greve</strong>, <strong>Gerar ATA
+        Reunião</strong>, <strong>Ocorrências 1º Trimestre</strong> e <strong>Análise Trimestral</strong> pedem um código de acesso antes de abrir.
         Digite o código combinado com a coordenação e clique em "Acessar →".
       </div>
     </div>
@@ -3514,21 +3515,24 @@ function applyAccess() {
   const navBtns = document.querySelectorAll('#main-nav button');
   const btnMap = [
     { tab: 'dashboard',     idx: 0 },
-    { tab: 'professores',   idx: 1 },
-    { tab: 'turmas',        idx: 2 },
-    { tab: 'disciplinas',   idx: 3 },
-    { tab: 'substituicoes', idx: 4 },
-    { tab: 'acepat',        idx: 5 },
-    { tab: 'calendario',    idx: 6 },
-    { tab: 'gestao',        idx: 7 },
-    { tab: 'mecano',        idx: 8 },
-    { tab: 'mapeamento',    idx: 9 },
-    { tab: 'linktree',      idx: 10 },
-    { tab: 'smae',          idx: 11 },
-    { tab: 'sge',           idx: 12 },
-    { tab: 'advertencia',   idx: 13 },
-    { tab: 'greve',         idx: 14 },
-    { tab: 'ocorrencias',   idx: 15 }
+    { tab: 'professores',   idx: 2 },
+    { tab: 'turmas',        idx: 3 },
+    { tab: 'disciplinas',   idx: 4 },
+    { tab: 'substituicoes', idx: 5 },
+    { tab: 'acepat',        idx: 6 },
+    { tab: 'calendario',    idx: 7 },
+    { tab: 'ocorrencias',   idx: 9 },
+    { tab: 'analise',       idx: 10 },
+    { tab: 'advertencia',   idx: 12 },
+    { tab: 'greve',         idx: 13 },
+    { tab: 'reunioes',      idx: 14 },
+    { tab: 'gincana',       idx: 16 },
+    { tab: 'gestao',        idx: 18 },
+    { tab: 'mecano',        idx: 19 },
+    { tab: 'mapeamento',    idx: 20 },
+    { tab: 'linktree',      idx: 21 },
+    { tab: 'smae',          idx: 22 },
+    { tab: 'sge',           idx: 23 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
@@ -3557,6 +3561,7 @@ function initAcessoPanel() {
     gestao: '📋 Gestão Ped.', mecano: '🖨️ Mecanografia',
     mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree',
     smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência', greve: '✊ Dashboard da Greve',
+    reunioes: '🗒️ Gerar ATA Reunião',
     ocorrencias: '📑 Ocorrências 1º Trimestre'
   };
   const secondaries = USERS.filter(u => u.perfil !== 'admin');
@@ -3667,7 +3672,7 @@ function confirmExternal() {
   </div>
 </div>
 
-<!-- Modal de código de acesso (Gerar Advertência / Dashboard da Greve) -->
+<!-- Modal de código de acesso (Gerar Advertência / Dashboard da Greve / Gerar ATA Reunião) -->
 <div id="code-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;font-family:'Inter',sans-serif;">
   <div style="background:white;border-radius:18px;padding:32px 28px;max-width:380px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.22);">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
@@ -3692,7 +3697,7 @@ function confirmExternal() {
 
 <script>
 // ============================================================
-// GATE DE CÓDIGO DE ACESSO — Gerar Advertência / Dashboard da Greve
+// GATE DE CÓDIGO DE ACESSO — Gerar Advertência / Dashboard da Greve / Gerar ATA Reunião
 // Código armazenado como hash SHA-256 (nunca em texto puro no HTML).
 // Para trocar o código: gere o novo hash em
 // https://emn178.github.io/online-tools/sha256.html e substitua abaixo.
