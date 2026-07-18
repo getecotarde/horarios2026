@@ -1431,6 +1431,7 @@
       <button onclick="showSection('substituicoes')">🔄 Substituições</button>
       <button onclick="showSection('acepat')">⭐ ACEPAT</button>
       <button onclick="showSection('calendario')">🗓️ Calendário Pedagógico</button>
+      <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
     </div>
 
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">📊 Boletins & Análises <span class="nav-arrow">▾</span></button>
@@ -1442,7 +1443,6 @@
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🗂️ Registros & Documentos <span class="nav-arrow">▾</span></button>
     <div class="nav-group">
       <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
-      <button onclick="requestProtectedAccess('dashboard-greve.html', 'Dashboard da Greve')">✊ Dashboard da Greve</button>
       <button onclick="requestProtectedAccess('registro-reunioes.html', 'Gerar ATA Reunião')">🗒️ Gerar ATA Reunião</button>
     </div>
 
@@ -3521,10 +3521,10 @@ function applyAccess() {
     { tab: 'substituicoes', idx: 5 },
     { tab: 'acepat',        idx: 6 },
     { tab: 'calendario',    idx: 7 },
-    { tab: 'ocorrencias',   idx: 9 },
-    { tab: 'analise',       idx: 10 },
-    { tab: 'advertencia',   idx: 12 },
-    { tab: 'greve',         idx: 13 },
+    { tab: 'greve',         idx: 8 },
+    { tab: 'ocorrencias',   idx: 10 },
+    { tab: 'analise',       idx: 11 },
+    { tab: 'advertencia',   idx: 13 },
     { tab: 'reunioes',      idx: 14 },
     { tab: 'gincana',       idx: 16 },
     { tab: 'gestao',        idx: 18 },
