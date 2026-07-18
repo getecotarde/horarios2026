@@ -285,6 +285,11 @@ h1.titulo{font-size:30px;margin:0 0 6px;letter-spacing:-.015em;font-weight:800}
 .imp-hr-card{border:1px solid #999;border-radius:8px;padding:12px 13px;break-inside:avoid;page-break-inside:avoid}
 .imp-hr-card h3{margin:0 0 3px;font-size:13px}
 .imp-hr-card .imp-hr-sub{margin:0 0 8px;font-size:10px;color:#444}
+.imp-hr-pagina-unica{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;page-break-inside:avoid;break-inside:avoid}
+.imp-hr-card-compacto{padding:8px 9px}
+.imp-hr-card-compacto h3{font-size:11.5px;margin:0 0 2px}
+.imp-hr-card-compacto .imp-hr-sub{font-size:8.5px;margin:0 0 5px;line-height:1.35}
+.imp-hr-dias-txt{margin:0;font-size:8.5px;line-height:1.4;color:#222}
 .imp-hr-dia-titulo{font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:#555;margin:8px 0 3px;font-weight:700}
 .imp-hr-dia-titulo:first-of-type{margin-top:0}
 .imp-hr-linha{font-size:10.5px;padding:2px 0;border-bottom:1px dotted #ddd}
@@ -451,10 +456,32 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
 .hr-grade-tabela tr:last-child td{border-bottom:none}
 .hr-cell-livre{color:var(--ink-faint);font-style:italic;font-size:11.5px}
 
-.hr-livres-turma{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
-.hr-livres-turma:last-child{border-bottom:none}
-.hr-livres-turma .hr-livres-nome{font-family:var(--font-mono);font-weight:700;min-width:34px}
-.hr-livres-total{background:var(--success-bg);color:var(--success);font-family:var(--font-mono);font-weight:700;font-size:11.5px;border-radius:999px;padding:2px 9px}
+
+/* ---------- Saldo (dias repostos x dias parados) ---------- */
+.hr-saldo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:22px}
+.hr-saldo-card{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--surface);padding:14px 16px;box-shadow:var(--shadow)}
+.hr-saldo-card h4{margin:0 0 10px;font-family:var(--font-mono);font-size:14.5px;font-weight:700;color:var(--ink)}
+.hr-saldo-linhas{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-soft);margin-bottom:10px}
+.hr-saldo-linhas b{color:var(--ink);font-family:var(--font-mono)}
+.hr-saldo-barra{width:100%;height:6px;border-radius:4px;overflow:hidden;background:var(--surface-2);margin-bottom:10px}
+.hr-saldo-barra span{display:block;height:100%;background:var(--success)}
+.hr-saldo-pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-weight:700;font-size:12px;border-radius:999px;padding:4px 10px}
+.hr-saldo-pill.pendente{background:var(--danger-bg);color:var(--danger)}
+.hr-saldo-pill.quitado{background:var(--success-bg);color:var(--success)}
+.hr-saldo-pill.excedente{background:var(--warning-bg);color:var(--warning)}
+.hr-saldo-pill.indefinido{background:var(--surface-2);color:var(--ink-faint)}
+.hr-prof-card-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+.hr-prof-card-header h4{margin:0;font-size:15px;font-weight:700}
+.hr-busca-wrap{position:relative;max-width:420px;margin-bottom:18px}
+.hr-busca-icone{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--ink-faint);fill:none;stroke-width:2}
+#hrBuscaProfessor{
+  width:100%;padding:11px 14px 11px 38px;border-radius:var(--radius-sm);
+  border:1px solid var(--line);background:var(--surface);font-family:var(--font-display);
+  font-size:14.5px;color:var(--ink);box-shadow:var(--shadow);
+}
+#hrBuscaProfessor:focus{outline:2px solid var(--primary);outline-offset:1px;border-color:var(--primary)}
+.hr-prof-dia-chip{display:inline-flex;align-items:center;font-size:12.5px;font-weight:600;background:var(--danger-bg);color:var(--danger);border-radius:999px;padding:4px 10px;margin:2px 4px 2px 0}
+.hr-prof-vazio{color:var(--ink-faint);font-size:13.5px;padding:20px 0}
 
 /* ---------- Responsive ---------- */
 @media (max-width:860px){
@@ -736,15 +763,15 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
   </section>
   <section id="horariosreposicao" class="aba">
     <p class="eyebrow">Escala de substitutos</p>
-    <h1 class="titulo">Horários de Reposição — 16/07 a 17/07</h1>
-    <p class="subtitulo">Turmas da tarde, 2026. Escala dos professores substitutos por horário (aula) nos dois dias de reposição, organizada por turma, por professor e por horários livres — conforme a planilha de reposição do período.</p>
+    <h1 class="titulo">Horários de Reposição — 16/07 a 31/07</h1>
+    <p class="subtitulo">Turmas da tarde, 2026. Escala dos professores substitutos por horário (aula) nos dias de reposição (16, 17, 20 a 24 e 27 a 31/07, além de 18/07 e 25/07 — sábados de reposição do 8ºX com o professor Marcelo Cafiero), organizada por turma e por professor, com a contabilização de dias já repostos frente aos dias parados e o saldo ainda a pagar — conforme as planilhas de reposição do período.</p>
 
     <div class="hr-resumo-row" id="hrResumo"></div>
 
     <div class="aba-acoes">
-      <button class="btn-imprimir" onclick="imprimirHRProfessores()">
+      <button class="btn-imprimir" id="hrBtnImprimir" onclick="imprimirHRPorTurma()">
         <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="5" y="9" width="14" height="8" rx="1.5"/><path d="M8 14h8v6H8z"/></svg>
-        Imprimir cards por professor (3 por folha)
+        <span id="hrBtnImprimirLabel">Imprimir saldo por turma</span>
       </button>
     </div>
 
@@ -752,8 +779,13 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
       <label>Ver:</label>
       <button class="bloco-btn ativo" data-hr="turma" onclick="hrFiltrar('turma',this)">Por Turma</button>
       <button class="bloco-btn" data-hr="professor" onclick="hrFiltrar('professor',this)">Por Professor</button>
-      <button class="bloco-btn" data-hr="livres" onclick="hrFiltrar('livres',this)">Horários Livres</button>
       <button class="bloco-btn" data-hr="grade" onclick="hrFiltrar('grade',this)">Grade completa</button>
+    </div>
+
+    <div class="hr-busca-wrap" id="hrBuscaProfessorWrap" style="display:none">
+      <svg class="hr-busca-icone" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7.2"/><path d="m20.5 20.5-4.3-4.3"/></svg>
+      <input id="hrBuscaProfessor" type="text" placeholder="Buscar professor pelo nome…" autocomplete="off"
+        oninput="hrFiltrarBuscaProfessor(this.value)">
     </div>
 
     <div id="hrConteudo"></div>
@@ -802,6 +834,8 @@ footer.creditos{margin-top:40px;color:var(--ink-faint);font-size:12px;font-famil
   <div id="impCalendario" class="imp-doc"></div>
   <div id="impReposicaoProfessores" class="imp-doc"></div>
   <div id="impHRProfessores" class="imp-doc"></div>
+  <div id="impHRTurmas" class="imp-doc"></div>
+  <div id="impHRGrade" class="imp-doc"></div>
 </div>
 
 <script>
@@ -1779,43 +1813,188 @@ function renderBlocos(){
 }
 
 /* ============================================================
-   HORÁRIOS REPOSIÇÃO — 16/07 e 17/07 (turmas da tarde)
-   Fonte: planilha "Reposição do período - 16/07 à 17/07"
+   HORÁRIOS REPOSIÇÃO — 16/07 a 31/07 (turmas da tarde)
+   Fonte: planilhas "Reposição do período - 16/07 à 17/07", "20 a 25/07"
+   e "27 a 31/07" (Horário_reposição_16_a_31_agosto)
    ============================================================ */
 
-const HR_TURMAS = ['6ºA','6ºB','6ºC','6ºD','6ºE','6ºF','7ºA','7ºB','7ºC','7ºD','7ºE'];
+const HR_TURMAS = ['6ºA', '6ºB', '6ºC', '6ºD', '6ºE', '6ºF', '7ºA', '7ºB', '7ºC', '7ºD', '7ºE', '8ºX', 'ACEPAT'];
 
 const HR_DIAS = [
   {
     data: '16/07', semana: '5ª FEIRA',
     aulas: [
-      /* 6ºA   6ºB              6ºC             6ºD   6ºE                6ºF                7ºA   7ºB               7ºC              7ºD             7ºE */
-      [null, 'Juscele',        'Adilson',       null, 'Fernanda',        'João Marcelo',    null, 'Guilherme',      'Fabiana',       'Magna',        'Juliana'],
-      [null, 'Adilson',        'João Marcelo',  null, 'Fernanda',        'Juscele',         null, 'Guilherme',      'Juliana',       'Magna',        'Fabiana'],
-      [null, 'Adilson',        'João Marcelo',  null, 'Juscele',         'Fernanda',        null, 'Fabiana',        'Magna',         'Juliana',      'Guilherme'],
-      [null, 'João Marcelo',   'Juscele',       null, 'Adilson',         'Fernanda',        null, 'Juliana',        'Guilherme',     'Fabiana',      'Magna'],
-      [null, 'Fernanda',       'Juscele',       null, 'Adilson',         'Adilson',         null, 'Juliana',        'Guilherme',     'Fabiana',      'Magna'],
+      [null, 'Juscele', 'Adilson', null, 'Fernanda', 'João Marcelo', null, 'Guilherme', 'Fabiana', 'Magna', 'Juliana', 'Marcelo C', null],
+      [null, 'Adilson', 'João Marcelo', null, 'Fernanda', 'Juscele', null, 'Guilherme', 'Juliana', 'Magna', 'Fabiana', 'Marcelo C', null],
+      [null, 'Adilson', 'João Marcelo', null, 'Juscele', 'Fernanda', null, 'Fabiana', 'Magna', 'Juliana', 'Guilherme', 'Marcelo C', null],
+      [null, 'João Marcelo', 'Juscele', null, 'Adilson', 'Fernanda', null, 'Juliana', 'Guilherme', 'Fabiana', 'Magna', 'Marcelo C', null],
+      [null, 'Fernanda', 'Juscele', null, 'Adilson', 'Adilson', null, 'Juliana', 'Guilherme', 'Fabiana', 'Magna', 'Marcelo C', null],
     ]
   },
   {
     data: '17/07', semana: '6ª FEIRA',
     aulas: [
-      [null, null, 'Ronei', null, 'Adilson', 'Guilherme', null, null, 'Fabiana', null, null],
-      [null, null, 'Ronei', null, 'Adilson', 'Guilherme', null, null, 'Juliana', null, null],
-      [null, null, 'Adilson', null, 'Ronei', 'Magna',    null, null, 'Juliana', null, null],
-      [null, null, 'Adilson', null, 'Ronei', 'Juliana',  null, null, 'Guilherme', null, null],
-      [null, null, 'Adilson', null, 'Ronei', 'Fabiana',  null, null, 'Guilherme', null, null],
+      [null, null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, 'Fabiana', 'Magna', 'Juliana', 'Marcelo C', null],
+      [null, null, 'Ronei', null, null, 'Adilson', 'Guilherme', null, 'Juliana', 'Magna', 'Fabiana', 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, 'Ronei', 'Magna', null, 'Juliana', 'Guilherme', 'Fabiana', 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, 'Ronei', 'Juliana', null, 'Guilherme', 'Fabiana', 'Magna', 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, 'Ronei', 'Fabiana', null, 'Guilherme', 'Juliana', 'Magna', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '18/07', semana: 'SÁBADO',
+    aulas: [
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '20/07', semana: '2ª FEIRA',
+    aulas: [
+      ['Adilson', 'João Marcelo', 'Ronei', null, null, null, null, null, 'Guilherme', 'Fabiana', 'Juliana', 'Marcelo C', null],
+      ['Adilson', 'João Marcelo', 'Ronei', null, null, null, null, null, 'Guilherme', 'Fabiana', 'Juliana', 'Marcelo C', null],
+      ['João Marcelo', 'Ronei', 'Adilson', null, null, null, null, null, 'Guilherme', 'Juliana', 'Fabiana', 'Marcelo C', null],
+      ['Ronei', 'Adilson', 'João Marcelo', null, null, null, null, null, 'Guilherme', 'Juliana', 'Fabiana', 'Marcelo C', null],
+      ['Ronei', 'Adilson', 'João Marcelo', null, null, null, null, null, 'Guilherme', 'Juliana', 'Fabiana', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '21/07', semana: '3ª FEIRA',
+    aulas: [
+      [null, null, null, 'Adilson', 'João Marcelo', 'Ronei', 'Fabiana', 'Guilherme', null, 'Juliana', null, 'Magna', null],
+      [null, null, null, 'Adilson', 'João Marcelo', 'Ronei', 'Fabiana', 'Guilherme', null, 'Juliana', null, 'Magna', null],
+      [null, null, null, 'João Marcelo', 'Ronei', 'Adilson', 'Guilherme', 'Juliana', null, 'Fabiana', null, 'Magna', null],
+      [null, null, null, 'Ronei', 'Adilson', 'João Marcelo', 'Guilherme', 'Juliana', null, 'Fabiana', null, 'Magna', null],
+      [null, null, null, 'Ronei', 'Adilson', 'João Marcelo', 'Guilherme', 'Juliana', null, 'Fabiana', null, 'Magna', null],
+    ]
+  },
+  {
+    data: '22/07', semana: '4ª FEIRA',
+    aulas: [
+      ['João Marcelo', 'Adilson', null, null, null, null, null, 'Guilherme', 'Juliana', 'Fabiana', 'Magna', 'Marcelo C', null],
+      ['João Marcelo', 'Adilson', null, null, null, null, null, 'Guilherme', 'Juliana', 'Fabiana', 'Magna', 'Marcelo C', null],
+      ['João Marcelo', 'Adilson', null, null, null, null, null, 'Fabiana', 'Guilherme', 'Magna', 'Juliana', 'Marcelo C', null],
+      ['Adilson', 'João Marcelo', null, null, null, null, null, 'Fabiana', 'Guilherme', 'Magna', 'Juliana', 'Marcelo C', null],
+      ['Adilson', 'João Marcelo', null, null, null, null, null, 'Fabiana', 'Guilherme', 'Magna', 'Juliana', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '23/07', semana: '5ª FEIRA',
+    aulas: [
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', 'Fabiana', 'Marcelo C', null],
+      [null, null, 'Magna', null, null, null, null, null, null, 'Juliana', 'Fabiana', 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Fabiana', 'Juliana', 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Juliana', 'Fabiana', 'Magna', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '24/07', semana: '6ª FEIRA',
+    aulas: [
+      [null, null, null, 'Adilson', 'João Marcelo', null, 'Juliana', null, 'Fabiana', null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', 'João Marcelo', null, 'Juliana', null, 'Fabiana', null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', 'João Marcelo', null, 'Juliana', null, 'Fabiana', null, null, 'Marcelo C', null],
+      [null, null, null, 'João Marcelo', 'Adilson', null, 'Fabiana', null, 'Juliana', null, null, 'Marcelo C', null],
+      [null, null, null, 'João Marcelo', 'Adilson', null, 'Fabiana', null, 'Juliana', null, null, 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '25/07', semana: 'SÁBADO',
+    aulas: [
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+      [null, null, null, null, null, null, null, null, null, null, null, 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '27/07', semana: '2ª FEIRA',
+    aulas: [
+      [null, null, null, null, null, 'Adilson', 'Juliana', null, null, null, null, 'Magna', null],
+      [null, null, null, null, null, 'Adilson', 'Juliana', null, null, null, null, 'Magna', null],
+      [null, null, null, null, null, 'Adilson', 'Juliana', null, null, null, null, 'Magna', null],
+      [null, null, null, null, null, 'Adilson', 'Juliana', null, null, null, null, 'Magna', null],
+      [null, null, null, null, null, 'Adilson', 'Juliana', null, null, null, null, 'Magna', null],
+    ]
+  },
+  {
+    data: '28/07', semana: '3ª FEIRA',
+    aulas: [
+      ['Adilson', null, null, null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+      ['Adilson', null, null, null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+      ['Adilson', null, null, null, null, null, null, null, null, 'Magna', 'Juliana', 'Marcelo C', null],
+      ['Adilson', null, null, null, null, null, null, null, null, 'Magna', 'Juliana', 'Marcelo C', null],
+      ['Adilson', null, null, null, null, null, null, null, null, 'Magna', 'Juliana', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '29/07', semana: '4ª FEIRA',
+    aulas: [
+      [null, 'Adilson', null, null, null, null, null, null, null, 'Magna', 'Juliana', 'Marcelo C', null],
+      [null, 'Adilson', null, null, null, null, null, null, null, 'Magna', 'Juliana', 'Marcelo C', null],
+      [null, 'Adilson', null, null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+      [null, 'Adilson', null, null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+      [null, 'Adilson', null, null, null, null, null, null, null, 'Juliana', 'Magna', 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '30/07', semana: '5ª FEIRA',
+    aulas: [
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', null, 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', null, 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', null, 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', null, 'Marcelo C', null],
+      [null, null, 'Adilson', null, null, null, null, null, null, 'Magna', null, 'Marcelo C', null],
+    ]
+  },
+  {
+    data: '31/07', semana: '6ª FEIRA',
+    aulas: [
+      [null, null, null, 'Adilson', null, null, null, 'Juliana', null, null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', null, null, null, 'Juliana', null, null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', null, null, null, 'Juliana', null, null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', null, null, null, 'Juliana', null, null, null, 'Marcelo C', null],
+      [null, null, null, 'Adilson', null, null, null, 'Juliana', null, null, null, 'Marcelo C', null],
     ]
   }
 ];
 
 let hrModoAtual = 'turma';
 
+const HR_IMPRESSAO_POR_MODO = {
+  turma:      {fn:'imprimirHRPorTurma',      label:'Imprimir saldo por turma'},
+  professor:  {fn:'imprimirHRPorProfessor',  label:'Imprimir saldo por professor'},
+  grade:      {fn:'imprimirHRGrade',         label:'Imprimir grade completa'}
+};
+
 function hrFiltrar(modo, btn){
   hrModoAtual = modo;
   document.querySelectorAll('#horariosreposicao .bloco-btn').forEach(b=> b.classList.remove('ativo'));
   if(btn) btn.classList.add('ativo');
+  const cfg = HR_IMPRESSAO_POR_MODO[modo];
+  if(cfg){
+    const btnImp = document.getElementById('hrBtnImprimir');
+    if(btnImp) btnImp.setAttribute('onclick', cfg.fn + '()');
+    const label = document.getElementById('hrBtnImprimirLabel');
+    if(label) label.textContent = cfg.label;
+  }
+  const buscaWrap = document.getElementById('hrBuscaProfessorWrap');
+  const buscaInput = document.getElementById('hrBuscaProfessor');
+  if(buscaWrap) buscaWrap.style.display = (modo === 'professor') ? '' : 'none';
+  if(buscaInput) buscaInput.value = '';
   renderHR();
+}
+
+function hrFiltrarBuscaProfessor(valor){
+  const alvo = normalizar(valor.trim());
+  document.querySelectorAll('#hrConteudo .hr-prof-card').forEach(card=>{
+    const nome = normalizar(card.dataset.nome || '');
+    card.style.display = (!alvo || nome.includes(alvo)) ? '' : 'none';
+  });
 }
 
 function hrResumo(){
@@ -1827,18 +2006,121 @@ function hrResumo(){
       else livres++;
     });
   }));
+  const saldoTurmas = HR_TURMAS.reduce((soma, turma, tIdx)=> soma + hrSaldoTurma(tIdx, turma).saldo, 0);
   document.getElementById('hrResumo').innerHTML = `
-    <div class="hr-resumo-card"><div class="hr-num">2</div><div class="hr-label">Dias de reposição</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${HR_DIAS.length}</div><div class="hr-label">Dias de reposição</div></div>
     <div class="hr-resumo-card"><div class="hr-num">${HR_TURMAS.length}</div><div class="hr-label">Turmas</div></div>
     <div class="hr-resumo-card"><div class="hr-num">${profs.size}</div><div class="hr-label">Professores escalados</div></div>
     <div class="hr-resumo-card"><div class="hr-num">${atribuicoes}</div><div class="hr-label">Horários preenchidos</div></div>
-    <div class="hr-resumo-card"><div class="hr-num">${livres}</div><div class="hr-label">Horários livres</div></div>
+    <div class="hr-resumo-card"><div class="hr-num">${saldoTurmas}</div><div class="hr-label">Saldo a pagar (turmas, dias)</div></div>
   `;
+}
+
+/* ---------- Contabilização: dias repostos x dias parados (saldo a pagar) ----------
+   Cada "aula" de reposição preenchida equivale a 1/5 de um dia (5 aulas por dia).
+   Turma: saldo a repor vem de turmasMap (dias não convocados dos 32 de paralisação).
+   Professor: crédito máximo vem de calcularReposicaoProfessor (dias de greve, limitado
+   ao saldo da turma dele com maior saldo a repor). */
+
+function hrCodigoTurma(labelTurma){
+  return labelTurma.replace('º', '');
+}
+
+function hrContarAulasTurma(tIdx){
+  let total = 0;
+  HR_DIAS.forEach(d=> d.aulas.forEach(linha=>{ if(linha[tIdx]) total++; }));
+  return total;
+}
+
+function hrSaldoTurma(tIdx, labelTurma){
+  const totalAulas = hrContarAulasTurma(tIdx);
+  const dias = totalAulas / 5;
+  const t = turmasMap[hrCodigoTurma(labelTurma)];
+  if(!t) return {dias, repor:null, saldo:0, excedente:0};
+  const saldo = Math.max(0, t.repor - dias);
+  const excedente = Math.max(0, dias - t.repor);
+  return {dias, repor:t.repor, saldo, excedente};
+}
+
+// nome curto (como aparece na escala) -> registro completo do professor
+function hrEncontrarProfessor(nomeCurto){
+  const alvo = normalizar(nomeCurto);
+  return professores.find(p => normalizar(p.nome).startsWith(alvo));
+}
+
+// Total de aulas atribuídas a um professor (casando pelo nome completo), em toda a escala
+function hrContarAulasProfessor(nomeCompleto){
+  let total = 0;
+  HR_DIAS.forEach(d=> d.aulas.forEach(linha=>{
+    linha.forEach(cel=>{
+      if(cel && hrEncontrarProfessor(cel) && hrEncontrarProfessor(cel).nome === nomeCompleto) total++;
+    });
+  }));
+  return total;
+}
+
+// Dias distintos em que o professor teve pelo menos 1 aula de reposição atribuída
+// (um dia com o professor escalado conta como 1 dia reposto, mesmo que ele tenha
+// dividido as 5 aulas daquele dia com outro professor).
+function hrContarDiasProfessor(nomeCompleto){
+  let dias = 0;
+  HR_DIAS.forEach(d=>{
+    const escalado = d.aulas.some(linha=> linha.some(cel=>{
+      const p = cel && hrEncontrarProfessor(cel);
+      return p && p.nome === nomeCompleto;
+    }));
+    if(escalado) dias++;
+  });
+  return dias;
+}
+
+function hrSaldoProfessor(p){
+  const dias = hrContarDiasProfessor(p.nome);
+  const r = calcularReposicaoProfessor(p);
+  const possiveis = r.possiveis;
+  if(possiveis === null || possiveis === undefined) return {dias, greve:p.greve, possiveis:null, saldo:0, excedente:0};
+  const saldo = Math.max(0, possiveis - dias);
+  const excedente = Math.max(0, dias - possiveis);
+  return {dias, greve:p.greve, possiveis, saldo, excedente};
+}
+
+function hrFormatarDias(n){
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
+}
+
+// Converte "dd/mm — Xª FEIRA" em número ordenável (mm*100+dd), para ordenar dias cronologicamente
+function hrChaveDia(chave){
+  const m = chave.match(/(\d{2})\/(\d{2})/);
+  if(!m) return 0;
+  return parseInt(m[2], 10) * 100 + parseInt(m[1], 10);
+}
+
+function hrPillSaldoHTML(saldo, excedente, indefinido){
+  if(indefinido) return `<span class="hr-saldo-pill indefinido">Sem dados de saldo</span>`;
+  if(saldo > 0) return `<span class="hr-saldo-pill pendente">Saldo a pagar: ${hrFormatarDias(saldo)} dia${saldo!==1?'s':''}</span>`;
+  if(excedente > 0) return `<span class="hr-saldo-pill excedente">Excedente: +${hrFormatarDias(excedente)} dia${excedente!==1?'s':''}</span>`;
+  return `<span class="hr-saldo-pill quitado">Quitado</span>`;
 }
 
 /* ---------- Por turma ---------- */
 function renderHRPorTurma(){
-  let html = '';
+  let html = '<div class="hr-saldo-grid">';
+  HR_TURMAS.forEach((turma, tIdx)=>{
+    const s = hrSaldoTurma(tIdx, turma);
+    const indefinido = s.repor === null;
+    const pct = indefinido ? 0 : Math.min(100, (s.dias / Math.max(s.repor,1)) * 100);
+    html += `<div class="hr-saldo-card">
+      <h4>${escapeHtml(turma)}</h4>
+      <div class="hr-saldo-linhas">
+        <span>Dias parados a repor: <b>${indefinido ? '—' : s.repor}</b></span>
+        <span>Dias já repostos: <b>${hrFormatarDias(s.dias)}</b></span>
+      </div>
+      <div class="hr-saldo-barra"><span style="width:${pct}%"></span></div>
+      ${hrPillSaldoHTML(s.saldo, s.excedente, indefinido)}
+    </div>`;
+  });
+  html += '</div>';
+
   HR_DIAS.forEach(dia=>{
     html += `<div class="hr-dia-bloco"><h3>${dia.data} — ${dia.semana}</h3><p class="hr-dia-sub">Escala por turma, aula a aula</p><div class="hr-turmas-grid">`;
     HR_TURMAS.forEach((turma, tIdx)=>{
@@ -1858,58 +2140,71 @@ function renderHRPorTurma(){
 
 /* ---------- Por professor ---------- */
 function renderHRPorProfessor(){
-  const porProf = {}; // nome -> [{dia, semana, turma, aula}]
+  // Agrupa a escala pelo nome COMPLETO do professor (casando o nome curto usado na
+  // grade com o cadastro de professores), para poder contabilizar dias parados x repostos.
+  const porProf = {}; // nome completo -> [{dia, semana, turma, aula}]
   HR_DIAS.forEach(dia=>{
     dia.aulas.forEach((linha, aIdx)=>{
       linha.forEach((cel, tIdx)=>{
         if(!cel) return;
-        if(!porProf[cel]) porProf[cel] = [];
-        porProf[cel].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx], aula: aIdx+1});
+        const pMatch = hrEncontrarProfessor(cel);
+        const chave = pMatch ? pMatch.nome : cel;
+        if(!porProf[chave]) porProf[chave] = [];
+        porProf[chave].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx], aula: aIdx+1});
       });
     });
   });
+
+  // Inclui também professores com dias de greve pendentes de reposição que ainda não
+  // aparecem na escala, para que o saldo a pagar apareça mesmo com 0 repostos.
+  professoresOrdenados.forEach(p=>{
+    if(PROF_SEM_REPOSICAO.includes(p.nome)) return;
+    const r = calcularReposicaoProfessor(p);
+    if(r.possiveis > 0 && !porProf[p.nome]) porProf[p.nome] = [];
+  });
+
   const nomes = Object.keys(porProf).sort((a,b)=> a.localeCompare(b,'pt-BR',{sensitivity:'base'}));
   let html = '';
   nomes.forEach(nome=>{
     const itens = porProf[nome];
+    const pCadastro = professores.find(p=>p.nome===nome);
+
+    let saldoHtml = '';
+    if(pCadastro){
+      const s = hrSaldoProfessor(pCadastro);
+      saldoHtml = `
+        <div class="hr-saldo-linhas">
+          <span>Dias de paralisação: <b>${s.greve}</b></span>
+          <span>Dias possíveis de repor (crédito): <b>${s.possiveis===null?'—':s.possiveis}</b></span>
+          <span>Dias já repostos: <b>${hrFormatarDias(s.dias)}</b></span>
+        </div>
+        ${hrPillSaldoHTML(s.saldo, s.excedente, s.possiveis===null)}`;
+    } else {
+      saldoHtml = hrPillSaldoHTML(0, 0, true);
+    }
+
     let porDia = {};
     itens.forEach(it=>{
       const chave = `${it.dia} — ${it.semana}`;
-      if(!porDia[chave]) porDia[chave] = [];
-      porDia[chave].push(it);
+      porDia[chave] = true;
     });
-    let corpoDias = '';
-    Object.keys(porDia).forEach(chave=>{
-      corpoDias += `<div class="hr-prof-dia-titulo">${chave}</div>`;
-      porDia[chave].sort((a,b)=>a.aula-b.aula).forEach(it=>{
-        corpoDias += `<span class="hr-atrib-chip">${it.aula}ª aula · ${it.turma}</span>`;
-      });
-    });
-    html += `<div class="hr-prof-card"><h4>${escapeHtml(nome)} <span style="font-weight:400;color:var(--ink-soft);font-size:12.5px">(${itens.length} horário${itens.length!==1?'s':''})</span></h4>${corpoDias}</div>`;
+    const diasOrdenados = Object.keys(porDia).sort((a,b)=> hrChaveDia(a) - hrChaveDia(b));
+    const numDias = diasOrdenados.length;
+    const corpoDias = diasOrdenados.length
+      ? diasOrdenados.map(chave=>`<span class="hr-prof-dia-chip">${chave}</span>`).join('')
+      : '<p class="hr-prof-vazio">Nenhum dia escalado ainda</p>';
+    html += `<div class="hr-prof-card" data-nome="${escapeHtml(nome)}">
+      <div class="hr-prof-card-header">
+        <h4>${escapeHtml(nome)}</h4>
+        <span style="font-weight:400;color:var(--ink-soft);font-size:12.5px">${numDias} dia${numDias!==1?'s':''} escalado${numDias!==1?'s':''}</span>
+      </div>
+      ${saldoHtml}
+      ${corpoDias}
+    </div>`;
   });
   document.getElementById('hrConteudo').innerHTML = html || '<p class="subtitulo">Nenhum professor escalado.</p>';
-}
-
-/* ---------- Horários livres ---------- */
-function renderHRLivres(){
-  let html = '';
-  HR_DIAS.forEach(dia=>{
-    html += `<div class="hr-dia-bloco"><h3>${dia.data} — ${dia.semana}</h3><p class="hr-dia-sub">Aulas sem professor substituto escalado, por turma</p>`;
-    HR_TURMAS.forEach((turma, tIdx)=>{
-      const livres = [];
-      dia.aulas.forEach((linha, aIdx)=>{ if(!linha[tIdx]) livres.push(aIdx+1); });
-      const tagsAulas = livres.length
-        ? livres.map(n=>`<span class="hr-aula-num">${n}ª aula</span>`).join('')
-        : '<span class="hr-cell-livre">sem horário livre</span>';
-      html += `<div class="hr-livres-turma">
-        <span class="hr-livres-nome">${turma}</span>
-        <span class="hr-livres-total">${livres.length}/5 livre${livres.length!==1?'s':''}</span>
-        ${tagsAulas}
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  document.getElementById('hrConteudo').innerHTML = html;
+  const buscaInput = document.getElementById('hrBuscaProfessor');
+  if(buscaInput && buscaInput.value) hrFiltrarBuscaProfessor(buscaInput.value);
 }
 
 /* ---------- Grade completa ---------- */
@@ -1939,43 +2234,95 @@ function renderHR(){
   hrResumo();
   if(hrModoAtual === 'turma') renderHRPorTurma();
   else if(hrModoAtual === 'professor') renderHRPorProfessor();
-  else if(hrModoAtual === 'livres') renderHRLivres();
   else renderHRGrade();
 }
 
-/* ---------- Impressão: cards por professor, 3 por folha ---------- */
+/* ---------- Impressão: saldo por turma ---------- */
+function impHRTurmaCardHTML(turma, tIdx){
+  const s = hrSaldoTurma(tIdx, turma);
+  const indefinido = s.repor === null;
+  const saldoTxt = indefinido
+    ? 'Sem dados de saldo'
+    : (s.saldo > 0 ? `Saldo a pagar: ${hrFormatarDias(s.saldo)} dia${s.saldo!==1?'s':''}`
+      : (s.excedente > 0 ? `Excedente: +${hrFormatarDias(s.excedente)} dia${s.excedente!==1?'s':''}` : 'Quitado'));
+
+  const diasDaTurma = [];
+  HR_DIAS.forEach(dia=>{
+    let temAula = false;
+    dia.aulas.forEach(linha=>{ if(linha[tIdx]) temAula = true; });
+    if(temAula) diasDaTurma.push(dia.data);
+  });
+  const diasTxt = diasDaTurma.length ? diasDaTurma.join(', ') : 'Nenhum dia de reposição registrado';
+
+  return `<div class="imp-hr-card imp-hr-card-compacto">
+    <h3>${escapeHtml(turma)}</h3>
+    <p class="imp-hr-sub">${indefinido ? '—' : `Dias a repor: ${s.repor} · Já repostos: ${hrFormatarDias(s.dias)} · ${saldoTxt}`}</p>
+    <p class="imp-hr-dias-txt">${escapeHtml(diasTxt)}</p>
+  </div>`;
+}
+
+function imprimirHRPorTurma(){
+  const cards = HR_TURMAS
+    .map((turma, tIdx) => ({turma, tIdx}))
+    .filter(t => t.turma !== 'ACEPAT')
+    .map(t => impHRTurmaCardHTML(t.turma, t.tIdx));
+  const html = impCabecalhoHTML('Escala de Reposição — Saldo por Turma', `${cards.length} turmas · dias repostos x dias parados`)
+    + `<div class="imp-hr-pagina-unica">${cards.join('')}</div>`;
+  document.getElementById('impHRTurmas').innerHTML = html;
+  dispararImpressao('impHRTurmas');
+}
+
+/* ---------- Impressão: saldo por professor (dias, sem horário) ---------- */
 function impHRProfessorCardHTML(nome, itens){
+  const pCadastro = professores.find(p=>p.nome===nome);
+  let subTxt = `${itens.length} dia${itens.length!==1?'s':''} escalado${itens.length!==1?'s':''}`;
+  if(pCadastro){
+    const s = hrSaldoProfessor(pCadastro);
+    const saldoTxt = s.possiveis===null ? 'sem dados de saldo'
+      : (s.saldo > 0 ? `saldo a pagar: ${hrFormatarDias(s.saldo)} dia${s.saldo!==1?'s':''}`
+        : (s.excedente > 0 ? `excedente: +${hrFormatarDias(s.excedente)}` : 'quitado'));
+    subTxt = `Greve: ${s.greve} · Possíveis: ${s.possiveis===null?'—':s.possiveis} · Repostos: ${hrFormatarDias(s.dias)} · ${saldoTxt}`;
+  }
+
   let porDia = {};
   itens.forEach(it=>{
     const chave = `${it.dia} — ${it.semana}`;
-    if(!porDia[chave]) porDia[chave] = [];
-    porDia[chave].push(it);
+    if(!porDia[chave]) porDia[chave] = new Set();
+    porDia[chave].add(it.turma);
   });
   let corpoDias = '';
   Object.keys(porDia).forEach(chave=>{
-    corpoDias += `<div class="imp-hr-dia-titulo">${escapeHtml(chave)}</div>`;
-    porDia[chave].sort((a,b)=>a.aula-b.aula).forEach(it=>{
-      corpoDias += `<div class="imp-hr-linha">${it.aula}ª aula — Turma ${escapeHtml(it.turma)}</div>`;
-    });
+    const turmasDoDia = [...porDia[chave]].join(', ');
+    corpoDias += `<div class="imp-hr-linha">${escapeHtml(chave)} — ${escapeHtml(turmasDoDia)}</div>`;
   });
+  if(!corpoDias) corpoDias = '<div class="imp-hr-linha">Nenhum dia escalado ainda</div>';
+
   return `<div class="imp-hr-card">
     <h3>${escapeHtml(nome)}</h3>
-    <p class="imp-hr-sub">${itens.length} horário${itens.length!==1?'s':''} de reposição</p>
+    <p class="imp-hr-sub">${subTxt}</p>
     ${corpoDias}
   </div>`;
 }
 
-function imprimirHRProfessores(){
+function imprimirHRPorProfessor(){
   const porProf = {};
   HR_DIAS.forEach(dia=>{
-    dia.aulas.forEach((linha, aIdx)=>{
+    dia.aulas.forEach((linha)=>{
       linha.forEach((cel, tIdx)=>{
         if(!cel) return;
-        if(!porProf[cel]) porProf[cel] = [];
-        porProf[cel].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx], aula: aIdx+1});
+        const pMatch = hrEncontrarProfessor(cel);
+        const chave = pMatch ? pMatch.nome : cel;
+        if(!porProf[chave]) porProf[chave] = [];
+        porProf[chave].push({dia: dia.data, semana: dia.semana, turma: HR_TURMAS[tIdx]});
       });
     });
   });
+  professoresOrdenados.forEach(p=>{
+    if(PROF_SEM_REPOSICAO.includes(p.nome)) return;
+    const r = calcularReposicaoProfessor(p);
+    if(r.possiveis > 0 && !porProf[p.nome]) porProf[p.nome] = [];
+  });
+
   const nomes = Object.keys(porProf).sort((a,b)=> a.localeCompare(b,'pt-BR',{sensitivity:'base'}));
   const cards = nomes.map(nome => impHRProfessorCardHTML(nome, porProf[nome]));
 
@@ -1984,9 +2331,30 @@ function imprimirHRProfessores(){
     paginasHtml += `<div class="imp-hr-pagina">${cards.slice(i, i+3).join('')}</div>`;
   }
 
-  const html = impCabecalhoHTML('Escala de Reposição — Cards por Professor', `${nomes.length} professores · 16/07 e 17/07 · 3 cards por folha`) + paginasHtml;
+  const html = impCabecalhoHTML('Escala de Reposição — Saldo por Professor', `${nomes.length} professores · dias repostos x dias parados`) + paginasHtml;
   document.getElementById('impHRProfessores').innerHTML = html;
   dispararImpressao('impHRProfessores');
+}
+
+/* ---------- Impressão: grade completa ---------- */
+function imprimirHRGrade(){
+  const itens = HR_DIAS.map(dia=>{
+    const linhas = dia.aulas.map((linha, aIdx)=>{
+      const celulas = linha.map(cel=> `<td>${cel ? escapeHtml(cel) : '—'}</td>`).join('');
+      return `<tr><td>${aIdx+1}ª aula</td>${celulas}</tr>`;
+    }).join('');
+    return `<div class="imp-item">
+      <h2>${escapeHtml(dia.data)} — ${escapeHtml(dia.semana)}</h2>
+      <table>
+        <thead><tr><th>Aula</th>${HR_TURMAS.map(t=>`<th>${escapeHtml(t)}</th>`).join('')}</tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+    </div>`;
+  }).join('<hr class="imp-item-divisor">');
+
+  const html = impCabecalhoHTML('Escala de Reposição — Grade Completa', `${HR_DIAS.length} dias de reposição · turmas da tarde`) + itens;
+  document.getElementById('impHRGrade').innerHTML = html;
+  dispararImpressao('impHRGrade');
 }
 
 /* ---------------- Inicialização ---------------- */
