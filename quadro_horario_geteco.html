@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quadro de Horário — GETECO 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root{
+    --bg:#F3F4F1;
+    --paper:#FFFFFF;
+    --ink:#1C2321;
+    --ink-soft:#5B665F;
+    --line:#DBDFD8;
+    --line-strong:#C3C9C0;
+    --brand:#1F5F4E;
+    --brand-dark:#153F34;
+    --brand-tint:#E4EFEA;
+
+    --acpt:#2E7D46;
+    --acpt-bg:#E3F3E7;
+    --acpt-bg-hover:#CFEBD8;
+    --subst:#B4650A;
+    --subst-bg:#FBEBD6;
+    --subst-bg-hover:#F5DBB4;
+    --free-bg:#F5F5F3;
+    --free-line:#C9CDC5;
+
+    --mat:#2A5DB0;
+    --port:#A02C2C;
+    --cien:#1E7A5F;
+    --geo:#0E7A82;
+    --hist:#8A5A15;
+    --art:#6E3FA3;
+    --ing:#B15A16;
+    --ef:#A02B62;
+    --ga:#5C6470;
+
+    --radius:8px;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);}
+  body{-webkit-font-smoothing:antialiased;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--brand-dark);
+    color:#fff;
+    padding:14px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .topbar .brand{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .brand .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#9FC2B3;
+  }
+  .brand h1{
+    margin:0;
+    font-size:18px;
+    font-weight:650;
+    letter-spacing:-0.01em;
+  }
+  .topbar .actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .month-pill{
+    font-family:var(--mono);
+    font-size:12px;
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.18);
+    padding:6px 12px;
+    border-radius:100px;
+    letter-spacing:.03em;
+  }
+  .btn{
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    border:1px solid rgba(255,255,255,.25);
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    padding:8px 14px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:background .15s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+  }
+  .btn:hover{background:rgba(255,255,255,.18);}
+  .btn.primary{
+    background:#fff;
+    color:var(--brand-dark);
+    border-color:#fff;
+  }
+  .btn.primary:hover{background:#EAF3EF;}
+  #pdfInput{display:none;}
+
+  /* ---------- Tabs ---------- */
+  .daytabs{
+    display:flex;
+    gap:4px;
+    padding:10px 20px 0 20px;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+  }
+  .daytab{
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:.04em;
+    padding:10px 18px;
+    border:none;
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    white-space:nowrap;
+  }
+  .daytab:hover{color:var(--brand-dark);border-bottom-color:var(--line-strong);}
+
+  /* ---------- Legend ---------- */
+  .legend{
+    display:flex;
+    gap:18px;
+    padding:12px 20px;
+    background:var(--paper);
+    font-size:12px;
+    color:var(--ink-soft);
+    flex-wrap:wrap;
+    align-items:center;
+    border-bottom:1px solid var(--line);
+  }
+  .legend .item{display:flex;align-items:center;gap:6px;}
+  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block;}
+  .legend .hint{margin-left:auto;font-style:italic;}
+
+  /* ---------- Table wrap ---------- */
+  .tablewrap{
+    padding:10px 20px 16px;
+  }
+  .fitbox{
+    overflow:auto;
+  }
+  .fitbox.fit-on{
+    overflow:hidden;
+  }
+  .gridcard{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:auto;
+    max-width:100%;
+  }
+  .fitbox.fit-on .gridcard{
+    overflow:visible;
+    display:inline-block;
+  }
+  table.sched{
+    border-collapse:separate;
+    border-spacing:0;
+    table-layout:fixed;
+  }
+  table.sched th, table.sched td{
+    border-bottom:1px solid var(--line);
+    border-right:1px solid var(--line);
+    padding:0;
+  }
+  table.sched thead th{
+    background:#FAFAF8;
+    position:sticky;
+    top:0;
+    z-index:5;
+    padding:8px 3px 10px;
+    font-size:11px;
+    font-weight:700;
+    text-align:center;
+    color:var(--ink);
+    min-width:30px;
+    max-width:30px;
+    height:118px;
+    border-bottom:2px solid var(--line-strong);
+  }
+  table.sched thead th.col-dia{
+    left:0;
+    z-index:9;
+    min-width:38px;
+    max-width:38px;
+    height:auto;
+  }
+  table.sched thead th.col-aula{
+    left:38px;
+    z-index:9;
+    min-width:44px;
+    max-width:44px;
+    height:auto;
+  }
+  table.sched thead th.col-subst{
+    left:82px;
+    z-index:9;
+    min-width:36px;
+    max-width:36px;
+    height:auto;
+    color:var(--subst);
+    background:var(--subst-bg);
+  }
+  table.sched thead th .tname{
+    display:inline-block;
+    writing-mode:vertical-rl;
+    transform:rotate(180deg);
+    white-space:nowrap;
+    line-height:1.15;
+    font-size:9.5px;
+    letter-spacing:.01em;
+  }
+  table.sched thead tr.acpt-row th{
+    position:sticky;
+    top:118px;
+    z-index:5;
+    background:var(--acpt-bg);
+    color:var(--acpt);
+    height:22px;
+    padding:4px 3px;
+    font-size:11px;
+    font-weight:800;
+    font-family:var(--mono);
+    border-bottom:2px solid var(--line-strong);
+  }
+  table.sched tbody td.substcol{
+    position:sticky;
+    left:82px;
+    z-index:3;
+    background:var(--subst-bg);
+    color:var(--subst);
+    font-family:var(--mono);
+    font-weight:800;
+    font-size:11px;
+    text-align:center;
+    vertical-align:middle;
+    min-width:36px;
+    max-width:36px;
+    padding:2px;
+    border-right:2px solid var(--line-strong);
+  }
+  table.sched tbody tr.day-end td.substcol{
+    border-bottom:2px solid var(--brand);
+  }
+  table.sched tbody th{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:700;
+    color:var(--brand-dark);
+    text-align:center;
+    vertical-align:middle;
+  }
+  table.sched tbody th.daycell{
+    position:sticky;
+    left:0;
+    z-index:6;
+    background:var(--brand-tint);
+    min-width:38px;
+    max-width:38px;
+    border-right:1px solid var(--line-strong);
+  }
+  table.sched tbody th.daycell .dayname{
+    font-family:var(--sans);
+    font-size:9.5px;
+    font-weight:700;
+    color:var(--brand-dark);
+    line-height:1.1;
+  }
+  table.sched tbody th.daycell .dayabbr{
+    font-family:var(--mono);
+    font-size:8px;
+    color:var(--brand);
+    letter-spacing:.04em;
+    margin-top:1px;
+  }
+  table.sched tbody th.aulacell{
+    position:sticky;
+    left:38px;
+    z-index:4;
+    background:#FAFAF8;
+    min-width:44px;
+    max-width:44px;
+    border-right:2px solid var(--line-strong);
+    font-size:10px;
+  }
+  table.sched tbody tr.day-end td,
+  table.sched tbody tr.day-end th.aulacell{
+    border-bottom:2px solid var(--brand);
+  }
+  table.sched tbody th.daycell{
+    border-bottom:2px solid var(--brand);
+  }
+
+  td.cell{
+    height:34px;
+    vertical-align:middle;
+    text-align:center;
+    position:relative;
+    overflow-x:hidden;
+    overflow-y:visible;
+  }
+  .cell-inner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100%;
+    padding:2px 1px;
+    gap:0;
+  }
+  .turma{
+    font-family:var(--mono);
+    font-size:7.5px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+    line-height:1.05;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .subject{
+    font-size:8.5px;
+    font-weight:700;
+    padding:0 4px;
+    border-radius:3px;
+    letter-spacing:0;
+    line-height:1.3;
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .cell-inner{max-width:100%;}
+  .subject.MAT{color:var(--mat);background:#E7EEFB;}
+  .subject.PORT{color:var(--port);background:#F7E7E7;}
+  .subject.CIÊN{color:var(--cien);background:#E4F3EC;}
+  .subject.GEO{color:var(--geo);background:#E1F1F2;}
+  .subject.HIST{color:var(--hist);background:#F4EBDA;}
+  .subject.ART{color:var(--art);background:#EFE6F7;}
+  .subject.ING{color:var(--ing);background:#F7EADA;}
+  .subject.EF{color:var(--ef);background:#F7E3ED;}
+  .subject.G\.A\.{color:var(--ga);background:#EAEBEC;}
+
+  td.editable{cursor:pointer;}
+  td.editable .cell-inner{
+    border:1px dashed var(--free-line);
+    border-radius:4px;
+    margin:2px;
+    height:calc(100% - 4px);
+    background:var(--free-bg);
+  }
+  td.editable .marker{
+    font-family:var(--mono);
+    font-size:8px;
+    color:#9AA098;
+    letter-spacing:.02em;
+  }
+  td.editable:hover .cell-inner{
+    border-color:var(--brand);
+    background:#EEF4F1;
+  }
+  td.editable:hover .marker{color:var(--brand-dark);}
+
+  td.state-ACPT .cell-inner{
+    border:1px solid var(--acpt);
+    background:var(--acpt-bg);
+    margin:2px;
+    height:calc(100% - 4px);
+    border-radius:4px;
+  }
+  td.state-ACPT:hover .cell-inner{background:var(--acpt-bg-hover);}
+  td.state-ACPT .marker{color:var(--acpt);font-weight:800;font-size:8px;}
+
+  td.state-SUBST .cell-inner{
+    border:1px solid var(--subst);
+    background:var(--subst-bg);
+    margin:2px;
+    height:calc(100% - 4px);
+    border-radius:4px;
+  }
+  td.state-SUBST:hover .cell-inner{background:var(--subst-bg-hover);}
+  td.state-SUBST .marker{color:var(--subst);font-weight:800;font-size:8px;}
+
+  /* ---------- Summary ---------- */
+  .summary{
+    padding:0 20px 24px 20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:14px;
+  }
+  .stat{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:14px 16px;
+  }
+  .stat .num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--brand-dark);}
+  .stat .lbl{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--brand-dark);
+    color:#fff;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:13px;
+    opacity:0;
+    transition:all .25s ease;
+    pointer-events:none;
+    z-index:200;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:700px){
+    .topbar{padding:12px;}
+    .brand h1{font-size:15px;}
+    .legend{gap:10px;}
+  }
+
+  /* ---------- Print ---------- */
+  @page{
+    size: landscape;
+    margin: 8mm;
+  }
+  @media print{
+    html,body{background:#fff;}
+    /* Sem isso, o navegador some com as cores de fundo (SUBST/ACPT/matérias) na hora de imprimir/gerar PDF */
+    *{
+      -webkit-print-color-adjust:exact !important;
+      print-color-adjust:exact !important;
+      color-adjust:exact !important;
+    }
+    .topbar, .daytabs, .summary, .toast{display:none !important;}
+    .legend{display:flex !important;padding:0 0 6px 0;border:none;}
+    .legend .hint{display:none;}
+    .printhead{display:block !important;}
+    .tablewrap{padding:0;margin:0;}
+    .fitbox, .fitbox.fit-on{overflow:visible !important;height:auto !important;}
+    .gridcard, .fitbox.fit-on .gridcard{border:none;box-shadow:none;overflow:visible !important;display:block !important;}
+    table.sched thead th,
+    table.sched thead tr.acpt-row th,
+    table.sched tbody th.daycell,
+    table.sched tbody th.aulacell,
+    table.sched tbody td.substcol{position:static !important;}
+    table.sched{page-break-inside:avoid;}
+    tr{page-break-inside:avoid;}
+  }
+  .printhead{display:none;font-family:var(--sans);margin-bottom:6px;}
+  .printhead h2{margin:0 0 2px 0;font-size:15px;color:var(--brand-dark);}
+  .printhead .sub{font-size:11px;color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<div class="printhead">
+  <h2>E.M. Geraldo Teixeira da Costa — GETECO · Quadro de Horário — 2º Turno</h2>
+  <div class="sub" id="printMonthLine">AGOSTO / 2026</div>
+</div>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="eyebrow">E.M. Geraldo Teixeira da Costa — GETECO</span>
+    <h1 id="titleMonth">Quadro de Horário — 2º Turno</h1>
+  </div>
+  <div class="actions">
+    <span class="month-pill" id="monthPill">AGOSTO / 2026</span>
+    <button class="btn" id="fitBtn">Ver tamanho normal</button>
+    <button class="btn" id="printBtn">Imprimir</button>
+    <button class="btn primary" id="uploadBtn">Carregar novo PDF</button>
+    <input type="file" id="pdfInput" accept="application/pdf">
+  </div>
+</div>
+
+<div class="daytabs" id="dayTabs"></div>
+
+<div class="legend">
+  <div class="item"><span class="swatch" style="background:var(--subst-bg);border:1.5px solid var(--subst);"></span> SUBST (padrão)</div>
+  <div class="item"><span class="swatch" style="background:var(--acpt-bg);border:1.5px solid var(--acpt);"></span> ACPT</div>
+  <div class="item"><span class="swatch" style="background:var(--free-bg);border:1.5px dashed var(--free-line);"></span> Livre</div>
+  <div class="hint">Clique no quadrinho para alternar: SUBST → ACPT → Livre → SUBST... · A semana inteira (SEG–SEX, todos os professores) é ajustada para caber na tela — use "Ver tamanho normal" para ampliar</div>
+</div>
+
+<div class="tablewrap">
+  <div class="fitbox fit-on" id="fitBox">
+    <div class="gridcard">
+      <table class="sched" id="schedTable"></table>
+    </div>
+  </div>
+</div>
+
+<div class="summary" id="summary"></div>
+
+<div class="toast" id="toast"></div>
+
+<script id="schedule-data" type="application/json">
+{"month":"AGOSTO","year":2026,"teachers":["GISLAINE","FERNANDA","ALEXANDRA","MAGNA","ALESSANDRA","JOADNE","GUILHERME","Mª DO CARMO","JUSCELE","JHOW","LEIDIANE","MÁRCIA","ADILSON","JULIANA","MARCELO","FABIANA","RONEI","CLAUDETE","MARCELO C","GILCE","ED FÍSICA_2"],"schedule":{"SEG":{"1":{"GISLAINE":{"turma":"6ºA - SL18","subject":"MAT"},"FERNANDA":{"turma":"6ºD - SL 02","subject":"MAT"},"ALEXANDRA":{"turma":"7ºA - SL 05","subject":"MAT"},"MAGNA":{"marker":"-x-"},"ALESSANDRA":{"marker":"-x-"},"JOADNE":{"turma":"6ºF - SL 04","subject":"PORT"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"-x-"},"JUSCELE":{"marker":"-x-"},"JHOW":{"turma":"7ºB - SL 06","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºB - SL 20","subject":"GEO"},"MÁRCIA":{"marker":"---"},"ADILSON":{"turma":"6ºC - SL 01","subject":"HIST"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"---"},"FABIANA":{"turma":"7ºC - SL 07","subject":"ART"},"RONEI":{"turma":"6ºE - SL 03","subject":"ING"},"CLAUDETE":{"turma":"7ºD - SL 08","subject":"ING"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"turma":"7ºE - SL 09","subject":"EF"}},"2":{"GISLAINE":{"marker":"---"},"FERNANDA":{"turma":"6ºF - SL 04","subject":"MAT"},"ALEXANDRA":{"turma":"7ºC - SL 07","subject":"MAT"},"MAGNA":{"marker":"-x-"},"ALESSANDRA":{"marker":"-x-"},"JOADNE":{"turma":"6ºE - SL 03","subject":"PORT"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"-x-"},"JUSCELE":{"turma":"6ºC - SL 01","subject":"CIÊN"},"JHOW":{"turma":"7ºE - SL 09","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºD - SL 02","subject":"GEO"},"MÁRCIA":{"marker":"---"},"ADILSON":{"marker":"---"},"JULIANA":{"turma":"7ºB - SL 06","subject":"HIST"},"MARCELO":{"turma":"6ºA - SL18","subject":"EF"},"FABIANA":{"turma":"6ºB - SL 20","subject":"ART"},"RONEI":{"turma":"7ºA - SL 05","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"turma":"7ºD - SL 08","subject":"EF"}},"3":{"GISLAINE":{"turma":"6ºA - SL18","subject":"MAT"},"FERNANDA":{"marker":"---"},"ALEXANDRA":{"turma":"7ºB - SL 06","subject":"MAT"},"MAGNA":{"marker":"-x-"},"ALESSANDRA":{"marker":"-x-"},"JOADNE":{"marker":"---"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"-x-"},"JUSCELE":{"turma":"6ºE - SL 03","subject":"CIÊN"},"JHOW":{"turma":"7ºA - SL 05","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºC - SL 01","subject":"GEO"},"MÁRCIA":{"turma":"7ºD - SL 08","subject":"GEO"},"ADILSON":{"turma":"6ºF - SL 04","subject":"HIST"},"JULIANA":{"turma":"7ºC - SL 07","subject":"HIST"},"MARCELO":{"turma":"6ºD - SL 02","subject":"EF"},"FABIANA":{"turma":"7ºE - SL 09","subject":"ART"},"RONEI":{"turma":"6ºB - SL 20","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"INTERV":"INTERVALO","4":{"GISLAINE":{"turma":"6ºC - SL 01","subject":"MAT"},"FERNANDA":{"marker":"---"},"ALEXANDRA":{"marker":"---"},"MAGNA":{"marker":"-x-"},"ALESSANDRA":{"marker":"-x-"},"JOADNE":{"turma":"6ºD - SL 02","subject":"PORT"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"-x-"},"JUSCELE":{"turma":"6ºF - SL 04","subject":"CIÊN"},"JHOW":{"turma":"7ºD - SL 08","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºE - SL 03","subject":"GEO"},"MÁRCIA":{"turma":"7ºE - SL 09","subject":"GEO"},"ADILSON":{"turma":"6ºB - SL 20","subject":"HIST"},"JULIANA":{"turma":"7ºA - SL 05","subject":"HIST"},"MARCELO":{"turma":"7ºC - SL 07","subject":"EF"},"FABIANA":{"turma":"7ºB - SL 06","subject":"ART"},"RONEI":{"turma":"6ºA - SL18","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"5":{"GISLAINE":{"turma":"6ºB - SL 20","subject":"MAT"},"FERNANDA":{"turma":"6ºE - SL 03","subject":"MAT"},"ALEXANDRA":{"turma":"7ºA - SL 05","subject":"MAT"},"MAGNA":{"marker":"-x-"},"ALESSANDRA":{"marker":"-x-"},"JOADNE":{"marker":"---"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"-x-"},"JUSCELE":{"turma":"6ºD - SL 02","subject":"CIÊN"},"JHOW":{"marker":"---"},"LEIDIANE":{"turma":"6ºF - SL 04","subject":"GEO"},"MÁRCIA":{"turma":"7ºC - SL 07","subject":"GEO"},"ADILSON":{"turma":"6ºA - SL18","subject":"HIST"},"JULIANA":{"turma":"7ºE - SL 09","subject":"HIST"},"MARCELO":{"turma":"6ºC - SL 01","subject":"EF"},"FABIANA":{"turma":"7ºD - SL 08","subject":"ART"},"RONEI":{"turma":"7ºB - SL 06","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}}},"TER":{"1":{"GISLAINE":{"marker":"-x-"},"FERNANDA":{"marker":"-x-"},"ALEXANDRA":{"marker":"-x-"},"MAGNA":{"turma":"8ªX - SL 10","subject":"G.A."},"ALESSANDRA":{"turma":"6ºA - SL18","subject":"PORT"},"JOADNE":{"marker":"---"},"GUILHERME":{"turma":"7ºA - SL 05","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºE - SL 09","subject":"PORT"},"JUSCELE":{"turma":"6ºB - SL 20","subject":"CIÊN"},"JHOW":{"turma":"7ºC - SL 07","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºE - SL 03","subject":"GEO"},"MÁRCIA":{"turma":"7ºD - SL 08","subject":"GEO"},"ADILSON":{"turma":"6ºD - SL 02","subject":"HIST"},"JULIANA":{"marker":"---"},"MARCELO":{"turma":"6ºC - SL 01","subject":"EF"},"FABIANA":{"turma":"7ºB - SL 06","subject":"ART"},"RONEI":{"turma":"6ºF - SL 04","subject":"ING"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"marker":"-x-"},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"2":{"GISLAINE":{"marker":"-x-"},"FERNANDA":{"marker":"-x-"},"ALEXANDRA":{"marker":"-x-"},"MAGNA":{"turma":"8ªX - SL 10","subject":"G.A."},"ALESSANDRA":{"marker":"---"},"JOADNE":{"turma":"6ºD - SL 02","subject":"PORT"},"GUILHERME":{"turma":"7ºB - SL 06","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºD - SL 08","subject":"PORT"},"JUSCELE":{"turma":"6ºA - SL18","subject":"CIÊN"},"JHOW":{"marker":"---"},"LEIDIANE":{"turma":"6ºB - SL 20","subject":"GEO"},"MÁRCIA":{"turma":"7ºE - SL 09","subject":"GEO"},"ADILSON":{"turma":"6ºF - SL 04","subject":"HIST"},"JULIANA":{"turma":"7ºC - SL 07","subject":"HIST"},"MARCELO":{"turma":"7ºA - SL 05","subject":"EF"},"FABIANA":{"turma":"6ºE - SL 03","subject":"ART"},"RONEI":{"turma":"6ºC - SL 01","subject":"ING"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"marker":"-x-"},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"3":{"GISLAINE":{"marker":"-x-"},"FERNANDA":{"marker":"-x-"},"ALEXANDRA":{"marker":"-x-"},"MAGNA":{"turma":"8ªX - SL 10","subject":"G.A."},"ALESSANDRA":{"turma":"6ºC - SL 01","subject":"PORT"},"JOADNE":{"turma":"6ºF - SL 04","subject":"PORT"},"GUILHERME":{"turma":"7ºC - SL 07","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºD - SL 02","subject":"CIÊN"},"JHOW":{"turma":"7ºA - SL 05","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºA - SL18","subject":"GEO"},"MÁRCIA":{"turma":"7ºB - SL 06","subject":"GEO"},"ADILSON":{"turma":"6ºB - SL 20","subject":"HIST"},"JULIANA":{"turma":"7ºD - SL 08","subject":"HIST"},"MARCELO":{"turma":"6ºE - SL 03","subject":"EF"},"FABIANA":{"turma":"7ºE - SL 09","subject":"ART"},"RONEI":{"marker":"---"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"marker":"-x-"},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"INTERV":"INTERVALO","4":{"GISLAINE":{"marker":"-x-"},"FERNANDA":{"marker":"-x-"},"ALEXANDRA":{"marker":"-x-"},"MAGNA":{"turma":"8ªX - SL 10","subject":"G.A."},"ALESSANDRA":{"turma":"6ºB - SL 20","subject":"PORT"},"JOADNE":{"turma":"6ºF - SL 04","subject":"PORT"},"GUILHERME":{"marker":"---"},"Mª DO CARMO":{"turma":"7ºE - SL 09","subject":"PORT"},"JUSCELE":{"turma":"6ºC - SL 01","subject":"CIÊN"},"JHOW":{"turma":"7ºD - SL 08","subject":"CIÊN"},"LEIDIANE":{"marker":"---"},"MÁRCIA":{"turma":"7ºA - SL 05","subject":"GEO"},"ADILSON":{"turma":"6ºE - SL 03","subject":"HIST"},"JULIANA":{"turma":"7ºB - SL 06","subject":"HIST"},"MARCELO":{"turma":"6ºA - SL18","subject":"EF"},"FABIANA":{"turma":"7ºC - SL 07","subject":"ART"},"RONEI":{"turma":"6ºD - SL 02","subject":"ING"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"marker":"-x-"},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"5":{"GISLAINE":{"marker":"-x-"},"FERNANDA":{"marker":"-x-"},"ALEXANDRA":{"marker":"-x-"},"MAGNA":{"turma":"8ªX - SL 10","subject":"G.A."},"ALESSANDRA":{"turma":"6ºC - SL 01","subject":"PORT"},"JOADNE":{"turma":"6ºE - SL 03","subject":"PORT"},"GUILHERME":{"turma":"7ºB - SL 06","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"marker":"---"},"JHOW":{"turma":"7ºE - SL 09","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºF - SL 04","subject":"GEO"},"MÁRCIA":{"turma":"7ºC - SL 07","subject":"GEO"},"ADILSON":{"marker":"---"},"JULIANA":{"turma":"7ºA - SL 05","subject":"HIST"},"MARCELO":{"turma":"6ºD - SL 02","subject":"EF"},"FABIANA":{"turma":"6ºA - SL18","subject":"ART"},"RONEI":{"turma":"6ºB - SL 20","subject":"ING"},"CLAUDETE":{"turma":"7ºD - SL 08","subject":"ING"},"MARCELO C":{"marker":"-x-"},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}}},"QUA":{"1":{"GISLAINE":{"turma":"6ºB - SL 20","subject":"MAT"},"FERNANDA":{"turma":"6ºD - SL 02","subject":"MAT"},"ALEXANDRA":{"turma":"7ºC - SL 07","subject":"MAT"},"MAGNA":{"turma":"7ºD - SL 08","subject":"MAT"},"ALESSANDRA":{"turma":"6ºA - SL18","subject":"PORT"},"JOADNE":{"marker":"-x-"},"GUILHERME":{"marker":"---"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"marker":"-x-"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºC - SL 01","subject":"GEO"},"MÁRCIA":{"turma":"7ºA - SL 05","subject":"GEO"},"ADILSON":{"turma":"6ºF - SL 04","subject":"HIST"},"JULIANA":{"marker":"-x-"},"MARCELO":{"turma":"7ºB - SL 06","subject":"EF"},"FABIANA":{"turma":"6ºE - SL 03","subject":"ART"},"RONEI":{"marker":"-x-"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"2":{"GISLAINE":{"marker":"---"},"FERNANDA":{"turma":"6ºE - SL 03","subject":"MAT"},"ALEXANDRA":{"turma":"7ºB - SL 06","subject":"MAT"},"MAGNA":{"marker":"---"},"ALESSANDRA":{"turma":"6ºC - SL 01","subject":"PORT"},"JOADNE":{"marker":"-x-"},"GUILHERME":{"turma":"7ºC - SL 07","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºE - SL 09","subject":"PORT"},"JUSCELE":{"marker":"-x-"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºA - SL18","subject":"GEO"},"MÁRCIA":{"turma":"7ºA - SL 05","subject":"GEO"},"ADILSON":{"turma":"6ºD - SL 02","subject":"HIST"},"JULIANA":{"turma":"7ºD - SL 08","subject":"HIST"},"MARCELO":{"turma":"6ºF - SL 04","subject":"EF"},"FABIANA":{"turma":"6ºB - SL 20","subject":"ART"},"RONEI":{"marker":"-x-"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"3":{"GISLAINE":{"turma":"6ºC - SL 01","subject":"MAT"},"FERNANDA":{"turma":"6ºD - SL 02","subject":"MAT"},"ALEXANDRA":{"marker":"---"},"MAGNA":{"turma":"7ºE - SL 09","subject":"MAT"},"ALESSANDRA":{"turma":"6ºB - SL 20","subject":"PORT"},"JOADNE":{"marker":"-x-"},"GUILHERME":{"turma":"7ºB - SL 06","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºD - SL 08","subject":"PORT"},"JUSCELE":{"marker":"-x-"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºE - SL 03","subject":"GEO"},"MÁRCIA":{"marker":"---"},"ADILSON":{"turma":"6ºA - SL18","subject":"HIST"},"JULIANA":{"turma":"7ºC - SL 07","subject":"HIST"},"MARCELO":{"turma":"7ºA - SL 05","subject":"EF"},"FABIANA":{"turma":"6ºF - SL 04","subject":"ART"},"RONEI":{"marker":"-x-"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"INTERV":"INTERVALO","4":{"GISLAINE":{"turma":"6ºC - SL 01","subject":"MAT"},"FERNANDA":{"turma":"6ºF - SL 04","subject":"MAT"},"ALEXANDRA":{"turma":"7ºA - SL 05","subject":"MAT"},"MAGNA":{"marker":"---"},"ALESSANDRA":{"marker":"---"},"JOADNE":{"marker":"-x-"},"GUILHERME":{"turma":"7ºC - SL 07","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºD - SL 08","subject":"PORT"},"JUSCELE":{"marker":"-x-"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºD - SL 02","subject":"GEO"},"MÁRCIA":{"turma":"7ºB - SL 06","subject":"GEO"},"ADILSON":{"turma":"6ºE - SL 03","subject":"HIST"},"JULIANA":{"turma":"7ºE - SL 09","subject":"HIST"},"MARCELO":{"turma":"6ºB - SL 20","subject":"EF"},"FABIANA":{"turma":"6ºA - SL18","subject":"ART"},"RONEI":{"marker":"-x-"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"5":{"GISLAINE":{"turma":"6ºA - SL18","subject":"MAT"},"FERNANDA":{"marker":"---"},"ALEXANDRA":{"marker":"---"},"MAGNA":{"turma":"7ºD - SL 08","subject":"MAT"},"ALESSANDRA":{"turma":"6ºB - SL 20","subject":"PORT"},"JOADNE":{"marker":"-x-"},"GUILHERME":{"turma":"7ºA - SL 05","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"marker":"-x-"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºF - SL 04","subject":"GEO"},"MÁRCIA":{"turma":"7ºC - SL 07","subject":"GEO"},"ADILSON":{"turma":"6ºC - SL 01","subject":"HIST"},"JULIANA":{"turma":"7ºB - SL 06","subject":"HIST"},"MARCELO":{"turma":"6ºE - SL 03","subject":"EF"},"FABIANA":{"turma":"6ºD - SL 02","subject":"ART"},"RONEI":{"marker":"-x-"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"marker":"---"},"GILCE":{"turma":"8ªX - SL 10","subject":"EF"},"ED FÍSICA_2":{"marker":"-x-"}}},"QUI":{"1":{"GISLAINE":{"marker":"---"},"FERNANDA":{"turma":"6ºE - SL 03","subject":"MAT"},"ALEXANDRA":{"turma":"7ºB - SL 06","subject":"MAT"},"MAGNA":{"turma":"7ºE - SL 09","subject":"MAT"},"ALESSANDRA":{"turma":"6ºA - SL18","subject":"PORT"},"JOADNE":{"turma":"6ºF - SL 04","subject":"PORT"},"GUILHERME":{"marker":"-x-"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºD - SL 02","subject":"CIÊN"},"JHOW":{"turma":"7ºD - SL 08","subject":"CIÊN"},"LEIDIANE":{"marker":"-x-"},"MÁRCIA":{"marker":"-x-"},"ADILSON":{"turma":"6ºC - SL 01","subject":"HIST"},"JULIANA":{"marker":"---"},"MARCELO":{"turma":"6ºB - SL 20","subject":"EF"},"FABIANA":{"turma":"7ºA - SL 05","subject":"ART"},"RONEI":{"turma":"7ºC - SL 07","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"2":{"GISLAINE":{"turma":"6ºB - SL 20","subject":"MAT"},"FERNANDA":{"marker":"---"},"ALEXANDRA":{"turma":"7ºA - SL 05","subject":"MAT"},"MAGNA":{"marker":"---"},"ALESSANDRA":{"turma":"6ºC - SL 01","subject":"PORT"},"JOADNE":{"turma":"6ºD - SL 02","subject":"PORT"},"GUILHERME":{"turma":"7ºB - SL 06","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºE - SL 09","subject":"PORT"},"JUSCELE":{"turma":"6ºF - SL 04","subject":"CIÊN"},"JHOW":{"turma":"7ºC - SL 07","subject":"CIÊN"},"LEIDIANE":{"marker":"-x-"},"MÁRCIA":{"marker":"-x-"},"ADILSON":{"turma":"6ºE - SL 03","subject":"HIST"},"JULIANA":{"marker":"---"},"MARCELO":{"marker":"---"},"FABIANA":{"turma":"7ºD - SL 08","subject":"ART"},"RONEI":{"turma":"6ºA - SL18","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"3":{"GISLAINE":{"turma":"6ºC - SL 01","subject":"MAT"},"FERNANDA":{"turma":"6ºE - SL 03","subject":"MAT"},"ALEXANDRA":{"marker":"---"},"MAGNA":{"marker":"---"},"ALESSANDRA":{"marker":"---"},"JOADNE":{"marker":"---"},"GUILHERME":{"turma":"7ºC - SL 07","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºD - SL 08","subject":"PORT"},"JUSCELE":{"turma":"6ºB - SL 20","subject":"CIÊN"},"JHOW":{"turma":"7ºE - SL 09","subject":"CIÊN"},"LEIDIANE":{"marker":"-x-"},"MÁRCIA":{"marker":"-x-"},"ADILSON":{"turma":"6ºA - SL18","subject":"HIST"},"JULIANA":{"turma":"7ºA - SL 05","subject":"HIST"},"MARCELO":{"turma":"7ºB - SL 06","subject":"EF"},"FABIANA":{"turma":"6ºD - SL 02","subject":"ART"},"RONEI":{"turma":"6ºF - SL 04","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"INTERV":"INTERVALO","4":{"GISLAINE":{"marker":"---"},"FERNANDA":{"turma":"6ºD - SL 02","subject":"MAT"},"ALEXANDRA":{"turma":"7ºC - SL 07","subject":"MAT"},"MAGNA":{"turma":"7ºE - SL 09","subject":"MAT"},"ALESSANDRA":{"marker":"---"},"JOADNE":{"turma":"6ºE - SL 03","subject":"PORT"},"GUILHERME":{"marker":"---"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºA - SL18","subject":"CIÊN"},"JHOW":{"turma":"7ºB - SL 06","subject":"CIÊN"},"LEIDIANE":{"marker":"-x-"},"MÁRCIA":{"marker":"-x-"},"ADILSON":{"turma":"6ºB - SL 20","subject":"HIST"},"JULIANA":{"turma":"7ºD - SL 08","subject":"HIST"},"MARCELO":{"turma":"6ºF - SL 04","subject":"EF"},"FABIANA":{"turma":"6ºC - SL 01","subject":"ART"},"RONEI":{"turma":"7ºA - SL 05","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"5":{"GISLAINE":{"turma":"6ºA - SL18","subject":"MAT"},"FERNANDA":{"turma":"6ºF - SL 04","subject":"MAT"},"ALEXANDRA":{"turma":"7ºB - SL 06","subject":"MAT"},"MAGNA":{"turma":"7ºD - SL 08","subject":"MAT"},"ALESSANDRA":{"turma":"6ºB - SL 20","subject":"PORT"},"JOADNE":{"marker":"---"},"GUILHERME":{"turma":"7ºA - SL 05","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºE - SL 03","subject":"CIÊN"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"marker":"-x-"},"MÁRCIA":{"marker":"-x-"},"ADILSON":{"turma":"6ºD - SL 02","subject":"HIST"},"JULIANA":{"turma":"7ºE - SL 09","subject":"HIST"},"MARCELO":{"turma":"7ºC - SL 07","subject":"EF"},"FABIANA":{"marker":"-x-"},"RONEI":{"turma":"6ºC - SL 01","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"marker":"---"},"GILCE":{"turma":"8ªX - SL 10","subject":"EF"},"ED FÍSICA_2":{"marker":"-x-"}}},"SEX":{"1":{"GISLAINE":{"marker":"---"},"FERNANDA":{"turma":"6ºF - SL 04","subject":"MAT"},"ALEXANDRA":{"turma":"7ºB - SL 06","subject":"MAT"},"MAGNA":{"marker":"---"},"ALESSANDRA":{"turma":"6ºB - SL 20","subject":"PORT"},"JOADNE":{"turma":"6ºE - SL 03","subject":"PORT"},"GUILHERME":{"turma":"7ºA - SL 05","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºD - SL 08","subject":"PORT"},"JUSCELE":{"turma":"6ºA - SL18","subject":"CIÊN"},"JHOW":{"turma":"7ºC - SL 07","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºD - SL 02","subject":"GEO"},"MÁRCIA":{"marker":"---"},"ADILSON":{"marker":"-x-"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"-x-"},"FABIANA":{"turma":"6ºC - SL 01","subject":"ART"},"RONEI":{"marker":"---"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"turma":"7ºE - SL 09","subject":"EF"}},"2":{"GISLAINE":{"turma":"6ºB - SL 20","subject":"MAT"},"FERNANDA":{"turma":"6ºE - SL 03","subject":"MAT"},"ALEXANDRA":{"marker":"---"},"MAGNA":{"turma":"7ºE - SL 09","subject":"MAT"},"ALESSANDRA":{"marker":"---"},"JOADNE":{"turma":"6ºD - SL 02","subject":"PORT"},"GUILHERME":{"marker":"---"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºC - SL 01","subject":"CIÊN"},"JHOW":{"turma":"7ºA - SL 05","subject":"CIÊN"},"LEIDIANE":{"turma":"6ºA - SL18","subject":"GEO"},"MÁRCIA":{"turma":"7ºB - SL 06","subject":"GEO"},"ADILSON":{"marker":"-x-"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"-x-"},"FABIANA":{"turma":"6ºF - SL 04","subject":"ART"},"RONEI":{"turma":"7ºC - SL 07","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"turma":"7ºD - SL 08","subject":"EF"}},"3":{"GISLAINE":{"turma":"6ºC - SL 01","subject":"MAT"},"FERNANDA":{"marker":"---"},"ALEXANDRA":{"turma":"7ºC - SL 07","subject":"MAT"},"MAGNA":{"turma":"7ºD - SL 08","subject":"MAT"},"ALESSANDRA":{"turma":"6ºA - SL18","subject":"PORT"},"JOADNE":{"turma":"6ºE - SL 03","subject":"PORT"},"GUILHERME":{"turma":"7ºB - SL 06","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºF - SL 04","subject":"CIÊN"},"JHOW":{"marker":"---"},"LEIDIANE":{"turma":"6ºB - SL 20","subject":"GEO"},"MÁRCIA":{"turma":"7ºE - SL 09","subject":"GEO"},"ADILSON":{"marker":"-x-"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"-x-"},"FABIANA":{"turma":"7ºA - SL 05","subject":"ART"},"RONEI":{"turma":"6ºD - SL 02","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"INTERV":"INTERVALO","4":{"GISLAINE":{"turma":"6ºA - SL18","subject":"MAT"},"FERNANDA":{"turma":"6ºF - SL 04","subject":"MAT"},"ALEXANDRA":{"turma":"7ºC - SL 07","subject":"MAT"},"MAGNA":{"turma":"7ºD - SL 08","subject":"MAT"},"ALESSANDRA":{"turma":"6ºC - SL 01","subject":"PORT"},"JOADNE":{"turma":"6ºD - SL 02","subject":"PORT"},"GUILHERME":{"turma":"7ºA - SL 05","subject":"PORT"},"Mª DO CARMO":{"turma":"7ºE - SL 09","subject":"PORT"},"JUSCELE":{"turma":"6ºB - SL 20","subject":"CIÊN"},"JHOW":{"turma":"7ºB - SL 06","subject":"CIÊN"},"LEIDIANE":{"marker":"---"},"MÁRCIA":{"marker":"---"},"ADILSON":{"marker":"-x-"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"-x-"},"FABIANA":{"marker":"-x-"},"RONEI":{"turma":"6ºE - SL 03","subject":"ING"},"CLAUDETE":{"marker":"---"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}},"5":{"GISLAINE":{"turma":"6ºB - SL 20","subject":"MAT"},"FERNANDA":{"turma":"6ºD - SL 02","subject":"MAT"},"ALEXANDRA":{"turma":"7ºA - SL 05","subject":"MAT"},"MAGNA":{"turma":"7ºE - SL 09","subject":"MAT"},"ALESSANDRA":{"turma":"6ºA - SL18","subject":"PORT"},"JOADNE":{"turma":"6ºF - SL 04","subject":"PORT"},"GUILHERME":{"turma":"7ºC - SL 07","subject":"PORT"},"Mª DO CARMO":{"marker":"---"},"JUSCELE":{"turma":"6ºE - SL 03","subject":"CIÊN"},"JHOW":{"marker":"-x-"},"LEIDIANE":{"turma":"6ºC - SL 01","subject":"GEO"},"MÁRCIA":{"turma":"7ºD - SL 08","subject":"GEO"},"ADILSON":{"marker":"-x-"},"JULIANA":{"marker":"-x-"},"MARCELO":{"marker":"-x-"},"FABIANA":{"marker":"-x-"},"RONEI":{"turma":"7ºB - SL 06","subject":"ING"},"CLAUDETE":{"marker":"-x-"},"MARCELO C":{"turma":"8ªX - SL 10","subject":"G.A."},"GILCE":{"marker":"-x-"},"ED FÍSICA_2":{"marker":"-x-"}}}}}
+</script>
+
+<script>
+(function(){
+  "use strict";
+
+  var RAW = document.getElementById('schedule-data').textContent;
+  var STATE = {
+    data: JSON.parse(RAW),      // {month, year, teachers, schedule}
+    overrides: {},              // "DAY|PERIOD|TEACHER" -> "ACPT" | "SUBST"
+    activeDay: null,
+    fitMode: true                // true = semana inteira encolhida para caber na tela sem rolagem
+  };
+
+  var DAY_LABELS = {SEG:"Segunda", TER:"Terça", QUA:"Quarta", QUI:"Quinta", SEX:"Sexta", SAB:"Sábado"};
+  var PERIOD_LABELS = {"1":"1ª aula","2":"2ª aula","3":"3ª aula","4":"4ª aula","5":"5ª aula","6":"6ª aula","INTERV":"Intervalo"};
+  var PERIOD_ORDER = ["1","2","3","INTERV","4","5","6"];
+
+  function overrideKey(day, period, teacher){ return day+"|"+period+"|"+teacher; }
+  function storageKey(){ return "overrides:"+STATE.data.month+STATE.data.year; }
+
+  // ---------------- storage ----------------
+  async function loadOverrides(){
+    try{
+      var res = await window.storage.get(storageKey(), false);
+      STATE.overrides = res && res.value ? JSON.parse(res.value) : {};
+    }catch(e){
+      STATE.overrides = {};
+    }
+  }
+  async function saveOverrides(){
+    try{
+      await window.storage.set(storageKey(), JSON.stringify(STATE.overrides), false);
+    }catch(e){
+      showToast("Não foi possível salvar (armazenamento indisponível).");
+    }
+  }
+
+  // ---------------- toast ----------------
+  var toastTimer=null;
+  function showToast(msg){
+    var t=document.getElementById('toast');
+    t.textContent=msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(function(){t.classList.remove('show');}, 2400);
+  }
+
+  // ---------------- rendering ----------------
+  function periodsForSchedule(){
+    var days = Object.keys(STATE.data.schedule);
+    var anyDay = STATE.data.schedule[days[0]];
+    return PERIOD_ORDER.filter(function(p){ return anyDay.hasOwnProperty(p); });
+  }
+
+  function renderDayTabs(){
+    // Quick-jump strip: clicking scrolls the whole-week table to that day's first row.
+    var wrap = document.getElementById('dayTabs');
+    wrap.innerHTML = "";
+    var days = Object.keys(STATE.data.schedule);
+    days.forEach(function(day){
+      var b = document.createElement('button');
+      b.className = 'daytab';
+      b.textContent = (DAY_LABELS[day]||day) + "  ·  " + day;
+      b.addEventListener('click', function(){
+        var target = document.getElementById('day-row-'+day);
+        if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      wrap.appendChild(b);
+    });
+  }
+
+  function subjectClass(subj){
+    if(!subj) return '';
+    return subj.replace(/\./g,'\\.');
+  }
+
+  // Se o professor está livre (sem turma) em TODOS os horários de um determinado dia,
+  // o estado inicial (sem marcação manual) começa como ACPT, e não SUBST.
+  function isDayFullyFree(day, teacher){
+    var dayPeriods = Object.keys(STATE.data.schedule[day]).filter(function(p){return p!=='INTERV';});
+    for(var i=0;i<dayPeriods.length;i++){
+      var cellData = STATE.data.schedule[day][dayPeriods[i]][teacher];
+      if(cellData && cellData.turma !== undefined) return false;
+    }
+    return true;
+  }
+
+  function naturalDefault(day, teacher){
+    return isDayFullyFree(day, teacher) ? 'ACPT' : 'SUBST';
+  }
+
+  function cellState(day, period, teacher){
+    var k = overrideKey(day,period,teacher);
+    if(STATE.overrides.hasOwnProperty(k)) return STATE.overrides[k];
+    return naturalDefault(day, teacher);
+  }
+
+  function countACPTForTeacher(teacher){
+    var count = 0;
+    var days = Object.keys(STATE.data.schedule);
+    days.forEach(function(day){
+      var periods = Object.keys(STATE.data.schedule[day]).filter(function(p){return p!=='INTERV';});
+      periods.forEach(function(period){
+        var cellData = STATE.data.schedule[day][period][teacher];
+        if(cellData && cellData.turma !== undefined) return;
+        if(cellState(day, period, teacher) === 'ACPT') count++;
+      });
+    });
+    return count;
+  }
+
+  function countSUBSTForRow(day, period, teachers){
+    var count = 0;
+    var row = STATE.data.schedule[day][period];
+    teachers.forEach(function(teacher){
+      var cellData = row[teacher];
+      if(cellData && cellData.turma !== undefined) return;
+      if(cellState(day, period, teacher) === 'SUBST') count++;
+    });
+    return count;
+  }
+
+  function renderTable(){
+    var table = document.getElementById('schedTable');
+    table.innerHTML = "";
+    var teachers = STATE.data.teachers;
+    var periods = periodsForSchedule().filter(function(p){return p!=="INTERV";});
+    var days = Object.keys(STATE.data.schedule);
+
+    // colgroup fixo: garante que NENHUMA coluna possa alargar por causa de texto
+    // colado/glued vindo do PDF — table-layout:fixed obedece estritamente estas larguras.
+    var FIXED_COLS_W = 38 + 44 + 36; // Dia + Aula + Subst
+    var MIN_TEACHER_COL = 30;
+    var MAX_TEACHER_COL = 64;
+    var fitBoxEl = document.getElementById('fitBox');
+    var availW = (fitBoxEl && fitBoxEl.clientWidth) ? fitBoxEl.clientWidth : 0;
+    var teacherColW = MIN_TEACHER_COL;
+    if(availW > 0 && teachers.length > 0){
+      var candidate = Math.floor((availW - FIXED_COLS_W) / teachers.length);
+      teacherColW = Math.max(MIN_TEACHER_COL, Math.min(MAX_TEACHER_COL, candidate));
+    }
+    var colgroup = document.createElement('colgroup');
+    function addCol(px){
+      var c = document.createElement('col');
+      c.style.width = px + 'px';
+      colgroup.appendChild(c);
+    }
+    addCol(38);  // Dia
+    addCol(44);  // Aula
+    addCol(36);  // Subst
+    teachers.forEach(function(){ addCol(teacherColW); }); // uma coluna por professor(a), todas iguais
+    table.appendChild(colgroup);
+    // table-layout:fixed só obedece estritamente as larguras das colunas se a
+    // largura TOTAL da tabela já for conhecida (px), em vez de max-content.
+    // Sem isso, texto colado/glued do PDF ainda conseguiria alargar uma coluna.
+    var totalW = FIXED_COLS_W + teachers.length * teacherColW;
+    table.style.width = totalW + 'px';
+
+    var thead = document.createElement('thead');
+    var htr = document.createElement('tr');
+    var thDia = document.createElement('th');
+    thDia.textContent = "Dia";
+    thDia.className = 'col-dia';
+    thDia.rowSpan = 2;
+    htr.appendChild(thDia);
+    var thAula = document.createElement('th');
+    thAula.textContent = "Aula";
+    thAula.className = 'col-aula';
+    thAula.rowSpan = 2;
+    htr.appendChild(thAula);
+    var thSubst = document.createElement('th');
+    thSubst.textContent = "Subst";
+    thSubst.className = 'col-subst';
+    thSubst.rowSpan = 2;
+    htr.appendChild(thSubst);
+    teachers.forEach(function(t){
+      var th = document.createElement('th');
+      var span = document.createElement('span');
+      span.className='tname';
+      span.textContent = t;
+      th.appendChild(span);
+      htr.appendChild(th);
+    });
+    thead.appendChild(htr);
+
+    // Linha logo abaixo dos nomes dos professores: total de ACPT de cada um,
+    // recalculado a cada render (ou seja, a cada mudança de estado de um quadrinho).
+    var htrAcpt = document.createElement('tr');
+    htrAcpt.className = 'acpt-row';
+    teachers.forEach(function(t){
+      var th = document.createElement('th');
+      th.textContent = countACPTForTeacher(t) + ' ACPT';
+      th.title = 'Total de ACPT de ' + t;
+      htrAcpt.appendChild(th);
+    });
+    thead.appendChild(htrAcpt);
+    table.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    days.forEach(function(day){
+      var daySchedule = STATE.data.schedule[day];
+      var firstRowOfDay = true;
+
+      periods.forEach(function(period, periodIdx){
+        var row = daySchedule[period];
+        var tr = document.createElement('tr');
+        if(firstRowOfDay) tr.id = 'day-row-'+day;
+        if(periodIdx === periods.length - 1) tr.classList.add('day-end');
+
+        if(firstRowOfDay){
+          var thDay = document.createElement('th');
+          thDay.className = 'daycell';
+          thDay.rowSpan = periods.length;
+          var dTop = document.createElement('div'); dTop.className='dayname'; dTop.textContent = DAY_LABELS[day]||day;
+          var dAbbr = document.createElement('div'); dAbbr.className='dayabbr'; dAbbr.textContent = day;
+          thDay.appendChild(dTop); thDay.appendChild(dAbbr);
+          tr.appendChild(thDay);
+        }
+        firstRowOfDay = false;
+
+        var thP = document.createElement('th');
+        thP.className = 'aulacell';
+        thP.textContent = PERIOD_LABELS[period] || period;
+        tr.appendChild(thP);
+
+        var tdSubst = document.createElement('td');
+        tdSubst.className = 'substcol';
+        tdSubst.textContent = countSUBSTForRow(day, period, teachers);
+        tdSubst.title = 'Quadrinhos marcados como SUBST neste horário';
+        tr.appendChild(tdSubst);
+
+        teachers.forEach(function(teacher){
+          var cellData = row[teacher];
+          var td = document.createElement('td');
+          td.className = "cell";
+
+          if(cellData && cellData.turma !== undefined){
+            var inner = document.createElement('div');
+            inner.className='cell-inner';
+            var tEl = document.createElement('div');
+            tEl.className='turma';
+            tEl.textContent = cellData.turma;
+            tEl.title = cellData.turma;
+            var sEl = document.createElement('div');
+            sEl.className='subject ' + subjectClass(cellData.subject);
+            sEl.textContent = cellData.subject;
+            sEl.title = cellData.subject;
+            inner.appendChild(tEl);
+            inner.appendChild(sEl);
+            td.appendChild(inner);
+          } else {
+            var marker = cellData ? cellData.marker : "-x-";
+            var state = cellState(day, period, teacher);
+            td.classList.add('editable');
+            if(state !== 'LIVRE') td.classList.add('state-'+state);
+            var inner2 = document.createElement('div');
+            inner2.className='cell-inner';
+            var mEl = document.createElement('div');
+            mEl.className='marker';
+            mEl.textContent = (state === 'LIVRE') ? marker : state;
+            inner2.appendChild(mEl);
+            td.appendChild(inner2);
+            td.addEventListener('click', function(ev){
+              cycleState(day, period, teacher);
+            });
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    });
+    table.appendChild(tbody);
+    renderSummary();
+    applyFit();
+  }
+
+  // ---------------- fit-to-screen (mostra a semana inteira sem rolagem) ----------------
+  function applyFit(){
+    var box = document.getElementById('fitBox');
+    var card = box ? box.querySelector('.gridcard') : null;
+    if(!box || !card) return;
+
+    box.classList.toggle('fit-on', STATE.fitMode);
+
+    if(!STATE.fitMode){
+      card.style.transform = 'none';
+      box.style.height = '';
+      return;
+    }
+
+    // mede o tamanho natural (sem escala) antes de calcular o fator
+    card.style.transform = 'none';
+    var natW = card.scrollWidth;
+    var natH = card.scrollHeight;
+    if(!natW || !natH) return;
+
+    var availW = box.clientWidth || natW;
+    var top = box.getBoundingClientRect().top;
+    var availH = Math.max(260, window.innerHeight - top - 18);
+
+    var scale = Math.min(availW / natW, availH / natH, 1);
+    scale = Math.max(scale, 0.001);
+
+    card.style.transformOrigin = 'top left';
+    card.style.transform = 'scale(' + scale + ')';
+    box.style.height = (natH * scale) + 'px';
+  }
+
+  var fitResizeTimer = null;
+  window.addEventListener('resize', function(){
+    clearTimeout(fitResizeTimer);
+    fitResizeTimer = setTimeout(applyFit, 120);
+  });
+
+  // ---------------- print fit (encolhe o quadro para caber numa única folha paisagem) ----------------
+  function applyPrintFit(){
+    var box = document.getElementById('fitBox');
+    var card = box ? box.querySelector('.gridcard') : null;
+    if(!box || !card) return;
+
+    card.style.transform = 'none';
+    var natW = card.scrollWidth;
+    var natH = card.scrollHeight;
+    if(!natW || !natH) return;
+
+    // Área útil de uma folha A4 paisagem (297 x 210mm) descontando as margens de @page (8mm cada lado), a 96dpi
+    var pageW = (297 - 16) * 96 / 25.4;
+    var pageH = (210 - 16) * 96 / 25.4;
+
+    // desconta a altura do título + legenda impressos no topo da folha
+    var printHead = document.querySelector('.printhead');
+    var legend = document.querySelector('.legend');
+    var reservedH = (printHead ? printHead.offsetHeight : 0) + (legend ? legend.offsetHeight : 0) + 10;
+    pageH = Math.max(100, pageH - reservedH);
+
+    var scale = Math.min(pageW / natW, pageH / natH, 1);
+    scale = Math.max(scale, 0.001);
+
+    card.style.transformOrigin = 'top left';
+    card.style.transform = 'scale(' + scale + ')';
+    box.style.width = (natW * scale) + 'px';
+    box.style.height = (natH * scale) + 'px';
+  }
+
+  window.addEventListener('beforeprint', applyPrintFit);
+  window.addEventListener('afterprint', applyFit);
+
+  // ---------------- click-to-cycle state ----------------
+  // Ciclo: SUBST (padrão) -> ACPT -> Livre -> SUBST -> ...
+  var STATE_CYCLE = { 'SUBST': 'ACPT', 'ACPT': 'LIVRE', 'LIVRE': 'SUBST' };
+
+  function cycleState(day, period, teacher){
+    var current = cellState(day, period, teacher);
+    var next = STATE_CYCLE[current] || 'SUBST';
+    setState(day, period, teacher, next);
+  }
+
+  function setState(day, period, teacher, state){
+    var k = overrideKey(day,period,teacher);
+    // Se o estado escolhido é igual ao padrão natural da célula, não precisa salvar override
+    if(state === naturalDefault(day, teacher)) delete STATE.overrides[k];
+    else STATE.overrides[k] = state;
+    saveOverrides();
+    renderTable();
+    showToast(teacher + " marcado como " + (state === 'LIVRE' ? 'Livre' : state));
+  }
+
+  // ---------------- summary ----------------
+  function renderSummary(){
+    var el = document.getElementById('summary');
+    var acpt=0, subst=0, livre=0;
+    var teachers = STATE.data.teachers;
+    var periods = periodsForSchedule().filter(function(p){return p!=="INTERV";});
+    var days = Object.keys(STATE.data.schedule);
+    var perTeacher = {};
+    teachers.forEach(function(t){ perTeacher[t] = {ACPT:0, SUBST:0}; });
+
+    days.forEach(function(day){
+      periods.forEach(function(period){
+        teachers.forEach(function(teacher){
+          var cellData = STATE.data.schedule[day][period][teacher];
+          if(cellData && cellData.turma !== undefined) return;
+          var st = cellState(day, period, teacher);
+          if(st === 'ACPT'){ acpt++; perTeacher[teacher].ACPT++; }
+          else if(st === 'SUBST'){ subst++; perTeacher[teacher].SUBST++; }
+          else livre++;
+        });
+      });
+    });
+
+    el.innerHTML = "";
+    function stat(num, label){
+      var d=document.createElement('div'); d.className='stat';
+      var n=document.createElement('div'); n.className='num'; n.textContent=num;
+      var l=document.createElement('div'); l.className='lbl'; l.textContent=label;
+      d.appendChild(n); d.appendChild(l);
+      return d;
+    }
+    el.appendChild(stat(acpt, "quadrinhos marcados como ACPT"));
+    el.appendChild(stat(subst, "quadrinhos marcados como SUBST"));
+    el.appendChild(stat(livre, "quadrinhos ainda livres (-x- / ---)"));
+  }
+
+  // ---------------- header ----------------
+  function renderHeader(){
+    document.getElementById('monthPill').textContent = STATE.data.month + " / " + STATE.data.year;
+    var pm = document.getElementById('printMonthLine');
+    if(pm) pm.textContent = STATE.data.month + " / " + STATE.data.year;
+  }
+
+  // ==================================================================
+  // PDF PARSING (uses pdf.js text positions to rebuild the same grid)
+  // ==================================================================
+  var TURMA_RE = /^\d[ºªo][A-Za-zX]$/;
+  var LABEL_RE = /^(\d[ªº]H|INTERV\.?)$/;
+  var MONTHS = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
+
+  // ---- desgrudar itens de texto que o pdf.js às vezes funde em um único bloco ----
+  // Em algumas colunas (normalmente as mais preenchidas, com menos "-x-" no meio),
+  // o pdf.js retorna várias células de texto como um ÚNICO item, sem espaço entre
+  // elas (ex.: "6ºA - SL18 6ºD - SL 02 7ºA - SL 05..." tudo junto). Isso faz a coluna
+  // inteira herdar o texto de várias outras e ficar larga/desalinhada. Estas funções
+  // procuram os tokens conhecidos dentro da string e recriam itens separados,
+  // estimando a posição x de cada um por proporção de caracteres dentro do item original.
+  function expandGluedByToken(items, tokenRe){
+    var out = [];
+    items.forEach(function(it){
+      var idxs = [];
+      var re = new RegExp(tokenRe.source, tokenRe.flags.indexOf('g')===-1 ? tokenRe.flags+'g' : tokenRe.flags);
+      var m;
+      while((m = re.exec(it.text))){
+        idxs.push({index:m.index, len:m[0].length});
+        if(m[0].length===0) re.lastIndex++;
+      }
+      if(idxs.length <= 1){ out.push(it); return; }
+      var totalLen = it.text.length;
+      var xw = it.x1 - it.x0;
+      for(var i=0;i<idxs.length;i++){
+        var s = idxs[i].index;
+        var e = (i+1 < idxs.length) ? idxs[i+1].index : totalLen;
+        var segText = it.text.slice(s,e).trim();
+        if(!segText) continue;
+        out.push({
+          x0: it.x0 + xw*(s/totalLen),
+          x1: it.x0 + xw*(e/totalLen),
+          top: it.top,
+          text: segText
+        });
+      }
+    });
+    return out;
+  }
+  function expandGluedTurmaItems(items){
+    return expandGluedByToken(items, /\d[ºªo][A-Za-zX]/g);
+  }
+  function expandGluedMarkerItems(items){
+    return expandGluedByToken(items, /-x-|---/g);
+  }
+  function expandGluedSubjectItems(items){
+    return expandGluedByToken(items, /G\.A\.|CIÊN|PORT|HIST|MAT|GEO|ART|ING|EF/g);
+  }
+
+  async function parsePdfFile(file){
+    var buf = await file.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({data: buf}).promise;
+    if(pdf.numPages > 1){
+      showToast("Aviso: apenas a primeira página foi lida.");
+    }
+    var page = await pdf.getPage(1);
+    var content = await page.getTextContent();
+    var viewport = page.getViewport({scale:1});
+    var pageH = viewport.height;
+
+    var items = content.items.map(function(it){
+      var x0 = it.transform[4];
+      var yBase = it.transform[5];
+      var top = pageH - yBase; // approx top-of-line coordinate, consistent offset across the doc
+      return {x0: x0, x1: x0 + it.width, top: top, text: it.str.trim()};
+    }).filter(function(it){ return it.text.length>0; });
+
+    // group into rows by rounded top (tolerance-based bucketing)
+    var rowsMap = [];
+    items.forEach(function(it){
+      var bucket = rowsMap.find(function(r){ return Math.abs(r.top - it.top) < 0.9; });
+      if(!bucket){ bucket = {top: it.top, items: []}; rowsMap.push(bucket); }
+      bucket.items.push(it);
+    });
+    rowsMap.forEach(function(r){ r.items.sort(function(a,b){return a.x0-b.x0;}); });
+    rowsMap.sort(function(a,b){return a.top-b.top;});
+
+    function getRowNear(top, tol){
+      tol = tol || 1.3;
+      var best=null, bestd=1e9;
+      rowsMap.forEach(function(r){
+        var d = Math.abs(r.top-top);
+        if(d<bestd){ bestd=d; best=r; }
+      });
+      return (bestd<=tol) ? best : null;
+    }
+
+    // find label rows (period markers), x0<100
+    var labelRows = [];
+    rowsMap.forEach(function(r){
+      r.items.forEach(function(it){
+        if(it.x0 < 100 && LABEL_RE.test(it.text)){
+          var norm = /INTERV/.test(it.text) ? "INTERV" : it.text.replace(/[ªº]H/,'');
+          labelRows.push({top:r.top, label:norm});
+        }
+      });
+    });
+    if(labelRows.length === 0 || labelRows.length % 6 !== 0){
+      throw new Error("Não foi possível reconhecer a estrutura do horário neste PDF.");
+    }
+    var numDays = labelRows.length / 6;
+    var dayNames = ["SEG","TER","QUA","QUI","SEX","SAB","DOM"].slice(0, numDays);
+
+    // ---- determine column x-centers using EVERY non-interval period block ----
+    // (usar apenas o primeiro bloco é frágil: se naquele horário específico uma célula
+    // "turma" e uma célula "marcador" ficarem muito próximas, duas colunas podem colidir
+    // e desalinhar a leitura inteira. Juntamos as âncoras de todos os blocos do documento
+    // e agrupamos por proximidade para achar os centros de coluna reais.)
+    var rawAnchors = [];
+    labelRows.forEach(function(lr){
+      if(lr.label === "INTERV") return;
+      var markerRow = getRowNear(lr.top) || {items:[]};
+      var turmaRow = getRowNear(lr.top - 3.35) || {items:[]};
+      var turmaItems = expandGluedTurmaItems(turmaRow.items.filter(function(it){return it.x0>=100;}));
+      var markerItems = expandGluedMarkerItems(markerRow.items.filter(function(it){return it.x0>=100;}));
+      var cur = [];
+      turmaItems.forEach(function(it){
+        if(TURMA_RE.test(it.text) && cur.length){ rawAnchors.push(cur[0].x0); cur=[]; }
+        cur.push(it);
+      });
+      if(cur.length) rawAnchors.push(cur[0].x0);
+      markerItems.forEach(function(it){
+        rawAnchors.push(it.x0);
+      });
+    });
+    rawAnchors.sort(function(a,b){return a-b;});
+    // agrupa âncoras próximas (mesma coluna) em um único centro
+    var anchorClusters = [];
+    rawAnchors.forEach(function(x){
+      var lastCluster = anchorClusters[anchorClusters.length-1];
+      if(lastCluster && (x - lastCluster[lastCluster.length-1]) < 13){
+        lastCluster.push(x);
+      } else {
+        anchorClusters.push([x]);
+      }
+    });
+    var colX = anchorClusters.map(function(c){
+      return c.reduce(function(a,b){return a+b;},0) / c.length;
+    });
+    if(colX.length < 3){
+      throw new Error("Não foi possível identificar as colunas de professores.");
+    }
+
+    function nearestCol(x0, used){
+      var best=null, bestd=1e9;
+      colX.forEach(function(cx, i){
+        if(used && used.has(i)) return;
+        var d = Math.abs(x0-cx);
+        if(d<bestd){ bestd=d; best=i; }
+      });
+      return best;
+    }
+
+    // ---- teacher header names: cluster header row (topmost row) by gaps ----
+    var headerRow = rowsMap[0];
+    var teacherNames = [];
+    if(headerRow){
+      var hCur=[]; var hClusters=[];
+      var hItems = headerRow.items.filter(function(it){return it.x0>=100;});
+      var lastX1=null;
+      hItems.forEach(function(it){
+        if(lastX1!==null && (it.x0-lastX1) > 14){ hClusters.push(hCur); hCur=[]; }
+        hCur.push(it); lastX1=it.x1;
+      });
+      if(hCur.length) hClusters.push(hCur);
+      if(hClusters.length === colX.length){
+        teacherNames = hClusters.map(function(cl){ return cl.map(function(w){return w.text;}).join(' '); });
+      }
+    }
+    if(teacherNames.length !== colX.length){
+      // fallback: reuse existing teacher labels if count matches, else generic
+      if(STATE.data.teachers.length === colX.length){
+        teacherNames = STATE.data.teachers.slice();
+      } else {
+        teacherNames = colX.map(function(_,i){ return "Prof. " + (i+1); });
+      }
+    }
+
+    // ---- build schedule ----
+    var schedule = {};
+    var idx = 0;
+    dayNames.forEach(function(day){
+      schedule[day] = {};
+      ["1","2","3","INTERV","4","5"].forEach(function(pn){
+        var lr = labelRows[idx]; idx++;
+        var markerRow = getRowNear(lr.top) || {items:[]};
+        if(pn === "INTERV"){
+          schedule[day][pn] = "INTERVALO";
+          return;
+        }
+        var turmaRow = getRowNear(lr.top - 3.35) || {items:[]};
+        var subjectRow = getRowNear(lr.top + 3.3) || {items:[]};
+
+        // cluster turma row by regex (após desgrudar itens que vieram colados)
+        var turmaItemsRow = expandGluedTurmaItems(turmaRow.items.filter(function(it){return it.x0>=100;}));
+        var tCur=[]; var tClusters=[];
+        turmaItemsRow.forEach(function(it){
+          if(TURMA_RE.test(it.text) && tCur.length){ tClusters.push(tCur); tCur=[]; }
+          tCur.push(it);
+        });
+        if(tCur.length) tClusters.push(tCur);
+        var turmaByCol = {};
+        var used = new Set();
+        tClusters.forEach(function(cl){
+          var ci = nearestCol(cl[0].x0, used);
+          if(ci===null) return;
+          used.add(ci);
+          turmaByCol[ci] = cl.map(function(w){return w.text;}).join(' ');
+        });
+
+        var subjItemsRow = expandGluedSubjectItems(subjectRow.items.filter(function(it){return it.x0>=100;}));
+        var subjByCol = {};
+        used = new Set();
+        subjItemsRow.forEach(function(it){
+          var ci = nearestCol(it.x0, used);
+          if(ci===null) return;
+          used.add(ci);
+          subjByCol[ci] = it.text;
+        });
+
+        var markItemsRow = expandGluedMarkerItems(markerRow.items.filter(function(it){return it.x0>=100;}));
+        var markByCol = {};
+        used = new Set();
+        markItemsRow.forEach(function(it){
+          var ci = nearestCol(it.x0, used);
+          if(ci===null) return;
+          used.add(ci);
+          markByCol[ci] = it.text;
+        });
+
+        var rowOut = {};
+        teacherNames.forEach(function(name, ci){
+          if(turmaByCol.hasOwnProperty(ci) || subjByCol.hasOwnProperty(ci)){
+            rowOut[name] = {turma: turmaByCol[ci]||"", subject: subjByCol[ci]||""};
+          } else {
+            rowOut[name] = {marker: markByCol.hasOwnProperty(ci) ? markByCol[ci] : "-x-"};
+          }
+        });
+        schedule[day][pn] = rowOut;
+      });
+    });
+
+    // ---- month/year from full text ----
+    var fullText = items.map(function(it){return it.text;}).join(' ').toUpperCase();
+    var month = STATE.data.month;
+    MONTHS.forEach(function(m){ if(fullText.indexOf(m) !== -1) month = m; });
+    var yearMatch = fullText.match(/20\d{2}/);
+    var year = yearMatch ? parseInt(yearMatch[0],10) : STATE.data.year;
+
+    return {month: month, year: year, teachers: teacherNames, schedule: schedule};
+  }
+
+  // ---------------- upload handling ----------------
+  function wireUpload(){
+    var btn = document.getElementById('uploadBtn');
+    var input = document.getElementById('pdfInput');
+    btn.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', async function(){
+      var file = input.files[0];
+      if(!file) return;
+      showToast("Lendo PDF...");
+      try{
+        var parsed = await parsePdfFile(file);
+        STATE.data = parsed;
+        STATE.activeDay = null;
+        await loadOverrides();
+        renderHeader();
+        renderDayTabs();
+        renderTable();
+        showToast("Quadro atualizado a partir do PDF (" + parsed.month + "/" + parsed.year + ").");
+      }catch(err){
+        console.error(err);
+        showToast("Erro ao ler o PDF: " + err.message);
+      }
+      input.value = "";
+    });
+  }
+
+  function wirePrint(){
+    document.getElementById('printBtn').addEventListener('click', function(){
+      applyPrintFit();
+      window.print();
+    });
+  }
+
+  function wireFitToggle(){
+    var btn = document.getElementById('fitBtn');
+    btn.addEventListener('click', function(){
+      STATE.fitMode = !STATE.fitMode;
+      btn.textContent = STATE.fitMode ? "Ver tamanho normal" : "Ajustar à tela";
+      applyFit();
+    });
+  }
+
+  // ---------------- init ----------------
+  async function init(){
+    await loadOverrides();
+    renderHeader();
+    renderDayTabs();
+    renderTable();
+    wireUpload();
+    wirePrint();
+    wireFitToggle();
+  }
+
+  init();
+})();
+
+</script>
+
+</body>
+</html>
