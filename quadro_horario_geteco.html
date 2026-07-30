@@ -160,7 +160,7 @@
     padding:10px 20px 16px;
   }
   .fitbox{
-    overflow:auto;
+    overflow:visible;
   }
   .fitbox.fit-on{
     overflow:hidden;
@@ -169,7 +169,7 @@
     background:var(--paper);
     border:1px solid var(--line);
     border-radius:var(--radius);
-    overflow:auto;
+    overflow:visible;
     max-width:100%;
   }
   .fitbox.fit-on .gridcard{
@@ -645,6 +645,18 @@
   }
 
   function renderTable(){
+    // Guarda a posição de rolagem atual (da janela e dos contêineres internos)
+    // antes de recriar a tabela. Sem isso, o innerHTML="" abaixo zera
+    // momentaneamente o tamanho do conteúdo e o navegador "esquece" onde
+    // você estava, jogando a tela para o canto superior esquerdo.
+    var scrollX = window.scrollX, scrollY = window.scrollY;
+    var fitBoxEl2 = document.getElementById('fitBox');
+    var gridCardEl2 = fitBoxEl2 ? fitBoxEl2.querySelector('.gridcard') : null;
+    var fbScrollLeft = fitBoxEl2 ? fitBoxEl2.scrollLeft : 0;
+    var fbScrollTop = fitBoxEl2 ? fitBoxEl2.scrollTop : 0;
+    var gcScrollLeft = gridCardEl2 ? gridCardEl2.scrollLeft : 0;
+    var gcScrollTop = gridCardEl2 ? gridCardEl2.scrollTop : 0;
+
     var table = document.getElementById('schedTable');
     table.innerHTML = "";
     var teachers = STATE.data.teachers;
@@ -796,6 +808,18 @@
     table.appendChild(tbody);
     renderSummary();
     applyFit();
+
+    // Restaura a posição de rolagem salva no início da função.
+    // requestAnimationFrame garante que isso rode depois do navegador
+    // recalcular o layout (inclusive o transform de applyFit).
+    if(fitBoxEl2){ fitBoxEl2.scrollLeft = fbScrollLeft; fitBoxEl2.scrollTop = fbScrollTop; }
+    if(gridCardEl2){ gridCardEl2.scrollLeft = gcScrollLeft; gridCardEl2.scrollTop = gcScrollTop; }
+    window.scrollTo(scrollX, scrollY);
+    requestAnimationFrame(function(){
+      if(fitBoxEl2){ fitBoxEl2.scrollLeft = fbScrollLeft; fitBoxEl2.scrollTop = fbScrollTop; }
+      if(gridCardEl2){ gridCardEl2.scrollLeft = gcScrollLeft; gridCardEl2.scrollTop = gcScrollTop; }
+      window.scrollTo(scrollX, scrollY);
+    });
   }
 
   // ---------------- fit-to-screen (mostra a semana inteira sem rolagem) ----------------
@@ -935,7 +959,6 @@
   // ==================================================================
   // PDF PARSING (uses pdf.js text positions to rebuild the same grid)
   // ==================================================================
-  var TURMA_RE = /^\d[ºªo][A-Za-zX]$/;
   var LABEL_RE = /^(\d[ªº]H|INTERV\.?)$/;
   var MONTHS = ["JANEIRO","FEVEREIRO","MARÇO","ABRIL","MAIO","JUNHO","JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
 
@@ -1038,139 +1061,98 @@
     var numDays = labelRows.length / 6;
     var dayNames = ["SEG","TER","QUA","QUI","SEX","SAB","DOM"].slice(0, numDays);
 
-    // ---- determine column x-centers using EVERY non-interval period block ----
-    // (usar apenas o primeiro bloco é frágil: se naquele horário específico uma célula
-    // "turma" e uma célula "marcador" ficarem muito próximas, duas colunas podem colidir
-    // e desalinhar a leitura inteira. Juntamos as âncoras de todos os blocos do documento
-    // e agrupamos por proximidade para achar os centros de coluna reais.)
-    var rawAnchors = [];
-    labelRows.forEach(function(lr){
-      if(lr.label === "INTERV") return;
-      var markerRow = getRowNear(lr.top) || {items:[]};
-      var turmaRow = getRowNear(lr.top - 3.35) || {items:[]};
-      var turmaItems = expandGluedTurmaItems(turmaRow.items.filter(function(it){return it.x0>=100;}));
-      var markerItems = expandGluedMarkerItems(markerRow.items.filter(function(it){return it.x0>=100;}));
-      var cur = [];
-      turmaItems.forEach(function(it){
-        if(TURMA_RE.test(it.text) && cur.length){ rawAnchors.push(cur[0].x0); cur=[]; }
-        cur.push(it);
-      });
-      if(cur.length) rawAnchors.push(cur[0].x0);
-      markerItems.forEach(function(it){
-        rawAnchors.push(it.x0);
-      });
-    });
-    rawAnchors.sort(function(a,b){return a-b;});
-    // agrupa âncoras próximas (mesma coluna) em um único centro
-    var anchorClusters = [];
-    rawAnchors.forEach(function(x){
-      var lastCluster = anchorClusters[anchorClusters.length-1];
-      if(lastCluster && (x - lastCluster[lastCluster.length-1]) < 13){
-        lastCluster.push(x);
-      } else {
-        anchorClusters.push([x]);
-      }
-    });
-    var colX = anchorClusters.map(function(c){
-      return c.reduce(function(a,b){return a+b;},0) / c.length;
-    });
-    if(colX.length < 3){
-      throw new Error("Não foi possível identificar as colunas de professores.");
-    }
-
-    function nearestCol(x0, used){
-      var best=null, bestd=1e9;
-      colX.forEach(function(cx, i){
-        if(used && used.has(i)) return;
-        var d = Math.abs(x0-cx);
-        if(d<bestd){ bestd=d; best=i; }
-      });
-      return best;
-    }
-
-    // ---- teacher header names: cluster header row (topmost row) by gaps ----
-    var headerRow = rowsMap[0];
+    // ---- teacher names: usa a lista já conhecida (mais confiável — nomes com
+    // múltiplas palavras como "Mª DO CARMO" e "ED FÍSICA_2" costumam vir colados
+    // ou quebrados de forma inconsistente no cabeçalho do PDF). Só tenta ler do
+    // cabeçalho quando ainda não existe nenhuma lista salva (primeira configuração).
     var teacherNames = [];
-    if(headerRow){
+    var expectedCount = (STATE.data.teachers && STATE.data.teachers.length) || 0;
+    if(expectedCount > 0){
+      teacherNames = STATE.data.teachers.slice();
+    } else {
+      var headerRow = rowsMap[0];
       var hCur=[]; var hClusters=[];
-      var hItems = headerRow.items.filter(function(it){return it.x0>=100;});
+      var hItems = (headerRow ? headerRow.items : []).filter(function(it){return it.x0>=100;});
       var lastX1=null;
       hItems.forEach(function(it){
         if(lastX1!==null && (it.x0-lastX1) > 14){ hClusters.push(hCur); hCur=[]; }
         hCur.push(it); lastX1=it.x1;
       });
       if(hCur.length) hClusters.push(hCur);
-      if(hClusters.length === colX.length){
-        teacherNames = hClusters.map(function(cl){ return cl.map(function(w){return w.text;}).join(' '); });
-      }
+      teacherNames = hClusters.map(function(cl){ return cl.map(function(w){return w.text;}).join(' '); });
+      expectedCount = teacherNames.length;
     }
-    if(teacherNames.length !== colX.length){
-      // fallback: reuse existing teacher labels if count matches, else generic
-      if(STATE.data.teachers.length === colX.length){
-        teacherNames = STATE.data.teachers.slice();
-      } else {
-        teacherNames = colX.map(function(_,i){ return "Prof. " + (i+1); });
-      }
+    if(expectedCount === 0){
+      throw new Error("Não foi possível identificar os professores neste PDF.");
     }
 
     // ---- build schedule ----
+    // Abordagem por ORDEM, não por distância/posição: dentro de uma mesma linha do
+    // PDF, os textos sempre aparecem da esquerda para a direita na mesma ordem das
+    // colunas dos professores. Então juntamos as "turmas" (com aula) e os
+    // marcadores ("-x-"/"---", sem aula) dessa linha, ordenamos por posição x e
+    // distribuímos 1-para-1 pelos professores, na ordem. Isso elimina o risco de
+    // duas colunas próximas se confundirem — se a contagem não bater exatamente
+    // com o número de professores, avisamos exatamente ONDE está o problema, em
+    // vez de adivinhar e desalinhar silenciosamente o resto da linha.
     var schedule = {};
     var idx = 0;
+    var dayLabels = {SEG:"segunda-feira", TER:"terça-feira", QUA:"quarta-feira", QUI:"quinta-feira", SEX:"sexta-feira", SAB:"sábado", DOM:"domingo"};
     dayNames.forEach(function(day){
       schedule[day] = {};
       ["1","2","3","INTERV","4","5"].forEach(function(pn){
         var lr = labelRows[idx]; idx++;
-        var markerRow = getRowNear(lr.top) || {items:[]};
         if(pn === "INTERV"){
           schedule[day][pn] = "INTERVALO";
           return;
         }
+        var markerRow = getRowNear(lr.top) || {items:[]};
         var turmaRow = getRowNear(lr.top - 3.35) || {items:[]};
         var subjectRow = getRowNear(lr.top + 3.3) || {items:[]};
 
-        // cluster turma row by regex (após desgrudar itens que vieram colados)
-        var turmaItemsRow = expandGluedTurmaItems(turmaRow.items.filter(function(it){return it.x0>=100;}));
-        var tCur=[]; var tClusters=[];
-        turmaItemsRow.forEach(function(it){
-          if(TURMA_RE.test(it.text) && tCur.length){ tClusters.push(tCur); tCur=[]; }
-          tCur.push(it);
-        });
-        if(tCur.length) tClusters.push(tCur);
-        var turmaByCol = {};
-        var used = new Set();
-        tClusters.forEach(function(cl){
-          var ci = nearestCol(cl[0].x0, used);
-          if(ci===null) return;
-          used.add(ci);
-          turmaByCol[ci] = cl.map(function(w){return w.text;}).join(' ');
-        });
-
-        var subjItemsRow = expandGluedSubjectItems(subjectRow.items.filter(function(it){return it.x0>=100;}));
-        var subjByCol = {};
-        used = new Set();
-        subjItemsRow.forEach(function(it){
-          var ci = nearestCol(it.x0, used);
-          if(ci===null) return;
-          used.add(ci);
-          subjByCol[ci] = it.text;
-        });
+        // cada item da linha de turmas já é uma célula completa (ex.: "6ºB - SL 20").
+        // expandGluedTurmaItems só entra em ação no caso raro de duas turmas terem
+        // sido fundidas em um único item pelo pdf.js; caso contrário devolve o
+        // item intacto — por isso usamos a lista resultante diretamente, sem
+        // tentar reagrupar por regex (isso causava o erro "encontrei N células").
+        var tClusters = expandGluedTurmaItems(turmaRow.items.filter(function(it){return it.x0>=100;}));
 
         var markItemsRow = expandGluedMarkerItems(markerRow.items.filter(function(it){return it.x0>=100;}));
-        var markByCol = {};
-        used = new Set();
-        markItemsRow.forEach(function(it){
-          var ci = nearestCol(it.x0, used);
-          if(ci===null) return;
-          used.add(ci);
-          markByCol[ci] = it.text;
-        });
+
+        // combina turmas + marcadores desta linha, ordenados da esquerda p/ direita
+        var combined = tClusters.map(function(cl){
+          return {kind:'turma', x0: cl.x0, text: cl.text};
+        }).concat(markItemsRow.map(function(it){
+          return {kind:'marker', x0: it.x0, text: it.text};
+        }));
+        combined.sort(function(a,b){ return a.x0-b.x0; });
+
+        if(combined.length !== expectedCount){
+          throw new Error(
+            "Não consegui alinhar as colunas em " + dayLabels[day] + ", " + pn + "ª aula: " +
+            "encontrei " + combined.length + " células nessa linha, mas há " + expectedCount + " professores cadastrados. " +
+            "Confira se o PDF não tem alguma célula quebrada ou faltando nesse horário."
+          );
+        }
+
+        var subjItemsRow = expandGluedSubjectItems(subjectRow.items.filter(function(it){return it.x0>=100;}));
+        var turmaSlotCount = tClusters.length;
+        if(subjItemsRow.length !== turmaSlotCount){
+          throw new Error(
+            "Não consegui alinhar as disciplinas em " + dayLabels[day] + ", " + pn + "ª aula: " +
+            "encontrei " + subjItemsRow.length + " disciplinas para " + turmaSlotCount + " turmas."
+          );
+        }
 
         var rowOut = {};
-        teacherNames.forEach(function(name, ci){
-          if(turmaByCol.hasOwnProperty(ci) || subjByCol.hasOwnProperty(ci)){
-            rowOut[name] = {turma: turmaByCol[ci]||"", subject: subjByCol[ci]||""};
+        var subjIdx = 0;
+        combined.forEach(function(cell, i){
+          var name = teacherNames[i];
+          if(cell.kind === 'turma'){
+            rowOut[name] = {turma: cell.text, subject: subjItemsRow[subjIdx] ? subjItemsRow[subjIdx].text : ""};
+            subjIdx++;
           } else {
-            rowOut[name] = {marker: markByCol.hasOwnProperty(ci) ? markByCol[ci] : "-x-"};
+            rowOut[name] = {marker: cell.text};
           }
         });
         schedule[day][pn] = rowOut;
