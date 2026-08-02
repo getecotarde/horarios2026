@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quadro de Horário — GETECO 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --bg:#F3F4F1;
@@ -25,6 +26,14 @@
     --subst-bg-hover:#F5DBB4;
     --free-bg:#F5F5F3;
     --free-line:#C9CDC5;
+
+    --target-ok:#4F7A00;
+    --target-ok-bg:#C6ED4F;
+    --target-under:#7A5B00;
+    --target-under-bg:#FFE066;
+    --target-almost:#0B4A8F;
+    --target-almost-bg:#BFDBFE;
+    --target-over-bg:#E5484D;
 
     --mat:#2A5DB0;
     --port:#A02C2C;
@@ -114,7 +123,22 @@
     border-color:#fff;
   }
   .btn.primary:hover{background:#EAF3EF;}
+  .btn.small{font-size:12px;padding:6px 11px;}
+  .select-quadros{
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    color:#fff;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.25);
+    padding:8px 10px;
+    border-radius:7px;
+    cursor:pointer;
+    max-width:180px;
+  }
+  .select-quadros option{color:var(--ink);}
   #pdfInput{display:none;}
+  #jsonInput{display:none;}
 
   /* ---------- Tabs ---------- */
   .daytabs{
@@ -198,7 +222,8 @@
     color:var(--ink);
     min-width:30px;
     max-width:30px;
-    height:118px;
+    height:168px;
+    overflow:hidden;
     border-bottom:2px solid var(--line-strong);
   }
   table.sched thead th.col-dia{
@@ -207,6 +232,7 @@
     min-width:38px;
     max-width:38px;
     height:auto;
+    overflow:visible;
   }
   table.sched thead th.col-aula{
     left:38px;
@@ -214,6 +240,7 @@
     min-width:44px;
     max-width:44px;
     height:auto;
+    overflow:visible;
   }
   table.sched thead th.col-subst{
     left:82px;
@@ -221,6 +248,7 @@
     min-width:36px;
     max-width:36px;
     height:auto;
+    overflow:visible;
     color:var(--subst);
     background:var(--subst-bg);
   }
@@ -230,12 +258,12 @@
     transform:rotate(180deg);
     white-space:nowrap;
     line-height:1.15;
-    font-size:9.5px;
+    font-size:12.5px;
     letter-spacing:.01em;
   }
   table.sched thead tr.acpt-row th{
     position:sticky;
-    top:118px;
+    top:168px;
     z-index:5;
     background:var(--acpt-bg);
     color:var(--acpt);
@@ -246,6 +274,12 @@
     font-family:var(--mono);
     border-bottom:2px solid var(--line-strong);
   }
+  /* Destaque por meta de ACPT: na meta = verde limão, abaixo = amarelo, acima = vermelho.
+     Seletor mais específico que a regra acima para garantir a sobreposição da cor. */
+  table.sched thead tr.acpt-row th.acpt-target-ok{background:var(--target-ok-bg);color:var(--target-ok);}
+  table.sched thead tr.acpt-row th.acpt-target-under{background:var(--target-under-bg);color:var(--target-under);}
+  table.sched thead tr.acpt-row th.acpt-target-almost{background:var(--target-almost-bg);color:var(--target-almost);}
+  table.sched thead tr.acpt-row th.acpt-target-over{background:var(--target-over-bg);color:#fff;}
   table.sched tbody td.substcol{
     position:sticky;
     left:82px;
@@ -438,6 +472,110 @@
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
+  /* ---------- Quadro Resumo (modal) ---------- */
+  .resumo-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(28,35,33,.55);
+    z-index:100;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px 16px;
+    overflow:auto;
+  }
+  .resumo-overlay.open{display:flex;}
+  .resumo-card{
+    background:var(--paper);
+    border-radius:var(--radius);
+    max-width:960px;
+    width:100%;
+    max-height:calc(100vh - 64px);
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.28);
+  }
+  .resumo-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .resumo-head h2{margin:0;font-size:15px;color:var(--brand-dark);font-weight:700;}
+  .resumo-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  /* botões dentro do modal ficam sobre fundo claro, não escuro como a topbar */
+  .resumo-head .btn{
+    color:var(--brand-dark);
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+  }
+  .resumo-head .btn:hover{background:var(--brand-tint);}
+  .resumo-head .btn.primary{
+    background:var(--brand-dark);
+    color:#fff;
+    border-color:var(--brand-dark);
+  }
+  .resumo-head .btn.primary:hover{background:var(--brand);}
+  .resumo-body{overflow:auto;padding:6px 20px 20px;}
+  table.resumo{width:100%;border-collapse:collapse;font-size:12.5px;}
+  table.resumo th, table.resumo td{
+    border-bottom:1px solid var(--line);
+    padding:9px 10px;
+    text-align:left;
+    vertical-align:top;
+  }
+  table.resumo thead th{
+    font-family:var(--mono);
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--ink-soft);
+    background:#FAFAF8;
+    position:sticky;
+    top:0;
+  }
+  table.resumo td.teacher{font-weight:700;color:var(--ink);white-space:nowrap;}
+  table.resumo td.num{
+    font-family:var(--mono);
+    font-weight:800;
+    text-align:center;
+    width:1%;
+    white-space:nowrap;
+  }
+  table.resumo td.num.acpt{color:var(--acpt);}
+  table.resumo td.num.subst{color:var(--subst);}
+  table.resumo td.num.acpt.acpt-target-ok{background:var(--target-ok-bg);color:var(--target-ok);border-radius:4px;}
+  table.resumo td.num.acpt.acpt-target-under{background:var(--target-under-bg);color:var(--target-under);border-radius:4px;}
+  table.resumo td.num.acpt.acpt-target-almost{background:var(--target-almost-bg);color:var(--target-almost);border-radius:4px;}
+  table.resumo td.num.acpt.acpt-target-over{background:var(--target-over-bg);color:#fff;border-radius:4px;}
+  .chip{
+    display:inline-block;
+    font-family:var(--mono);
+    font-size:10px;
+    padding:2px 7px;
+    border-radius:100px;
+    margin:2px 4px 2px 0;
+    white-space:nowrap;
+    font-weight:700;
+  }
+  .chip.acpt{color:var(--acpt);background:var(--acpt-bg);}
+  .chip.subst{color:var(--subst);background:var(--subst-bg);}
+
+  table.resumo-por-dia td.day-first{font-weight:700;color:var(--ink);white-space:nowrap;vertical-align:middle;background:var(--brand-tint);}
+  table.resumo-por-dia td.period{color:var(--ink-soft);white-space:nowrap;font-family:var(--mono);font-size:11.5px;}
+  table.resumo-por-dia tr.resumo-daily-head th{
+    background:var(--brand-tint);
+    color:var(--brand-dark);
+    text-transform:uppercase;
+    font-size:11px;
+    letter-spacing:.03em;
+    border-top:2px solid var(--line-strong);
+  }
+  .resumo-empty{color:var(--ink-soft);font-style:italic;font-size:12px;}
+
   @media (max-width:700px){
     .topbar{padding:12px;}
     .brand h1{font-size:15px;}
@@ -448,6 +586,13 @@
   @page{
     size: landscape;
     margin: 8mm;
+  }
+  @page resumo{
+    size: portrait;
+    margin: 10mm;
+  }
+  body.printing-resumo{
+    page: resumo;
   }
   @media print{
     html,body{background:#fff;}
@@ -462,7 +607,7 @@
     .legend .hint{display:none;}
     .printhead{display:block !important;}
     .tablewrap{padding:0;margin:0;}
-    .fitbox, .fitbox.fit-on{overflow:visible !important;height:auto !important;}
+    .fitbox, .fitbox.fit-on{overflow:visible !important;}
     .gridcard, .fitbox.fit-on .gridcard{border:none;box-shadow:none;overflow:visible !important;display:block !important;}
     table.sched thead th,
     table.sched thead tr.acpt-row th,
@@ -471,6 +616,35 @@
     table.sched tbody td.substcol{position:static !important;}
     table.sched{page-break-inside:avoid;}
     tr{page-break-inside:avoid;}
+
+    /* Quadro resumo: por padrão nunca aparece impresso junto do quadro principal */
+    .resumo-overlay{display:none !important;}
+    /* Quando o próprio botão "Imprimir resumo" foi usado, body ganha esta classe
+       e invertemos: escondemos o quadro principal e mostramos só o resumo. */
+    body.printing-resumo .topbar, body.printing-resumo .daytabs,
+    body.printing-resumo .legend, body.printing-resumo .tablewrap,
+    body.printing-resumo .summary, body.printing-resumo .printhead{
+      display:none !important;
+    }
+    body.printing-resumo .resumo-overlay{
+      display:block !important;
+      position:static !important;
+      background:none !important;
+      inset:auto !important;
+      padding:0 !important;
+      overflow:visible !important;
+    }
+    body.printing-resumo .resumo-card{
+      box-shadow:none !important;
+      max-width:none !important;
+      max-height:none !important;
+      width:100% !important;
+      border-radius:0 !important;
+    }
+    body.printing-resumo .resumo-head .resumo-actions{display:none !important;}
+    body.printing-resumo .resumo-body{overflow:visible !important;max-height:none !important;padding:0 !important;}
+    body.printing-resumo table.resumo{page-break-inside:auto;}
+    body.printing-resumo table.resumo tr{page-break-inside:avoid;}
   }
   .printhead{display:none;font-family:var(--sans);margin-bottom:6px;}
   .printhead h2{margin:0 0 2px 0;font-size:15px;color:var(--brand-dark);}
@@ -491,10 +665,19 @@
   </div>
   <div class="actions">
     <span class="month-pill" id="monthPill">AGOSTO / 2026</span>
+    <select class="select-quadros" id="savedQuadrosSelect" title="Abrir um quadro salvo">
+      <option value="">Quadros salvos…</option>
+    </select>
+    <button class="btn" id="saveAsBtn">Salvar como…</button>
+    <button class="btn" id="deleteSavedBtn">Excluir</button>
     <button class="btn" id="fitBtn">Ver tamanho normal</button>
+    <button class="btn" id="resumoBtn">Quadro Resumo</button>
     <button class="btn" id="printBtn">Imprimir</button>
+    <button class="btn" id="exportBtn">Exportar JSON</button>
+    <button class="btn" id="importBtn">Importar JSON</button>
     <button class="btn primary" id="uploadBtn">Carregar novo PDF</button>
     <input type="file" id="pdfInput" accept="application/pdf">
+    <input type="file" id="jsonInput" accept="application/json,.json">
   </div>
 </div>
 
@@ -504,6 +687,10 @@
   <div class="item"><span class="swatch" style="background:var(--subst-bg);border:1.5px solid var(--subst);"></span> SUBST (padrão)</div>
   <div class="item"><span class="swatch" style="background:var(--acpt-bg);border:1.5px solid var(--acpt);"></span> ACPT</div>
   <div class="item"><span class="swatch" style="background:var(--free-bg);border:1.5px dashed var(--free-line);"></span> Livre</div>
+  <div class="item"><span class="swatch" style="background:var(--target-ok-bg);"></span> Total ACPT na meta (7 · Fabiana: 3) ou Educação Física (dispensada)</div>
+  <div class="item"><span class="swatch" style="background:var(--target-almost-bg);"></span> Falta 1 para a meta</div>
+  <div class="item"><span class="swatch" style="background:var(--target-under-bg);"></span> Abaixo da meta (falta 2 ou mais)</div>
+  <div class="item"><span class="swatch" style="background:var(--target-over-bg);"></span> Acima da meta</div>
   <div class="hint">Clique no quadrinho para alternar: SUBST → ACPT → Livre → SUBST... · A semana inteira (SEG–SEX, todos os professores) é ajustada para caber na tela — use "Ver tamanho normal" para ampliar</div>
 </div>
 
@@ -516,6 +703,21 @@
 </div>
 
 <div class="summary" id="summary"></div>
+
+<div class="resumo-overlay" id="resumoOverlay">
+  <div class="resumo-card">
+    <div class="resumo-head">
+      <h2 id="resumoTitle">Quadro resumo — ACPT e Substituições por professor</h2>
+      <div class="resumo-actions">
+        <button class="btn small" id="resumoViewToggleBtn">Ver por dia/horário</button>
+        <button class="btn small" id="resumoExportExcelBtn">Exportar Excel</button>
+        <button class="btn small" id="resumoPrintBtn">Imprimir resumo</button>
+        <button class="btn small primary" id="resumoCloseBtn">Fechar</button>
+      </div>
+    </div>
+    <div class="resumo-body" id="resumoBody"></div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -531,8 +733,10 @@
   var STATE = {
     data: JSON.parse(RAW),      // {month, year, teachers, schedule}
     overrides: {},              // "DAY|PERIOD|TEACHER" -> "ACPT" | "SUBST"
+    resumoView: 'porProfessor', // 'porProfessor' | 'porDia'
     activeDay: null,
-    fitMode: true                // true = semana inteira encolhida para caber na tela sem rolagem
+    fitMode: true,               // true = semana inteira encolhida para caber na tela sem rolagem
+    activeSavedName: null       // nome do "quadro salvo" atualmente aberto (null = quadro não veio de um salvo nomeado)
   };
 
   var DAY_LABELS = {SEG:"Segunda", TER:"Terça", QUA:"Quarta", QUI:"Quinta", SEX:"Sexta", SAB:"Sábado"};
@@ -542,21 +746,229 @@
   function overrideKey(day, period, teacher){ return day+"|"+period+"|"+teacher; }
   function storageKey(){ return "overrides:"+STATE.data.month+STATE.data.year; }
 
-  // ---------------- storage ----------------
+  // ---------------- storage (localStorage do navegador) ----------------
+  // Os dados ficam salvos no navegador (localStorage), por mês/ano, e continuam
+  // disponíveis mesmo depois de fechar a aba ou reiniciar o computador — mas
+  // são locais a este navegador/computador (não sincronizam entre dispositivos).
   async function loadOverrides(){
     try{
-      var res = await window.storage.get(storageKey(), false);
-      STATE.overrides = res && res.value ? JSON.parse(res.value) : {};
+      var raw = window.localStorage.getItem(storageKey());
+      STATE.overrides = raw ? JSON.parse(raw) : {};
     }catch(e){
       STATE.overrides = {};
     }
   }
   async function saveOverrides(){
     try{
-      await window.storage.set(storageKey(), JSON.stringify(STATE.overrides), false);
+      window.localStorage.setItem(storageKey(), JSON.stringify(STATE.overrides));
     }catch(e){
-      showToast("Não foi possível salvar (armazenamento indisponível).");
+      showToast("Não foi possível salvar (localStorage indisponível ou cheio).");
     }
+  }
+
+  // ---------------- exportação / importação em JSON ----------------
+  // Exporta tudo o que é preciso para reconstruir o quadro exatamente como está:
+  // os dados do quadro (professores, grade, mês/ano) + as marcações manuais (overrides).
+  function exportToJson(){
+    var payload = {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      data: STATE.data,
+      overrides: STATE.overrides
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], {type: "application/json"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var fname = "quadro-horario-" + (STATE.data.month || "mes") + "-" + (STATE.data.year || "") + ".json";
+    a.href = url;
+    a.download = fname.toLowerCase().replace(/\s+/g,'-');
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    showToast("JSON exportado: " + a.download);
+  }
+
+  function importFromJsonFile(file){
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var parsed = JSON.parse(reader.result);
+        if(!parsed || !parsed.data || !parsed.data.schedule){
+          throw new Error("Arquivo não reconhecido como exportação deste quadro.");
+        }
+        STATE.data = parsed.data;
+        STATE.overrides = parsed.overrides || {};
+        STATE.activeDay = null;
+        STATE.activeSavedName = null; // um arquivo importado não corresponde a nenhum quadro salvo nomeado
+        saveOverrides(); // já grava no localStorage sob a chave do mês/ano importado
+        renderHeader();
+        renderDayTabs();
+        renderTable();
+        renderSavedDropdown();
+        showToast("Quadro importado do arquivo JSON.");
+      }catch(err){
+        console.error(err);
+        showToast("Erro ao importar JSON: " + err.message);
+      }
+    };
+    reader.onerror = function(){
+      showToast("Não foi possível ler o arquivo JSON.");
+    };
+    reader.readAsText(file);
+  }
+
+  function wireExportImport(){
+    var exportBtn = document.getElementById('exportBtn');
+    var importBtn = document.getElementById('importBtn');
+    var jsonInput = document.getElementById('jsonInput');
+    if(exportBtn) exportBtn.addEventListener('click', exportToJson);
+    if(importBtn) importBtn.addEventListener('click', function(){ jsonInput.click(); });
+    if(jsonInput){
+      jsonInput.addEventListener('change', function(){
+        var file = jsonInput.files[0];
+        if(file) importFromJsonFile(file);
+        jsonInput.value = "";
+      });
+    }
+  }
+
+  // ---------------- quadros salvos (nomeados, numa listagem suspensa) ----------------
+  // Guarda várias versões do quadro sob um nome escolhido pelo usuário, tudo
+  // dentro de uma única chave do localStorage. Cada versão carrega os dados
+  // completos (professores/grade) + as marcações (overrides), então abrir um
+  // quadro salvo restaura tudo exatamente como estava e já fica editável.
+  var SAVED_QUADROS_KEY = "quadros-salvos";
+
+  function loadSavedIndex(){
+    try{
+      var raw = window.localStorage.getItem(SAVED_QUADROS_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){
+      return {};
+    }
+  }
+
+  function writeSavedIndex(idx){
+    try{
+      window.localStorage.setItem(SAVED_QUADROS_KEY, JSON.stringify(idx));
+    }catch(e){
+      showToast("Não foi possível salvar (localStorage indisponível ou cheio).");
+    }
+  }
+
+  function renderSavedDropdown(){
+    var sel = document.getElementById('savedQuadrosSelect');
+    if(!sel) return;
+    var idx = loadSavedIndex();
+    var names = Object.keys(idx).sort(function(a,b){ return a.localeCompare(b, 'pt-BR'); });
+
+    sel.innerHTML = "";
+    var optDefault = document.createElement('option');
+    optDefault.value = "";
+    optDefault.textContent = names.length ? "Quadros salvos…" : "Nenhum quadro salvo ainda";
+    sel.appendChild(optDefault);
+
+    names.forEach(function(name){
+      var entry = idx[name];
+      var opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name + " (" + entry.month + "/" + entry.year + ")";
+      sel.appendChild(opt);
+    });
+
+    // mantém selecionado o quadro que está aberto no momento, se ele estiver na lista
+    sel.value = STATE.activeSavedName && idx[STATE.activeSavedName] ? STATE.activeSavedName : "";
+  }
+
+  function saveCurrentAsNamed(name){
+    name = (name || "").trim();
+    if(!name) return;
+    var idx = loadSavedIndex();
+    idx[name] = {
+      name: name,
+      month: STATE.data.month,
+      year: STATE.data.year,
+      savedAt: new Date().toISOString(),
+      data: STATE.data,
+      overrides: STATE.overrides
+    };
+    writeSavedIndex(idx);
+    STATE.activeSavedName = name;
+    renderSavedDropdown();
+    showToast('Quadro salvo como "' + name + '". Aparece agora na lista de quadros salvos.');
+  }
+
+  function loadNamedQuadro(name){
+    var idx = loadSavedIndex();
+    var entry = idx[name];
+    if(!entry){
+      showToast("Esse quadro salvo não foi encontrado (pode ter sido excluído).");
+      renderSavedDropdown();
+      return;
+    }
+    STATE.data = entry.data;
+    STATE.overrides = entry.overrides || {};
+    STATE.activeDay = null;
+    STATE.activeSavedName = name;
+    renderHeader();
+    renderDayTabs();
+    renderTable();
+    renderSavedDropdown();
+    showToast('Quadro "' + name + '" aberto para edição.');
+  }
+
+  function deleteNamedQuadro(name){
+    var idx = loadSavedIndex();
+    if(!idx[name]) return;
+    delete idx[name];
+    writeSavedIndex(idx);
+    if(STATE.activeSavedName === name) STATE.activeSavedName = null;
+    renderSavedDropdown();
+    showToast('Quadro "' + name + '" excluído da lista.');
+  }
+
+  // Chamada a cada edição de quadrinho: se o quadro aberto no momento veio de
+  // um "salvo nomeado", mantém essa versão salva sempre atualizada com a
+  // edição mais recente — sem precisar clicar em salvar de novo toda hora.
+  function syncActiveNamedQuadro(){
+    if(!STATE.activeSavedName) return;
+    var idx = loadSavedIndex();
+    if(!idx[STATE.activeSavedName]) return; // pode ter sido excluído por outra aba/janela
+    idx[STATE.activeSavedName].data = STATE.data;
+    idx[STATE.activeSavedName].overrides = STATE.overrides;
+    idx[STATE.activeSavedName].savedAt = new Date().toISOString();
+    writeSavedIndex(idx);
+  }
+
+  function wireSavedQuadros(){
+    var sel = document.getElementById('savedQuadrosSelect');
+    var saveAsBtn = document.getElementById('saveAsBtn');
+    var deleteBtn = document.getElementById('deleteSavedBtn');
+    if(!sel || !saveAsBtn || !deleteBtn) return;
+
+    renderSavedDropdown();
+
+    sel.addEventListener('change', function(){
+      if(sel.value) loadNamedQuadro(sel.value);
+    });
+
+    saveAsBtn.addEventListener('click', function(){
+      var suggestion = STATE.activeSavedName || (STATE.data.month + " " + STATE.data.year);
+      var name = window.prompt("Nome para salvar este quadro:", suggestion);
+      if(name && name.trim()) saveCurrentAsNamed(name);
+    });
+
+    deleteBtn.addEventListener('click', function(){
+      var name = sel.value;
+      if(!name){
+        showToast("Selecione, na lista, o quadro salvo que deseja excluir.");
+        return;
+      }
+      if(window.confirm('Excluir o quadro salvo "' + name + '"? Essa ação não pode ser desfeita.')){
+        deleteNamedQuadro(name);
+      }
+    });
   }
 
   // ---------------- toast ----------------
@@ -631,6 +1043,38 @@
       });
     });
     return count;
+  }
+
+  // ---------------- meta de ACPT por professor ----------------
+  // Meta padrão: 7 ACPT. Exceção: FABIANA, cuja meta é 3.
+  // Na meta = verde limão · abaixo da meta = amarelo · acima da meta = vermelho.
+  // Professores de Educação Física ficam ISENTOS da meta: sempre aparecem em
+  // verde, porque não precisam fazer ACPT/substituição.
+  var ACPT_TARGET_DEFAULT = 7;
+  var ACPT_TARGET_EXCEPTIONS = { "FABIANA": 3 };
+  var ACPT_EXEMPT_TEACHERS = ["ED FÍSICA_2"]; // sempre verde, independente da contagem
+
+  function isAcptExempt(teacher){
+    var key = String(teacher || "").trim().toUpperCase();
+    return ACPT_EXEMPT_TEACHERS.indexOf(key) !== -1;
+  }
+
+  function acptTargetFor(teacher){
+    var key = String(teacher || "").trim().toUpperCase();
+    return ACPT_TARGET_EXCEPTIONS.hasOwnProperty(key) ? ACPT_TARGET_EXCEPTIONS[key] : ACPT_TARGET_DEFAULT;
+  }
+
+  function acptTargetClass(teacher, count){
+    if(isAcptExempt(teacher)) return 'acpt-target-ok';
+    var target = acptTargetFor(teacher);
+    if(count === target) return 'acpt-target-ok';
+    if(count === target - 1) return 'acpt-target-almost';
+    if(count < target) return 'acpt-target-under';
+    return 'acpt-target-over';
+  }
+
+  function acptTargetLabel(teacher){
+    return isAcptExempt(teacher) ? 'dispensado(a) de ACPT' : ('meta: ' + acptTargetFor(teacher));
   }
 
   function countSUBSTForRow(day, period, teachers){
@@ -725,8 +1169,10 @@
     htrAcpt.className = 'acpt-row';
     teachers.forEach(function(t){
       var th = document.createElement('th');
-      th.textContent = countACPTForTeacher(t) + ' ACPT';
-      th.title = 'Total de ACPT de ' + t;
+      var acptCount = countACPTForTeacher(t);
+      th.textContent = acptCount + ' ACPT';
+      th.className = acptTargetClass(t, acptCount);
+      th.title = 'Total de ACPT de ' + t + ' · ' + acptTargetLabel(t);
       htrAcpt.appendChild(th);
     });
     thead.appendChild(htrAcpt);
@@ -829,6 +1275,7 @@
     if(!box || !card) return;
 
     box.classList.toggle('fit-on', STATE.fitMode);
+    box.style.removeProperty('width'); // limpa a largura fixada por applyPrintFit, se houver
 
     if(!STATE.fitMode){
       card.style.transform = 'none';
@@ -886,12 +1333,51 @@
 
     card.style.transformOrigin = 'top left';
     card.style.transform = 'scale(' + scale + ')';
-    box.style.width = (natW * scale) + 'px';
-    box.style.height = (natH * scale) + 'px';
+    box.style.setProperty('width', (natW * scale) + 'px', 'important');
+    box.style.setProperty('height', (natH * scale) + 'px', 'important');
   }
 
   window.addEventListener('beforeprint', applyPrintFit);
   window.addEventListener('afterprint', applyFit);
+
+  // ---------------- print fit do quadro resumo (encolhe para caber numa única folha retrato) ----------------
+  function applyResumoPrintFit(){
+    var card = document.querySelector('.resumo-card');
+    var body = document.getElementById('resumoBody');
+    if(!card || !body) return;
+
+    body.style.transform = 'none';
+    var natW = body.scrollWidth;
+    var natH = body.scrollHeight;
+    if(!natW || !natH) return;
+
+    // Área útil de uma folha A4 retrato (210 x 297mm) descontando as margens de @page resumo (10mm cada lado), a 96dpi
+    var pageW = (210 - 20) * 96 / 25.4;
+    var pageH = (297 - 20) * 96 / 25.4;
+
+    var title = card.querySelector('.resumo-head h2');
+    var reservedH = (title ? title.offsetHeight : 0) + 10;
+    pageH = Math.max(100, pageH - reservedH);
+
+    var scale = Math.min(pageW / natW, pageH / natH, 1);
+    scale = Math.max(scale, 0.001);
+
+    body.style.transformOrigin = 'top left';
+    body.style.transform = 'scale(' + scale + ')';
+    body.style.setProperty('width', (natW * scale) + 'px', 'important');
+    body.style.setProperty('height', (natH * scale) + 'px', 'important');
+  }
+
+  function resetResumoPrintFit(){
+    var body = document.getElementById('resumoBody');
+    if(!body) return;
+    body.style.transform = 'none';
+    body.style.removeProperty('width');
+    body.style.removeProperty('height');
+  }
+
+  window.addEventListener('beforeprint', applyResumoPrintFit);
+  window.addEventListener('afterprint', resetResumoPrintFit);
 
   // ---------------- click-to-cycle state ----------------
   // Ciclo: SUBST (padrão) -> ACPT -> Livre -> SUBST -> ...
@@ -909,6 +1395,7 @@
     if(state === naturalDefault(day, teacher)) delete STATE.overrides[k];
     else STATE.overrides[k] = state;
     saveOverrides();
+    syncActiveNamedQuadro(); // mantém o quadro salvo (nomeado) em dia com a edição, se um estiver aberto
     renderTable();
     showToast(teacher + " marcado como " + (state === 'LIVRE' ? 'Livre' : state));
   }
@@ -1182,10 +1669,12 @@
         var parsed = await parsePdfFile(file);
         STATE.data = parsed;
         STATE.activeDay = null;
+        STATE.activeSavedName = null; // um novo PDF não corresponde a nenhum quadro salvo nomeado
         await loadOverrides();
         renderHeader();
         renderDayTabs();
         renderTable();
+        renderSavedDropdown();
         showToast("Quadro atualizado a partir do PDF (" + parsed.month + "/" + parsed.year + ").");
       }catch(err){
         console.error(err);
@@ -1211,6 +1700,276 @@
     });
   }
 
+  // ---------------- quadro resumo (ACPT/SUBST por professor) ----------------
+  var DAY_ABBR_SHORT = {SEG:"Seg", TER:"Ter", QUA:"Qua", QUI:"Qui", SEX:"Sex", SAB:"Sáb", DOM:"Dom"};
+
+  function countSUBSTForTeacher(teacher){
+    var count = 0;
+    var days = Object.keys(STATE.data.schedule);
+    days.forEach(function(day){
+      var periods = Object.keys(STATE.data.schedule[day]).filter(function(p){return p!=='INTERV';});
+      periods.forEach(function(period){
+        var cellData = STATE.data.schedule[day][period][teacher];
+        if(cellData && cellData.turma !== undefined) return;
+        if(cellState(day, period, teacher) === 'SUBST') count++;
+      });
+    });
+    return count;
+  }
+
+  // Monta, para cada professor, a lista de "dia + aula" em que está ACPT e em
+  // que está SUBST (ignora os horários em que o professor está dando aula).
+  function buildResumoRows(){
+    var teachers = STATE.data.teachers;
+    var days = Object.keys(STATE.data.schedule);
+    var periods = periodsForSchedule().filter(function(p){return p!=="INTERV";});
+
+    return teachers.map(function(teacher){
+      var acptChips = [];
+      var substChips = [];
+      days.forEach(function(day){
+        periods.forEach(function(period){
+          var cellData = STATE.data.schedule[day][period][teacher];
+          if(cellData && cellData.turma !== undefined) return; // dando aula, não entra no resumo
+          var state = cellState(day, period, teacher);
+          var label = (DAY_ABBR_SHORT[day] || day) + " " + (PERIOD_LABELS[period] || period);
+          if(state === 'ACPT') acptChips.push(label);
+          else if(state === 'SUBST') substChips.push(label);
+        });
+      });
+      return {
+        teacher: teacher,
+        acptTotal: acptChips.length,
+        substTotal: substChips.length,
+        acptChips: acptChips,
+        substChips: substChips
+      };
+    });
+  }
+
+  function chipsHtml(list, cls){
+    if(!list.length) return '<span class="resumo-empty">—</span>';
+    return list.map(function(l){
+      return '<span class="chip ' + cls + '">' + l + '</span>';
+    }).join('');
+  }
+
+  function renderResumoPorProfessor(){
+    var body = document.getElementById('resumoBody');
+    var rows = buildResumoRows();
+
+    var html = '<table class="resumo"><thead><tr>' +
+      '<th>Professor(a)</th>' +
+      '<th>ACPT</th>' +
+      '<th>Dias e horários — ACPT</th>' +
+      '<th>SUBST</th>' +
+      '<th>Dias e horários — SUBST</th>' +
+      '</tr></thead><tbody>';
+
+    rows.forEach(function(r){
+      html += '<tr>' +
+        '<td class="teacher">' + escapeHtml(r.teacher) + '</td>' +
+        '<td class="num acpt ' + acptTargetClass(r.teacher, r.acptTotal) + '" title="' + acptTargetLabel(r.teacher) + '">' + r.acptTotal + '</td>' +
+        '<td>' + chipsHtml(r.acptChips, 'acpt') + '</td>' +
+        '<td class="num subst">' + r.substTotal + '</td>' +
+        '<td>' + chipsHtml(r.substChips, 'subst') + '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table>';
+    body.innerHTML = html;
+  }
+
+  // Monta, para cada dia + horário, a lista de professores marcados como
+  // ACPT e a lista de professores marcados como SUBST naquele quadrinho.
+  // (ignora os horários em que o professor está de fato dando aula)
+  function buildResumoPorDiaRows(){
+    var teachers = STATE.data.teachers;
+    var days = Object.keys(STATE.data.schedule);
+    var periods = periodsForSchedule().filter(function(p){return p!=="INTERV";});
+
+    var rows = [];
+    days.forEach(function(day){
+      periods.forEach(function(period){
+        var acptNames = [];
+        var substNames = [];
+        teachers.forEach(function(teacher){
+          var cellData = STATE.data.schedule[day][period][teacher];
+          if(cellData && cellData.turma !== undefined) return; // dando aula, não entra no resumo
+          var state = cellState(day, period, teacher);
+          if(state === 'ACPT') acptNames.push(teacher);
+          else if(state === 'SUBST') substNames.push(teacher);
+        });
+        rows.push({
+          day: day,
+          period: period,
+          dayLabel: DAY_LABELS[day] || day,
+          periodLabel: PERIOD_LABELS[period] || period,
+          acptNames: acptNames,
+          substNames: substNames
+        });
+      });
+    });
+    return rows;
+  }
+
+  function namesHtml(list, cls){
+    if(!list.length) return '<span class="resumo-empty">—</span>';
+    return list.map(function(n){
+      return '<span class="chip ' + cls + '">' + escapeHtml(n) + '</span>';
+    }).join('');
+  }
+
+  function renderResumoPorDia(){
+    var body = document.getElementById('resumoBody');
+    var rows = buildResumoPorDiaRows();
+    var days = Object.keys(STATE.data.schedule);
+
+    var html = '<table class="resumo resumo-por-dia"><tbody>';
+
+    days.forEach(function(day){
+      var dayRows = rows.filter(function(r){ return r.day === day; });
+      if(!dayRows.length) return;
+
+      html += '<tr class="resumo-daily-head">' +
+        '<th>Dia</th>' +
+        '<th>Horário</th>' +
+        '<th>Substituição</th>' +
+        '<th>ACEPAT</th>' +
+        '</tr>';
+
+      dayRows.forEach(function(r, idx){
+        html += '<tr>';
+        if(idx === 0){
+          html += '<td class="day-first" rowspan="' + dayRows.length + '">' + escapeHtml(r.dayLabel) + '</td>';
+        }
+        html += '<td class="period">' + escapeHtml(r.periodLabel) + '</td>' +
+          '<td>' + namesHtml(r.substNames, 'subst') + '</td>' +
+          '<td>' + namesHtml(r.acptNames, 'acpt') + '</td>' +
+          '</tr>';
+      });
+    });
+
+    html += '</tbody></table>';
+    body.innerHTML = html;
+  }
+
+  function renderResumo(){
+    if(STATE.resumoView === 'porDia') renderResumoPorDia();
+    else renderResumoPorProfessor();
+  }
+
+  // ---------------- exportar quadro resumo para Excel ----------------
+  function exportResumoToExcel(){
+    if(typeof XLSX === 'undefined'){
+      showToast('Não foi possível carregar a biblioteca de exportação para Excel.');
+      return;
+    }
+    var wb = XLSX.utils.book_new();
+    var ws, data;
+
+    if(STATE.resumoView === 'porDia'){
+      var diaRows = buildResumoPorDiaRows();
+      data = [];
+      var merges = [];
+      var days = Object.keys(STATE.data.schedule);
+      days.forEach(function(day){
+        var dayRows = diaRows.filter(function(r){ return r.day === day; });
+        if(!dayRows.length) return;
+
+        data.push(['Dia', 'Horário', 'Substituição', 'ACEPAT']); // cabeçalho repetido a cada dia
+        var startRow = data.length; // primeira linha de dados deste dia (0-based)
+        dayRows.forEach(function(r, idx){
+          data.push([
+            idx === 0 ? (DAY_ABBR_SHORT[day] || day) : '',
+            r.periodLabel,
+            r.substNames.join(', '),
+            r.acptNames.join(', ')
+          ]);
+        });
+        var endRow = data.length - 1;
+        if(endRow > startRow){
+          merges.push({ s:{r:startRow, c:0}, e:{r:endRow, c:0} }); // mescla a coluna "Dia" ao longo dos horários (sem incluir a linha de cabeçalho)
+        }
+      });
+      ws = XLSX.utils.aoa_to_sheet(data);
+      ws['!cols'] = [{wch:8},{wch:12},{wch:42},{wch:42}];
+      ws['!merges'] = merges;
+      XLSX.utils.book_append_sheet(wb, ws, 'Por dia e horario');
+    } else {
+      var profRows = buildResumoRows();
+      data = [['Professor(a)', 'ACPT', 'Dias e horários — ACPT', 'SUBST', 'Dias e horários — SUBST']];
+      profRows.forEach(function(r){
+        data.push([r.teacher, r.acptTotal, r.acptChips.join(', '), r.substTotal, r.substChips.join(', ')]);
+      });
+      ws = XLSX.utils.aoa_to_sheet(data);
+      ws['!cols'] = [{wch:16},{wch:6},{wch:50},{wch:6},{wch:50}];
+      XLSX.utils.book_append_sheet(wb, ws, 'Por professor');
+    }
+
+    var fname = 'quadro-resumo-' + (STATE.resumoView === 'porDia' ? 'por-dia' : 'por-professor') +
+      '-' + (STATE.data.month || 'mes') + '-' + (STATE.data.year || '') + '.xlsx';
+    XLSX.writeFile(wb, fname);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function openResumo(){
+    updateResumoTitleAndToggle();
+    renderResumo();
+    document.getElementById('resumoOverlay').classList.add('open');
+  }
+  function closeResumo(){
+    document.getElementById('resumoOverlay').classList.remove('open');
+  }
+
+  function printResumo(){
+    document.body.classList.add('printing-resumo');
+    window.print();
+  }
+  // Garante que a classe usada só para a impressão do resumo seja sempre
+  // removida depois — mesmo que o usuário cancele a caixa de impressão.
+  window.addEventListener('afterprint', function(){
+    document.body.classList.remove('printing-resumo');
+  });
+
+  function updateResumoTitleAndToggle(){
+    var title = document.getElementById('resumoTitle');
+    var toggleBtn = document.getElementById('resumoViewToggleBtn');
+    if(STATE.resumoView === 'porDia'){
+      title.textContent = 'Quadro resumo — ACPT e Substituições por dia/horário';
+      toggleBtn.textContent = 'Ver por professor';
+    } else {
+      title.textContent = 'Quadro resumo — ACPT e Substituições por professor';
+      toggleBtn.textContent = 'Ver por dia/horário';
+    }
+  }
+
+  function toggleResumoView(){
+    STATE.resumoView = (STATE.resumoView === 'porDia') ? 'porProfessor' : 'porDia';
+    updateResumoTitleAndToggle();
+    renderResumo();
+  }
+
+  function wireResumo(){
+    var overlay = document.getElementById('resumoOverlay');
+    document.getElementById('resumoBtn').addEventListener('click', openResumo);
+    document.getElementById('resumoCloseBtn').addEventListener('click', closeResumo);
+    document.getElementById('resumoPrintBtn').addEventListener('click', printResumo);
+    document.getElementById('resumoViewToggleBtn').addEventListener('click', toggleResumoView);
+    document.getElementById('resumoExportExcelBtn').addEventListener('click', exportResumoToExcel);
+    overlay.addEventListener('click', function(ev){
+      if(ev.target === overlay) closeResumo(); // clique fora do card fecha o modal
+    });
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && overlay.classList.contains('open')) closeResumo();
+    });
+  }
+
   // ---------------- init ----------------
   async function init(){
     await loadOverrides();
@@ -1220,6 +1979,9 @@
     wireUpload();
     wirePrint();
     wireFitToggle();
+    wireExportImport();
+    wireResumo();
+    wireSavedQuadros();
   }
 
   init();
