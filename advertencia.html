@@ -201,8 +201,9 @@
     border-right: 1.5px solid #000;
     display: flex; align-items: center; justify-content: center;
     padding: 3mm;
+    overflow: hidden;
   }
-  .cab-logo img { max-height: 20mm; max-width: 40mm; object-fit: contain; }
+  .cab-logo img { max-height: 15mm; max-width: 36mm; width: auto; height: auto; object-fit: contain; }
   .cab-centro {
     text-align: center;
     padding: 3mm 6mm;
@@ -217,8 +218,9 @@
     border-left: 1.5px solid #000;
     display: flex; align-items: center; justify-content: center;
     padding: 2mm;
+    overflow: hidden;
   }
-  .cab-direito img { max-height: 14mm; max-width: 32mm; object-fit: contain; }
+  .cab-direito img { max-height: 12mm; max-width: 30mm; width: auto; height: auto; object-fit: contain; }
 
   .titulo-comunicacao {
     text-align: center;
@@ -228,7 +230,7 @@
     padding: 3mm 4mm 1mm;
   }
 
-  .corpo-bloco { padding: 3mm 5mm; }
+  .corpo-bloco { padding: 3mm 5mm 5mm; }
 
   .linha-aluno {
     margin-bottom: 3mm;
@@ -308,7 +310,7 @@
     height: 6mm;
     margin-bottom: 1mm;
   }
-  .assinatura-label { font-size: 8pt; font-weight: 700; text-align: center; text-transform: uppercase; }
+  .assinatura-label { font-size: 8pt; font-weight: 700; text-align: center; text-transform: uppercase; line-height: 1.35; margin-top: 0.8mm; }
 
   /* LOTE EDITOR */
   .lote-linha-wrap {
@@ -537,7 +539,7 @@
         <div class="form-grid-2">
           <div>
             <label>Coordenador(a) Pedagógico(a)</label>
-            <input type="text" value="Everton Correa" disabled
+            <input type="text" value="Everton Correa Alves" disabled
               style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;background:#eef1f6;color:#333;">
           </div>
         </div>
@@ -548,7 +550,7 @@
       <div id="modo-lote" style="display:none;">
         <div class="form-grid-2" style="margin-bottom:14px;">
           <div>
-            <label>Turma (todos os alunos) *</label>
+            <label>Turma (reserva p/ nomes não cadastrados)</label>
             <select id="turma_lote">
               <option value="">Selecione</option>
               <optgroup label="6º Ano">
@@ -626,7 +628,7 @@
 
         <div id="bloco-coord-pedagogico-lote" style="display:none;margin-bottom:14px;">
           <label>Coordenador(a) Pedagógico(a)</label>
-          <input type="text" value="Everton Correa" disabled
+          <input type="text" value="Everton Correa Alves" disabled
             style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;background:#eef1f6;color:#333;">
         </div>
 
@@ -1887,7 +1889,7 @@ function gerarBlocoHTML(dados) {
     linhaEmissor = `Coordenador(a) de Turno: <span class="campo-sublinhado">${nome_coord}</span>`;
     labelAssinatura = `COORDENADOR(A) DE TURNO${nomeEmissor ? ': ' + nomeEmissor.toUpperCase() : ''}`;
   } else if (tipoEmissor === 'coord_pedagogico') {
-    const nome_coord = nomeEmissor ? nomeEmissor.toUpperCase() : 'EVERTON CORREA';
+    const nome_coord = nomeEmissor ? nomeEmissor.toUpperCase() : 'EVERTON CORREA ALVES';
     linhaEmissor = `Coordenador(a) Pedagógico(a): <span class="campo-sublinhado">${nome_coord}</span>`;
     labelAssinatura = `COORDENADOR(A) PEDAGÓGICO(A): ${nome_coord}`;
   } else {
@@ -2007,14 +2009,14 @@ function gerarPrevia() {
     } else if (tipoEmissor === 'coord_turno') {
       nomeEmissor = document.getElementById('coord_turno_nome').value;
     } else if (tipoEmissor === 'coord_pedagogico') {
-      nomeEmissor = 'Everton Correa';
+      nomeEmissor = 'Everton Correa Alves';
     }
     if (!nome) { alert('Por favor, informe o nome do(a) aluno(a).'); return; }
     const dados = { nome, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
     for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
 
   } else {
-    const turma = document.getElementById('turma_lote').value;
+    const turmaReserva = document.getElementById('turma_lote').value;
     const turno = document.getElementById('turno_lote').value;
     const data = document.getElementById('data_lote').value;
     const tipoEmissor = document.getElementById('tipo_emissor_lote').value;
@@ -2025,17 +2027,25 @@ function gerarPrevia() {
     } else if (tipoEmissor === 'coord_turno') {
       nomeEmissor = document.getElementById('coord_turno_nome_lote').value;
     } else if (tipoEmissor === 'coord_pedagogico') {
-      nomeEmissor = 'Everton Correa';
+      nomeEmissor = 'Everton Correa Alves';
     }
     const listaTexto = document.getElementById('lista_alunos').value;
     const nomes = listaTexto.split('\n').map(s => s.trim()).filter(Boolean);
-    if (!turma) { alert('Selecione a turma.'); return; }
     if (nomes.length === 0) { alert('Adicione ao menos um aluno na lista.'); return; }
-    // Gerar todos os blocos individuais (respeitando nº de vias)
+    // Gerar todos os blocos individuais (respeitando nº de vias),
+    // usando a turma cadastrada de CADA aluno (não uma turma única para o lote).
     const blocos = [];
-    for (const nome of nomes) {
-      const dados = { nome, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
+    const semTurma = [];
+    for (const nomeItem of nomes) {
+      const alunoEncontrado = listaAlunos.find(a => normalizar(a.nome) === normalizar(nomeItem));
+      const turma = alunoEncontrado ? alunoEncontrado.turma : turmaReserva;
+      if (!turma) semTurma.push(nomeItem);
+      const dados = { nome: nomeItem, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
       for (let i = 0; i < vias; i++) blocos.push(gerarBlocoHTML(dados));
+    }
+    if (semTurma.length > 0) {
+      alert('Os seguintes nomes não estão cadastrados e não têm turma definida (selecione a "Turma reserva" ou cadastre o(a) aluno(a)):\n\n' + semTurma.join('\n'));
+      return;
     }
     // Agrupar 2 blocos por página
     for (let i = 0; i < blocos.length; i += 2) {
