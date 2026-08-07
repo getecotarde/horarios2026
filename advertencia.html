@@ -169,6 +169,8 @@
   .btn-danger { background: #c0392b; color: #fff; }
   .btn-danger:hover { opacity: .9; }
 
+  @page { size: A4; margin: 0; }
+
   /* PRÉVIA */
   #preview-section { display: none; }
   #preview-section.visible { display: block; }
@@ -201,9 +203,10 @@
     border-right: 1.5px solid #000;
     display: flex; align-items: center; justify-content: center;
     padding: 3mm;
+    height: 20mm;
     overflow: hidden;
   }
-  .cab-logo img { max-height: 15mm; max-width: 36mm; width: auto; height: auto; object-fit: contain; }
+  .cab-logo img { max-height: 100%; max-width: 100%; width: auto; height: auto; object-fit: contain; display: block; }
   .cab-centro {
     text-align: center;
     padding: 3mm 6mm;
@@ -218,9 +221,10 @@
     border-left: 1.5px solid #000;
     display: flex; align-items: center; justify-content: center;
     padding: 2mm;
+    height: 20mm;
     overflow: hidden;
   }
-  .cab-direito img { max-height: 12mm; max-width: 30mm; width: auto; height: auto; object-fit: contain; }
+  .cab-direito img { max-height: 100%; max-width: 100%; width: auto; height: auto; object-fit: contain; display: block; }
 
   .titulo-comunicacao {
     text-align: center;
@@ -260,7 +264,7 @@
     line-height: 1.4;
     text-align: justify;
   }
-  .opcao-print span { text-align: justify; }
+  .opcao-print span { text-align: justify; font-weight: 700; text-transform: uppercase; font-size: 10pt; }
   .box-check {
     display: inline-flex;
     align-items: center;
@@ -370,7 +374,7 @@
     #form-section, .btn-row-top, h1, .subtitle, .no-print { display: none !important; }
     #preview-section { display: block !important; }
     .bloco { page-break-inside: avoid; }
-    .par-alunos { page-break-after: always; }
+    .par-alunos { page-break-after: always; page-break-inside: avoid; }
     .par-alunos:last-child { page-break-after: auto; }
     .box-check {
       -webkit-print-color-adjust: exact !important;
@@ -1925,17 +1929,27 @@ function gerarBlocoHTML(dados) {
       const calca = document.getElementById('unif_calca').checked;
       const tenis = document.getElementById('unif_tenis').checked;
       const blusa = document.getElementById('unif_blusa').checked;
-      return `Apresentou-se sem uniforme: ${boxMarcado(calca)} Calça &nbsp;&nbsp; ${boxMarcado(tenis)} Tênis &nbsp;&nbsp; ${boxMarcado(blusa)} Blusa`;
+      const itens = [];
+      if (calca) itens.push('Calça');
+      if (tenis) itens.push('Tênis');
+      if (blusa) itens.push('Blusa');
+      return `Apresentou-se sem uniforme: ${itens.join(', ') || '________'}`;
     }},
     { id:'op6', texto: () => {
       const fis = document.getElementById('col_fisicamente').checked;
       const ver = document.getElementById('col_verbalmente').checked;
-      return `Agrediu o(a) colega: ${boxMarcado(fis)} Fisicamente &nbsp;&nbsp; ${boxMarcado(ver)} Verbalmente`;
+      const itens = [];
+      if (fis) itens.push('Fisicamente');
+      if (ver) itens.push('Verbalmente');
+      return `Agrediu o(a) colega: ${itens.join(', ') || '________'}`;
     }},
     { id:'op7', texto: () => {
       const fis = document.getElementById('prof_fisicamente').checked;
       const ver = document.getElementById('prof_verbalmente').checked;
-      return `Agrediu o(a) professor(a) ou funcionário(a): ${boxMarcado(fis)} Fisicamente &nbsp;&nbsp; ${boxMarcado(ver)} Verbalmente`;
+      const itens = [];
+      if (fis) itens.push('Fisicamente');
+      if (ver) itens.push('Verbalmente');
+      return `Agrediu o(a) professor(a) ou funcionário(a): ${itens.join(', ') || '________'}`;
     }},
     { id:'op8', texto: () => {
       const desc = document.getElementById('outros_desc').value || '_______________________________________________________________';
@@ -1946,15 +1960,14 @@ function gerarBlocoHTML(dados) {
   let opcoesHTML = '';
   linhasOpcoes.forEach(op => {
     const checked = document.getElementById(op.id).checked;
+    if (!checked) return;
     const texto = typeof op.texto === 'function' ? op.texto() : op.texto;
-    opcoesHTML += `<div class="opcao-print">${boxMarcado(checked)} <span>${texto}</span></div>`;
+    opcoesHTML += `<div class="opcao-print"><span>${texto}</span></div>`;
   });
 
   let obsHTML = '';
   if (observacoes) {
     obsHTML = `<div class="obs-area"><strong>Observações:</strong><div class="obs-texto">${observacoes}</div></div>`;
-  } else {
-    obsHTML = `<div class="obs-area"><strong>Observações:</strong><br><br></div>`;
   }
 
   return `
