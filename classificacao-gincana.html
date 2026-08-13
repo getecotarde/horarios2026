@@ -136,7 +136,8 @@
     text-align: left; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
   }
   .roster-card:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); border-color: var(--verde-claro); }
-  .roster-flag { font-size: 19px; line-height: 1; flex-shrink: 0; width: 24px; text-align: center; }
+  .roster-flag { font-size: 19px; line-height: 1; flex-shrink: 0; width: 24px; text-align: center; display: flex; align-items: center; justify-content: center; }
+  .roster-flag .flag-img { width: 24px; height: 18px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.1); }
   .roster-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
   .roster-country { font-weight: 800; font-size: 11.5px; color: var(--cinza-escuro); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .roster-turma {
@@ -270,6 +271,7 @@
 
   .team-cell { display: flex; align-items: center; gap: 10px; }
   .flag { font-size: 20px; }
+  .team-cell .flag-img { width: 26px; height: 19px; object-fit: cover; border-radius: 3px; box-shadow: 0 0 0 1px rgba(0,0,0,0.12); flex-shrink: 0; }
   .team-name { font-size: 14px; font-weight: 800; color: var(--cinza-escuro); }
   .turma-tag {
     display: inline-block; font-size: 10px; font-weight: 700; color: var(--azul);
@@ -331,19 +333,49 @@
   .print-footer { display: none; }
 
   @media print {
-    #topbar, .actions, footer.note, .upload-panel, .config-panel, .roster-panel { display: none; }
+    @page { size: landscape; margin: 8mm; }
+
+    #topbar, .actions, footer.note, .upload-panel, .config-panel, .roster-panel, .hero { display: none; }
     body { background: white; padding: 0; }
-    .wrap { padding: 10px 0 0; max-width: 100%; }
+    .wrap { padding: 0; max-width: 100%; }
     .board-wrapper { box-shadow: none; }
     .total-bar { display: none; }
 
+    /* resumo compacto */
+    .stats-grid { gap: 8px; margin-bottom: 8px; }
+    .stat-card { padding: 6px 10px; box-shadow: none; border-left-width: 3px; }
+    .stat-num { font-size: 16px; }
+    .stat-lbl { font-size: 8.5px; }
+
+    /* cabeçalho do placar compacto */
+    .board-header-bar { padding: 6px 12px; }
+    .board-header-bar h2 { font-size: 11px; }
+    .board-header-bar span { font-size: 9px; }
+
+    /* tabela compacta, sem colunas fixas (evita cortes) e sem quebra de linha */
+    .board-table-wrap { overflow: visible; }
+    table.board-table { font-size: 9px; width: 100%; table-layout: auto; }
+    table.board-table th, table.board-table td { padding: 3px 6px; white-space: nowrap; }
+    .pos-col, .team-col, .total-col { position: static; }
+    .rank-badge { width: 18px; height: 18px; font-size: 9px; }
+    .team-cell { gap: 6px; }
+    .team-cell .flag-img, .roster-flag .flag-img { width: 18px; height: 13px; }
+    .team-name { font-size: 9.5px; }
+    .turma-tag { font-size: 7px; padding: 0 4px; margin-top: 0; }
+    .wk-pill { min-width: 26px; padding: 2px 4px; font-size: 8.5px; }
+    .total-num { font-size: 10.5px; }
+    .obs-col { font-size: 8.5px; min-width: 0; max-width: 160px; white-space: normal; }
+    .obs-col .ded-chip { padding: 1px 5px; font-size: 8.5px; }
+
+    table, tbody, tr { page-break-inside: avoid; }
+
     .print-footer {
-      display: block; margin-top: 24px; padding-top: 12px;
+      display: block; margin-top: 8px; padding-top: 6px;
       border-top: 1px solid #d1dde8; text-align: center;
-      font-size: 11px; color: #4a5568; line-height: 1.6;
+      font-size: 9px; color: #4a5568; line-height: 1.4;
     }
-    .print-footer .escola { font-weight: 800; color: #1c1f26; text-transform: uppercase; letter-spacing: 0.03em; font-size: 11.5px; }
-    .print-footer .coords { margin-top: 2px; }
+    .print-footer .escola { font-weight: 800; color: #1c1f26; text-transform: uppercase; letter-spacing: 0.03em; font-size: 9.5px; }
+    .print-footer .coords { margin-top: 1px; }
   }
 </style>
 </head>
@@ -466,18 +498,18 @@
 <script>
 (function(){
   const TEAM_MAP = {
-    "6ºA": {country:"Argentina", flag:"🇦🇷"},
-    "6ºB": {country:"Espanha", flag:"🇪🇸"},
-    "6ºC": {country:"México", flag:"🇲🇽"},
-    "6ºD": {country:"Croácia", flag:"🇭🇷"},
-    "6ºE": {country:"Alemanha", flag:"🇩🇪"},
-    "6ºF": {country:"Noruega", flag:"🇳🇴"},
-    "7ºA": {country:"Senegal", flag:"🇸🇳"},
-    "7ºB": {country:"Marrocos", flag:"🇲🇦"},
-    "7ºC": {country:"Colômbia", flag:"🇨🇴"},
-    "7ºD": {country:"Uruguai", flag:"🇺🇾"},
-    "7ºE": {country:"Estados Unidos", flag:"🇺🇸"},
-    "8ºX": {country:"Equador", flag:"🇪🇨"}
+    "6ºA": {country:"Argentina", flag:"🇦🇷", iso:"ar"},
+    "6ºB": {country:"Espanha", flag:"🇪🇸", iso:"es"},
+    "6ºC": {country:"México", flag:"🇲🇽", iso:"mx"},
+    "6ºD": {country:"Croácia", flag:"🇭🇷", iso:"hr"},
+    "6ºE": {country:"Alemanha", flag:"🇩🇪", iso:"de"},
+    "6ºF": {country:"Noruega", flag:"🇳🇴", iso:"no"},
+    "7ºA": {country:"Senegal", flag:"🇸🇳", iso:"sn"},
+    "7ºB": {country:"Marrocos", flag:"🇲🇦", iso:"ma"},
+    "7ºC": {country:"Colômbia", flag:"🇨🇴", iso:"co"},
+    "7ºD": {country:"Uruguai", flag:"🇺🇾", iso:"uy"},
+    "7ºE": {country:"Estados Unidos", flag:"🇺🇸", iso:"us"},
+    "8ºX": {country:"Equador", flag:"🇪🇨", iso:"ec"}
   };
 
   // Painel estático "Turmas e Seleções" — mostra a bandeira de cada turma
@@ -486,7 +518,7 @@
     if (!grid) return;
     grid.innerHTML = Object.keys(TEAM_MAP).map(turmaKey => {
       const t = TEAM_MAP[turmaKey];
-      return '<div class="roster-card"><div class="roster-flag">'+t.flag+'</div><div class="roster-info"><div class="roster-country">'+t.country+'</div><div class="roster-turma">Turma '+turmaKey+'</div></div></div>';
+      return '<div class="roster-card"><div class="roster-flag">'+flagImg(t,"sm")+'</div><div class="roster-info"><div class="roster-country">'+t.country+'</div><div class="roster-turma">Turma '+turmaKey+'</div></div></div>';
     }).join('');
   }
   renderRoster();
@@ -720,6 +752,12 @@
     return {list, lastTs, totalAvaliacoes: rawRows.length, weeks};
   }
 
+  function flagImg(team, size){
+    if (!team.iso) return '<span class="flag-emoji">'+(team.flag||"🏳️")+'</span>';
+    const w = size === "sm" ? 20 : 24;
+    return '<img class="flag-img" src="https://flagcdn.com/w'+(w*2)+'/'+team.iso+'.png" alt="'+team.country+'" loading="lazy">';
+  }
+
   function fmt(n){
     const r = Math.round(n*10)/10;
     return (r>0? "+":"") + r.toString().replace(".",",");
@@ -745,7 +783,7 @@
     list.forEach(item => {
       const rankClass = item.rank <= 3 ? "rank-"+item.rank : "";
       let tds = '<td class="pos-col"><span class="rank-badge">'+item.rank+'</span></td>';
-      tds += '<td class="team-col"><div class="team-cell"><span class="flag">'+item.team.flag+'</span><div><div class="team-name">'+item.team.country+'</div><div class="turma-tag">Turma '+item.turmaKey+'</div></div></div></td>';
+      tds += '<td class="team-col"><div class="team-cell">'+flagImg(item.team)+'<div><div class="team-name">'+item.team.country+'</div><div class="turma-tag">Turma '+item.turmaKey+'</div></div></div></td>';
       item.weekScores.forEach((w, i) => {
         if (w === null){
           tds += '<td class="wk-cell">–</td>';
