@@ -1543,6 +1543,7 @@
     <div class="nav-group">
       <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
       <button onclick="requestProtectedAccess('registro-reunioes.html', 'Gerar ATA Reunião')">🗒️ Gerar ATA Reunião</button>
+      <button onclick="openExternal('https://drive.google.com/drive/folders/1QkIRyVx-HXTXnJZFtU7YU78ZT7fi4gUF?usp=drive_link', 'Advertências Realizadas', 'Acesso via conta Google autorizada (Google Drive).')">📁 Advertências Realizadas</button>
     </div>
 
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🎉 Eventos <span class="nav-arrow">▾</span></button>
@@ -3561,10 +3562,10 @@ const USERS = [
 // ── Permissões fixas por perfil ───────────────────────────────
 // admin (Everton) sempre tem acesso a tudo — definido em applyAccess()
 const PERFIL_ACCESS = {
-  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','gestao','mecano','mapeamento','linktree','advertencia','reunioes'],
-  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','mecano','mapeamento','linktree','advertencia','reunioes'],
-  gabriela: ['dashboard','professores','turmas','acepat','calendario','mecano','linktree','advertencia'],
-  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','calendario','mecano','advertencia']
+  wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','gestao','mecano','mapeamento','linktree','advertencia','adv_realizadas','reunioes'],
+  cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','mecano','mapeamento','linktree','advertencia','adv_realizadas','reunioes'],
+  gabriela: ['dashboard','professores','turmas','acepat','calendario','mecano','linktree','advertencia','adv_realizadas'],
+  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','calendario','mecano','advertencia','adv_realizadas']
 };
 
 let currentUser = null;
@@ -3654,13 +3655,14 @@ function applyAccess() {
     { tab: 'analise',       idx: 12 },
     { tab: 'advertencia',   idx: 14 },
     { tab: 'reunioes',      idx: 15 },
-    { tab: 'gincana',       idx: 17 },
-    { tab: 'gestao',        idx: 19 },
-    { tab: 'mecano',        idx: 20 },
-    { tab: 'mapeamento',    idx: 21 },
-    { tab: 'linktree',      idx: 22 },
-    { tab: 'smae',          idx: 23 },
-    { tab: 'sge',           idx: 24 }
+    { tab: 'adv_realizadas',idx: 16 },
+    { tab: 'gincana',       idx: 18 },
+    { tab: 'gestao',        idx: 20 },
+    { tab: 'mecano',        idx: 21 },
+    { tab: 'mapeamento',    idx: 22 },
+    { tab: 'linktree',      idx: 23 },
+    { tab: 'smae',          idx: 24 },
+    { tab: 'sge',           idx: 25 }
   ];
   btnMap.forEach(({ tab, idx }) => {
     if (navBtns[idx]) navBtns[idx].style.display = allowed.includes(tab) ? '' : 'none';
@@ -3691,6 +3693,7 @@ function initAcessoPanel() {
     mapeamento: '🗺️ Mapeamento', linktree: '🔗 LinkTree',
     smae: '📈 SMAE', sge: '🗂️ SGE', advertencia: '📝 Gerar Advertência', greve: '✊ Dashboard da Greve',
     reunioes: '🗒️ Gerar ATA Reunião',
+    adv_realizadas: '📁 Advertências Realizadas',
     ocorrencias: '📑 Ocorrências 1º Trimestre'
   };
   const secondaries = USERS.filter(u => u.perfil !== 'admin');
