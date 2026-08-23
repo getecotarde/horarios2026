@@ -6,6 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <style>
 :root{
   --paper:#F5F1E8;
@@ -61,6 +62,30 @@ body{
   background:var(--ink); color:var(--paper); text-align:center;
 }
 .overview-btn:hover{opacity:.9;}
+.overview-btn.dash{background:var(--plum);}
+.nav-row{display:flex; flex-direction:column; gap:6px;}
+.turma-switch{display:flex; flex-direction:column; gap:6px;}
+.turma-switch .lbl-sm{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:600; margin-top:6px;}
+.turma-switch-row{display:flex; gap:6px; align-items:center;}
+.turma-select{
+  flex:1; min-width:0; font-family:'Inter',sans-serif; font-size:13px; padding:8px 9px;
+  border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); cursor:pointer;
+}
+.turma-del-btn{
+  flex-shrink:0; width:32px; height:32px; border-radius:8px; border:1px solid var(--line);
+  background:#fff; color:var(--danger); cursor:pointer; font-size:13px;
+}
+.turma-del-btn:hover{background:var(--danger-soft);}
+.turma-count-note{font-size:11px; color:var(--ink-soft);}
+.dash-section{margin-bottom:30px;}
+.dash-controls{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;}
+.dash-controls select{
+  font-family:'Inter',sans-serif; font-size:13px; padding:7px 10px; border:1px solid var(--line);
+  border-radius:8px; background:#fff; color:var(--ink); min-width:200px;
+}
+.chart-card{background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 20px;}
+.chart-card canvas{max-height:340px;}
+.chart-empty{color:var(--ink-soft); font-size:13px; text-align:center; padding:30px 0;}
 .main{flex:1; padding:32px 44px; max-width:1180px;}
 .hdr{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:26px; border-bottom:2px solid var(--ink); padding-bottom:14px;}
 .hdr h1{font-family:'Fraunces',serif; font-size:30px; margin:0; font-weight:700;}
@@ -235,8 +260,17 @@ body{
       <div class="sub">Quadro síntese de pontuação</div>
     </label>
     <div class="status-line" id="statusLine"></div>
-    <div class="overview-btn" id="overviewBtn">Visão geral — todas as turmas</div>
-    <div class="class-list" id="classList"></div>
+    <div class="nav-row">
+      <div class="overview-btn" id="overviewBtn">📋 Visão geral — todas as turmas</div>
+      <div class="overview-btn dash" id="dashboardBtn">📊 Dashboard</div>
+    </div>
+    <div class="turma-switch">
+      <div class="lbl-sm" id="turmaCountLbl">Turmas</div>
+      <div class="turma-switch-row">
+        <select class="turma-select" id="classSelect"><option value="">— selecionar turma —</option></select>
+        <button class="turma-del-btn" id="classDelBtn" title="Remover turma selecionada">✕</button>
+      </div>
+    </div>
   </div>
   <div class="main" id="main">
     <div class="empty">
@@ -249,7 +283,12 @@ body{
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-const PASS = 18, MAXV = 30;
+// Estrutura de pesos: 1º e 2º trimestre valem 30 (média 18 = 60%), 3º trimestre vale 40 (média 24 = 60%).
+// O Total Anual (TA) é a soma acumulada das notas totais de cada trimestre já lançado (máx. 100, média 60 = 60%).
+const TRI_MAX  = [30, 30, 40];
+const TRI_PASS = [18, 18, 24];
+const CUM_MAX  = [30, 60, 100]; // acumulado após 1, 2 ou 3 trimestres lançados
+const CUM_PASS = [18, 36, 60];  // 60% do acumulado
 const DIRECT='direct', RECOVERED='recovered', NOTREC='notrec', NA='na';
 
 const SUBJECT_DICT = [
@@ -284,11 +323,13 @@ let pendingParse = null; // {rawLines, name, tokensPerSubjDetected, studentsRaw}
 let activeClass = null; // 'OVERVIEW' or class name
 let reviewQueue = []; // turmas detectadas aguardando confirmação
 
-function classAlreadyLoaded(name){
+function findSavedClassKey(name){
   const norm = name.trim().toLowerCase();
-  if(Object.keys(currentClasses).some(n=>n.trim().toLowerCase()===norm)) return true;
-  if(reviewQueue.some(p=>p.className.trim().toLowerCase()===norm)) return true;
-  return false;
+  return Object.keys(currentClasses).find(n=>n.trim().toLowerCase()===norm) || null;
+}
+function existsInQueue(name){
+  const norm = name.trim().toLowerCase();
+  return reviewQueue.some(p=>p.className.trim().toLowerCase()===norm);
 }
 
 function statusMsg(t){ document.getElementById('statusLine').textContent = t; }
@@ -406,10 +447,8 @@ function parseClassPDF(lines, fallbackSubjects){
     const rme = tokens[2];
     const subjData = [];
     for(let i=0;i<nSubj;i++){
-      const g = tail.slice(i*7,(i*7)+7); // n1 r1 n2 r2 n3 r3 TA
-      let usedIdx = 0;
-      for(let k=2;k>=0;k--){ if(g[k*2] !== '-'){ usedIdx=k; break; } }
-      subjData.push({ nota: g[usedIdx*2], rec: g[usedIdx*2+1], ta: g[6] });
+      const g = tail.slice(i*7,(i*7)+7); // n1 r1 n2 r2 n3 r3 TA(bruto, não usado no cálculo)
+      subjData.push({ n1:g[0], r1:g[1], n2:g[2], r2:g[3], n3:g[4], r3:g[5], taBruto:g[6] });
     }
     students.push({rme, name, subjects: subjData});
   }
@@ -417,17 +456,37 @@ function parseClassPDF(lines, fallbackSubjects){
   return {className, subjects, students};
 }
 
-function classify(nota, rec){
-  if(nota==='S' || nota==='-') return NA;
+function isEmpty(v){ return v===undefined || v==='S' || v==='-'; }
+
+// Calcula a situação e a nota total de UM trimestre (idx 0=1º,1=2º,2=3º).
+// Regra: se a nota já bate a média, vale a nota. Se precisou de recuperação,
+// a nota total do trimestre é a MAIOR entre a nota normal e a recuperação.
+function trimestreCalc(nota, rec, idx){
+  const max = TRI_MAX[idx], pass = TRI_PASS[idx];
+  if(isEmpty(nota)) return {status:NA, total:null, max, pass, filled:false};
   const n = Number(nota);
-  if(n>=PASS) return DIRECT;
-  if(rec==='X' || rec==='-') return NOTREC;
+  if(n>=pass) return {status:DIRECT, total:n, max, pass, filled:true};
+  if(isEmpty(rec) || rec==='X'){
+    return {status:NOTREC, total:n, max, pass, filled:true};
+  }
   const r = Number(rec);
-  return r>=PASS ? RECOVERED : NOTREC;
+  const total = Math.max(n, r);
+  return {status: total>=pass ? RECOVERED : NOTREC, total, max, pass, filled:true};
 }
-function taStatus(ta){
-  if(ta==='S' || ta==='-') return NA;
-  return Number(ta)>=PASS ? 'ok':'bad';
+
+// Calcula os 3 trimestres de uma disciplina de um aluno + o Total Anual (soma acumulada).
+function subjectCalc(s){
+  const tris = [
+    trimestreCalc(s.n1, s.r1, 0),
+    trimestreCalc(s.n2, s.r2, 1),
+    trimestreCalc(s.n3, s.r3, 2)
+  ];
+  const filled = tris.filter(t=>t.filled);
+  if(filled.length===0) return {tris, ta:null, taMax:null, taPass:null, taStatus:NA, filledCount:0};
+  const ta = filled.reduce((sum,t)=> sum + t.total, 0);
+  const taMax = CUM_MAX[filled.length-1];
+  const taPass = CUM_PASS[filled.length-1];
+  return {tris, ta, taMax, taPass, taStatus: ta>=taPass ? 'ok':'bad', filledCount: filled.length};
 }
 
 function computeStats(classData){
@@ -435,20 +494,27 @@ function computeStats(classData){
   const stats = subjects.map((name,idx)=>{
     let direct=0, recovered=0, notrec=0, taPass=0, taTotal=0, n=0;
     for(const st of students){
-      const s = st.subjects[idx];
-      const c = classify(s.nota, s.rec);
-      if(c!==NA){ n++; if(c===DIRECT) direct++; else if(c===RECOVERED) recovered++; else notrec++; }
-      const ts = taStatus(s.ta);
-      if(ts!=='na'){ taTotal++; if(ts==='ok') taPass++; }
+      const calc = subjectCalc(st.subjects[idx]);
+      const filled = calc.tris.filter(t=>t.filled);
+      if(filled.length){
+        n++;
+        const last = filled[filled.length-1]; // situação do trimestre mais recente lançado
+        if(last.status===DIRECT) direct++; else if(last.status===RECOVERED) recovered++; else notrec++;
+      }
+      if(calc.filledCount>0){ taTotal++; if(calc.taStatus==='ok') taPass++; }
     }
     const needRec = recovered+notrec;
     return {name, n, direct, recovered, notrec, needRec, taPass, taTotal};
   });
 
-  // Alunos com nota final (nota total) abaixo da média em 2 ou mais disciplinas —
+  // Alunos com Total Anual abaixo da média em 2 ou mais disciplinas —
   // não é um "destaque negativo": é um sinalizador de acompanhamento próximo.
   const atencao = students.map(st=>{
-    const lowSubjects = subjects.filter((subjName,idx)=> !isLiteratura(subjName) && taStatus(st.subjects[idx].ta)==='bad');
+    const lowSubjects = subjects.filter((subjName,idx)=>{
+      if(isLiteratura(subjName)) return false;
+      const calc = subjectCalc(st.subjects[idx]);
+      return calc.filledCount>0 && calc.taStatus==='bad';
+    });
     return {name: st.name, count: lowSubjects.length, lowSubjects};
   }).filter(st=> st.count>=2)
     .sort((a,b)=> b.count-a.count);
@@ -457,9 +523,10 @@ function computeStats(classData){
     let hasAny=false;
     return st.subjects.every((s,idx)=>{
       if(isLiteratura(subjects[idx])) return true;
-      if(s.ta==='S'||s.ta==='-') return true;
+      const calc = subjectCalc(s);
+      if(calc.filledCount===0) return true;
       hasAny=true;
-      return Number(s.ta) >= 0.7*MAXV;
+      return (calc.ta/calc.taMax) >= 0.7;
     }) && hasAny;
   });
 
@@ -469,10 +536,12 @@ function computeStats(classData){
   const idxPort = subjIndexOf('PORTUGUESA');
   const idxMat = subjIndexOf('MATEM');
   const destaquesPort = idxPort>=0 ? students.filter(st=>{
-    const s=st.subjects[idxPort]; return s.ta!=='S'&&s.ta!=='-' && Number(s.ta)>=0.9*MAXV;
+    const calc = subjectCalc(st.subjects[idxPort]);
+    return calc.filledCount>0 && (calc.ta/calc.taMax)>=0.9;
   }) : [];
   const destaquesMat = idxMat>=0 ? students.filter(st=>{
-    const s=st.subjects[idxMat]; return s.ta!=='S'&&s.ta!=='-' && Number(s.ta)>=0.9*MAXV;
+    const calc = subjectCalc(st.subjects[idxMat]);
+    return calc.filledCount>0 && (calc.ta/calc.taMax)>=0.9;
   }) : [];
 
   return {stats, destaques70, destaquesPort, destaquesMat, atencao};
@@ -525,27 +594,29 @@ function saveGlobalConfig(cfg){
 
 // ---------- UI ----------
 function renderSidebar(){
-  const list = document.getElementById('classList');
-  list.innerHTML='';
+  const select = document.getElementById('classSelect');
   const names = Object.keys(currentClasses).sort();
-  for(const name of names){
-    const el = document.createElement('div');
-    el.className = 'class-item'+(activeClass===name?' active':'');
-    el.innerHTML = `<span>${name}</span><span class="n">${currentClasses[name].students.length} alunos</span><span class="del" title="Remover">✕</span>`;
-    el.onclick = (e)=>{
-      if(e.target.classList.contains('del')){
-        e.stopPropagation();
-        if(confirm('Remover a turma "'+name+'"?')){
-          deleteClass(name); delete currentClasses[name];
-          if(activeClass===name) activeClass=null;
-          renderSidebar(); renderMain();
-        }
-        return;
-      }
-      activeClass = name; renderSidebar(); renderMain();
-    };
-    list.appendChild(el);
-  }
+  document.getElementById('turmaCountLbl').textContent = 'Turmas ('+names.length+')';
+  const prevValue = select.value;
+  select.innerHTML = '<option value="">— selecionar turma —</option>' +
+    names.map(name=>`<option value="${name.replace(/"/g,'&quot;')}">${name} · ${currentClasses[name].students.length} alunos</option>`).join('');
+  // mantém a turma ativa selecionada no dropdown (se ainda existir)
+  select.value = names.includes(activeClass) ? activeClass : (names.includes(prevValue) ? prevValue : '');
+  select.onchange = ()=>{
+    if(!select.value) return;
+    activeClass = select.value;
+    renderSidebar(); renderMain();
+  };
+  const delBtn = document.getElementById('classDelBtn');
+  delBtn.onclick = ()=>{
+    const name = select.value;
+    if(!name){ alert('Selecione uma turma para remover.'); return; }
+    if(confirm('Remover a turma "'+name+'"?')){
+      deleteClass(name); delete currentClasses[name];
+      if(activeClass===name) activeClass=null;
+      renderSidebar(); renderMain();
+    }
+  };
 }
 
 function pct(a,b){ return b>0 ? Math.round((a/b)*100) : null; }
@@ -554,8 +625,9 @@ function statusClass(p){ if(p===null) return 'na'; if(p>=70) return 'ok'; if(p>=
 function renderMain(){
   const main = document.getElementById('main');
   if(activeClass==='OVERVIEW') return renderOverview();
+  if(activeClass==='DASHBOARD') return renderDashboard();
   if(!activeClass || !currentClasses[activeClass]){
-    main.innerHTML = `<div class="empty"><h2>Nenhuma turma selecionada</h2><p>Envie um PDF ou escolha uma turma na lista ao lado.</p></div>`;
+    main.innerHTML = `<div class="empty"><h2>Nenhuma turma selecionada</h2><p>Envie um PDF ou escolha uma turma no seletor ao lado.</p></div>`;
     return;
   }
   const cd = currentClasses[activeClass];
@@ -658,22 +730,26 @@ function attentionCard(list){
 function renderDetail(cd, idx){
   const subjName = cd.subjects[idx];
   const panel = document.getElementById('detailPanel');
+  const tagFor = (t)=>{
+    if(!t.filled) return '<span class="tag na">—</span>';
+    if(t.status===DIRECT) return '<span class="tag ok">Direta</span>';
+    if(t.status===RECOVERED) return '<span class="tag ok">Recuperou</span>';
+    return '<span class="tag bad">Não recuperou</span>';
+  };
+  const triCell = (t)=> t.filled
+    ? `${t.total}/${t.max} ${tagFor(t)}`
+    : `<span class="tag na">—</span>`;
   let rows = cd.students.map(st=>{
     const s = st.subjects[idx];
-    const c = classify(s.nota, s.rec);
-    const ts = taStatus(s.ta);
-    const tagFor = (val)=>{
-      if(val===DIRECT) return '<span class="tag ok">Média direta</span>';
-      if(val===RECOVERED) return '<span class="tag ok">Recuperou</span>';
-      if(val===NOTREC) return '<span class="tag bad">Não recuperou</span>';
-      return '<span class="tag na">—</span>';
-    };
-    const taTag = ts==='ok' ? '<span class="tag ok">Aprovado</span>' : ts==='bad' ? '<span class="tag bad">Reprovado</span>' : '<span class="tag na">—</span>';
-    return `<tr><td style="font-family:'Inter',sans-serif;">${st.name}</td><td>${s.nota}</td><td>${s.rec}</td><td>${tagFor(c)}</td><td>${s.ta}</td><td>${taTag}</td></tr>`;
+    const calc = subjectCalc(s);
+    const taCell = calc.filledCount>0
+      ? `<strong>${calc.ta}/${calc.taMax}</strong> <span class="tag ${calc.taStatus==='ok'?'ok':'bad'}">${calc.taStatus==='ok'?'Aprovado':'Reprovado'}</span>`
+      : `<span class="tag na">—</span>`;
+    return `<tr><td style="font-family:'Inter',sans-serif;">${st.name}</td><td>${triCell(calc.tris[0])}</td><td>${triCell(calc.tris[1])}</td><td>${triCell(calc.tris[2])}</td><td>${taCell}</td></tr>`;
   }).join('');
   panel.innerHTML = `<div class="detail-panel">
     <h3 style="font-family:'Fraunces',serif; margin-top:0;">${subjName} — detalhe por aluno</h3>
-    <table><thead><tr><th>Aluno</th><th>Nota inicial</th><th>Recuperação</th><th>Situação</th><th>Nota total</th><th>Resultado final</th></tr></thead>
+    <table><thead><tr><th>Aluno</th><th>1º Trim. (máx 30)</th><th>2º Trim. (máx 30)</th><th>3º Trim. (máx 40)</th><th>Total Anual (máx 100)</th></tr></thead>
     <tbody>${rows}</tbody></table>
   </div>`;
   panel.scrollIntoView({behavior:'smooth', block:'start'});
@@ -725,10 +801,107 @@ function renderOverview(){
   main.innerHTML = html;
 }
 
+// ---------- DASHBOARD ----------
+let dashCharts = {}; // canvasId -> instância Chart.js (para destruir antes de redesenhar)
+function destroyChart(id){
+  if(dashCharts[id]){ dashCharts[id].destroy(); delete dashCharts[id]; }
+}
+// % geral de aprovação no Total Anual de uma turma, somando todas as disciplinas (exceto Literatura)
+function turmaApprovalPct(cd){
+  const {stats} = computeStats(cd);
+  let pass=0, total=0;
+  stats.forEach(s=>{ pass+=s.taPass; total+=s.taTotal; });
+  return pct(pass, total);
+}
+
+function renderDashboard(){
+  const main = document.getElementById('main');
+  const names = Object.keys(currentClasses).sort();
+  if(names.length===0){
+    main.innerHTML = `<div class="empty"><h2>Nenhuma turma carregada</h2><p>Envie ao menos um PDF para ver o dashboard.</p></div>`;
+    return;
+  }
+  let html = `<div class="hdr"><h1>Dashboard</h1></div>`;
+
+  html += `<div class="dash-section">
+    <div class="section-title">Comparativo geral entre turmas (% de aprovação no Total Anual)</div>
+    <div class="chart-card"><canvas id="chartTurmas"></canvas></div>
+  </div>`;
+
+  html += `<div class="dash-section">
+    <div class="section-title">Rendimento individual por trimestre</div>
+    <div class="chart-card">
+      <div class="dash-controls">
+        <select id="dashTurmaSelect">${names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('')}</select>
+        <select id="dashAlunoSelect"></select>
+      </div>
+      <canvas id="chartAluno"></canvas>
+      <div class="chart-empty" id="chartAlunoEmpty" style="display:none;">Este aluno ainda não tem notas lançadas em nenhum trimestre.</div>
+    </div>
+  </div>`;
+
+  main.innerHTML = html;
+
+  // --- Gráfico 1: comparativo geral entre turmas ---
+  destroyChart('chartTurmas');
+  const turmaValues = names.map(n=> turmaApprovalPct(currentClasses[n]) ?? 0);
+  const ctxT = document.getElementById('chartTurmas').getContext('2d');
+  dashCharts['chartTurmas'] = new Chart(ctxT, {
+    type:'bar',
+    data:{ labels: names, datasets:[{ label:'% aprovação (Total Anual)', data: turmaValues, backgroundColor:'#2F6F63', borderRadius:4 }] },
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.parsed.y+'%'}} },
+      scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
+    }
+  });
+
+  // --- Gráfico 2: rendimento individual do aluno, por disciplina, ao longo dos trimestres ---
+  const turmaSel = document.getElementById('dashTurmaSelect');
+  const alunoSel = document.getElementById('dashAlunoSelect');
+  const CHART_COLORS = ['#2F6F63','#B4802A','#9C3E2C','#6E4A7E','#3B6E9C','#8A6D3B','#5A8F3B','#B4457A','#4A7E6E','#7E5A4A'];
+
+  function populateAlunos(){
+    const cd = currentClasses[turmaSel.value];
+    alunoSel.innerHTML = cd.students.map((st,i)=>`<option value="${i}">${st.name}</option>`).join('');
+  }
+  function drawAlunoChart(){
+    const cd = currentClasses[turmaSel.value];
+    const st = cd.students[Number(alunoSel.value)];
+    destroyChart('chartAluno');
+    if(!st) return;
+    const subjIdxs = cd.subjects.map((s,i)=>i).filter(i=>!isLiteratura(cd.subjects[i]));
+    const datasets = subjIdxs.map((i, di)=>{
+      const calc = subjectCalc(st.subjects[i]);
+      const data = calc.tris.map(t=> t.filled ? Math.round((t.total/t.max)*100) : null);
+      const color = CHART_COLORS[di % CHART_COLORS.length];
+      return { label: cd.subjects[i], data, borderColor: color, backgroundColor: color, tension:.25, spanGaps:false };
+    });
+    const anyData = datasets.some(d=> d.data.some(v=>v!==null));
+    document.getElementById('chartAlunoEmpty').style.display = anyData ? 'none' : 'block';
+    document.getElementById('chartAluno').style.display = anyData ? 'block' : 'none';
+    if(!anyData) return;
+    const ctxA = document.getElementById('chartAluno').getContext('2d');
+    dashCharts['chartAluno'] = new Chart(ctxA, {
+      type:'line',
+      data:{ labels:['1º Trimestre','2º Trimestre','3º Trimestre'], datasets },
+      options:{
+        responsive:true,
+        plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:(c)=> c.dataset.label+': '+(c.raw??'—')+'%'}} },
+        scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
+      }
+    });
+  }
+  turmaSel.onchange = ()=>{ populateAlunos(); drawAlunoChart(); };
+  alunoSel.onchange = drawAlunoChart;
+  populateAlunos();
+  drawAlunoChart();
+}
+
 // ---------- UPLOAD FLOW ----------
 document.getElementById('fileInput').addEventListener('change', async (e)=>{
   const files = Array.from(e.target.files);
-  let skipped = 0, queued = 0;
+  let skippedDup = 0, queued = 0, updates = 0;
   for(const file of files){
     statusMsg('Lendo '+file.name+'…');
     try{
@@ -742,10 +915,15 @@ document.getElementById('fileInput').addEventListener('change', async (e)=>{
           continue;
         }
         lastSubjects = parsed.subjects;
-        if(classAlreadyLoaded(parsed.className)){
-          skipped++;
+        // Evita duplicar a MESMA turma dentro da fila de revisão (ex.: mesmo arquivo enviado 2x de uma vez).
+        if(existsInQueue(parsed.className)){
+          skippedDup++;
           continue;
         }
+        // Turma já salva anteriormente: NÃO ignora — entra na fila marcada como atualização,
+        // para trazer as notas mais recentes (ex.: 2º ou 3º trimestre agora preenchido).
+        parsed.isUpdate = !!findSavedClassKey(parsed.className);
+        if(parsed.isUpdate) updates++;
         reviewQueue.push(parsed);
         queued++;
       }
@@ -755,8 +933,11 @@ document.getElementById('fileInput').addEventListener('change', async (e)=>{
     }
   }
   e.target.value = '';
-  if(skipped>0){
-    statusMsg(skipped+' turma(s) já carregada(s) foram ignoradas.'+(queued>0?' '+queued+' nova(s) para revisar.':''));
+  if(skippedDup>0){
+    statusMsg(skippedDup+' arquivo(s) duplicado(s) na mesma seleção foram ignorados.');
+  }
+  if(updates>0){
+    statusMsg((updates)+' turma(s) já existente(s) serão atualizada(s) com os novos dados.'+(queued>updates?' '+(queued-updates)+' nova(s) para revisar.':''));
   }
   if(reviewQueue.length){
     processNextInQueue();
@@ -772,12 +953,18 @@ function processNextInQueue(){
 function showReview(parsed){
   const main = document.getElementById('main');
   const remaining = reviewQueue.length;
+  const updateNotice = parsed.isUpdate
+    ? `<p style="background:var(--warn-soft); color:var(--warn); border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:600;">
+        Esta turma já existe. Ao confirmar, os dados serão ATUALIZADOS com as notas deste PDF (o total de cada trimestre é recalculado; mês/ano e professor de referência já salvos são mantidos).
+      </p>`
+    : '';
   let html = `<div class="review-box">
     <h3>Confirmar disciplinas — ${parsed.className}${remaining>0?` <span style="font-size:12px; color:var(--ink-soft); font-weight:400;">(mais ${remaining} turma(s) na fila)</span>`:''}</h3>
+    ${updateNotice}
     <p style="color:var(--ink-soft); font-size:13px;">Detectamos ${parsed.students.length} alunos e ${parsed.subjects.length} disciplinas. Ajuste os nomes se necessário antes de salvar.</p>
     <div class="subj-edit">${parsed.subjects.map((s,i)=>`<input type="text" id="subjInput${i}" value="${s}">`).join('')}</div>
     <label style="font-size:12.5px; display:block; margin-bottom:10px;">Nome da turma: <input type="text" id="classNameInput" value="${parsed.className}" style="margin-left:6px; padding:5px 8px; border:1px solid var(--line); border-radius:6px; font-family:'Inter',sans-serif;"></label>
-    <button class="btn" id="confirmSave">Salvar e analisar</button>
+    <button class="btn" id="confirmSave">${parsed.isUpdate ? 'Atualizar dados da turma' : 'Salvar e analisar'}</button>
     <button class="btn secondary" id="cancelReview" style="margin-left:8px;">${remaining>0?'Pular esta turma':'Cancelar'}</button>
   </div>`;
   main.innerHTML = html;
@@ -786,22 +973,23 @@ function showReview(parsed){
     const btn = document.getElementById('confirmSave');
     const subjects = parsed.subjects.map((_,i)=>document.getElementById('subjInput'+i).value.trim());
     const className = document.getElementById('classNameInput').value.trim() || parsed.className;
-    if(classAlreadyLoaded(className)){
-      alert('Já existe uma turma chamada "'+className+'". Escolha outro nome ou remova a turma existente antes de salvar.');
-      return;
-    }
-    const data = {className, subjects, students: parsed.students};
-    btn.disabled = true; btn.textContent = 'Salvando…';
+    const existingKey = findSavedClassKey(className);
+    // Se já existe uma turma com esse nome, ATUALIZA (mantendo meta.mesAno / meta.professor já salvos)
+    // em vez de bloquear o salvamento.
+    const data = existingKey
+      ? {...currentClasses[existingKey], className: existingKey, subjects, students: parsed.students}
+      : {className, subjects, students: parsed.students};
+    btn.disabled = true; btn.textContent = existingKey ? 'Atualizando…' : 'Salvando…';
     try{
-      await saveClass(className, data);
-      currentClasses[className] = data;
-      activeClass = className;
-      statusMsg('Turma "'+className+'" salva.');
+      await saveClass(data.className, data);
+      currentClasses[data.className] = data;
+      activeClass = data.className;
+      statusMsg('Turma "'+data.className+'" '+(existingKey ? 'atualizada' : 'salva')+'.');
       renderSidebar();
       processNextInQueue();
     }catch(err){
       console.error(err);
-      btn.disabled = false; btn.textContent = 'Salvar e analisar';
+      btn.disabled = false; btn.textContent = existingKey ? 'Atualizar dados da turma' : 'Salvar e analisar';
       statusMsg('Erro ao salvar: '+err.message);
       alert('Não foi possível salvar a turma. Detalhe: '+err.message);
     }
@@ -809,6 +997,7 @@ function showReview(parsed){
 }
 
 document.getElementById('overviewBtn').onclick = ()=>{ activeClass='OVERVIEW'; renderSidebar(); renderMain(); };
+document.getElementById('dashboardBtn').onclick = ()=>{ activeClass='DASHBOARD'; renderSidebar(); renderMain(); };
 
 // ---------- INIT ----------
 (async function init(){
