@@ -867,12 +867,56 @@ let dashCharts = {}; // canvasId -> instância Chart.js (para destruir antes de 
 function destroyChart(id){
   if(dashCharts[id]){ dashCharts[id].destroy(); delete dashCharts[id]; }
 }
+// Plugin Chart.js: desenha uma linha horizontal tracejada e mais grossa em y=60,
+// marcando o critério de aprovação (60% do acumulado). Usado nos gráficos do Dashboard.
+const linhaCorte60Plugin = {
+  id: 'linhaCorte60',
+  afterDraw(chart){
+    const {ctx, chartArea, scales} = chart;
+    const y = scales.y;
+    if(!y || !chartArea) return;
+    const yPixel = y.getPixelForValue(60);
+    if(yPixel < chartArea.top || yPixel > chartArea.bottom) return;
+    ctx.save();
+    ctx.strokeStyle = '#9C3E2C';
+    ctx.lineWidth = 3;
+    ctx.setLineDash([9,6]);
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, yPixel);
+    ctx.lineTo(chartArea.right, yPixel);
+    ctx.stroke();
+    ctx.restore();
+  }
+};
 // % geral de aprovação no Total Anual de uma turma, somando todas as disciplinas (exceto Literatura)
 function turmaApprovalPct(cd){
   const {stats} = computeStats(cd);
   let pass=0, total=0;
   stats.forEach(s=>{ pass+=s.taPass; total+=s.taTotal; });
   return pct(pass, total);
+}
+
+// Deduz o ano (6º/7º/8º) de uma turma a partir do mesmo padrão usado em shortTurmaLabel.
+function turmaGradeNumber(name){
+  if(!name) return null;
+  const code = name.split(' - ')[0].trim();
+  const m = code.match(/([1-3])T([A-Za-z])$/i);
+  if(!m) return null;
+  return m[1]==='1' ? 7 : m[1]==='2' ? 8 : m[1]==='3' ? 6 : null;
+}
+// Média (%) do aproveitamento da nota total de um trimestre específico, considerando
+// todos os alunos e disciplinas (exceto Literatura) de uma turma.
+function turmaTrimestreAvgPct(cd, triIdx){
+  let sum=0, count=0;
+  cd.subjects.forEach((subjName, idx)=>{
+    if(isLiteratura(subjName)) return;
+    cd.students.forEach(st=>{
+      const calc = subjectCalc(st.subjects[idx]);
+      const t = calc.tris[triIdx];
+      if(t.filled){ sum += (t.total/t.max)*100; count++; }
+    });
+  });
+  return count>0 ? Math.round(sum/count) : 0;
 }
 
 function renderDashboard(){
@@ -882,12 +926,8 @@ function renderDashboard(){
     main.innerHTML = `<div class="empty"><h2>Nenhuma turma carregada</h2><p>Envie ao menos um PDF para ver o dashboard.</p></div>`;
     return;
   }
+  const TRI_COLORS = ['#2F6F63','#B4802A','#6E4A7E']; // 1º, 2º, 3º trimestre
   let html = `<div class="hdr"><h1>Dashboard</h1></div>`;
-
-  html += `<div class="dash-section">
-    <div class="section-title">Comparativo geral entre turmas (% de aprovação no Total Anual)</div>
-    <div class="chart-card"><canvas id="chartTurmas"></canvas></div>
-  </div>`;
 
   html += `<div class="dash-section">
     <div class="section-title">Rendimento individual por trimestre</div>
@@ -901,27 +941,61 @@ function renderDashboard(){
     </div>
   </div>`;
 
+  const grupo6 = names.filter(n=> turmaGradeNumber(n)===6);
+  const grupo78 = names.filter(n=> [7,8].includes(turmaGradeNumber(n)));
+  const grupoOutras = names.filter(n=> ![6,7,8].includes(turmaGradeNumber(n)));
+
+  if(grupo6.length){
+    html += `<div class="dash-section">
+      <div class="section-title">Comparativo geral — 6º anos (média da nota total por trimestre)</div>
+      <div class="chart-card"><canvas id="chartTurmas6"></canvas></div>
+    </div>`;
+  }
+  if(grupo78.length){
+    html += `<div class="dash-section">
+      <div class="section-title">Comparativo geral — 7º e 8º anos (média da nota total por trimestre)</div>
+      <div class="chart-card"><canvas id="chartTurmas78"></canvas></div>
+    </div>`;
+  }
+  if(grupoOutras.length){
+    html += `<div class="dash-section">
+      <div class="section-title">Comparativo geral — outras turmas (média da nota total por trimestre)</div>
+      <div class="chart-card"><canvas id="chartTurmasOutras"></canvas></div>
+    </div>`;
+  }
+
   main.innerHTML = html;
 
-  // --- Gráfico 1: comparativo geral entre turmas ---
-  destroyChart('chartTurmas');
-  const turmaValues = names.map(n=> turmaApprovalPct(currentClasses[n]) ?? 0);
-  const ctxT = document.getElementById('chartTurmas').getContext('2d');
-  dashCharts['chartTurmas'] = new Chart(ctxT, {
-    type:'bar',
-    data:{ labels: names.map(shortTurmaLabel), datasets:[{ label:'% aprovação (Total Anual)', data: turmaValues, backgroundColor:'#2F6F63', borderRadius:4 }] },
-    options:{
-      responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{ title:(items)=> names[items[0].dataIndex], label:(c)=>c.parsed.y+'%' }} },
-      scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
-    }
-  });
+  // --- Gráficos "Comparativo geral": um por grupo de ano, turmas na horizontal,
+  // 3 colunas por turma (1º/2º/3º trimestre) com a média da nota total daquele trimestre ---
+  function buildComparativoChart(canvasId, groupNames){
+    destroyChart(canvasId);
+    const el = document.getElementById(canvasId);
+    if(!el || groupNames.length===0) return;
+    const datasets = [0,1,2].map(triIdx=>{
+      const data = groupNames.map(n=> turmaTrimestreAvgPct(currentClasses[n], triIdx));
+      return { label:(triIdx+1)+'º Trimestre', data, backgroundColor: TRI_COLORS[triIdx], borderRadius:4 };
+    });
+    const ctx = el.getContext('2d');
+    dashCharts[canvasId] = new Chart(ctx, {
+      type:'bar',
+      data:{ labels: groupNames.map(shortTurmaLabel), datasets },
+      options:{
+        responsive:true,
+        plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{ title:(items)=> groupNames[items[0].dataIndex], label:(c)=> c.dataset.label+': '+c.parsed.y+'%' }} },
+        scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
+      },
+      plugins:[linhaCorte60Plugin]
+    });
+  }
+  buildComparativoChart('chartTurmas6', grupo6);
+  buildComparativoChart('chartTurmas78', grupo78);
+  buildComparativoChart('chartTurmasOutras', grupoOutras);
 
-  // --- Gráfico 2: rendimento individual do aluno — cada disciplina no eixo X,
+  // --- Gráfico: rendimento individual do aluno — cada disciplina no eixo X,
   // com 3 barras (1º/2º/3º trimestre) mostrando o % de aproveitamento da nota final do trimestre ---
   const turmaSel = document.getElementById('dashTurmaSelect');
   const alunoSel = document.getElementById('dashAlunoSelect');
-  const TRI_COLORS = ['#2F6F63','#B4802A','#6E4A7E']; // 1º, 2º, 3º trimestre
 
   function populateAlunos(){
     const cd = currentClasses[turmaSel.value];
@@ -954,7 +1028,8 @@ function renderDashboard(){
         responsive:true,
         plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:(c)=> c.dataset.label+': '+(c.raw??'—')+'%'}} },
         scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
-      }
+      },
+      plugins:[linhaCorte60Plugin]
     });
   }
   turmaSel.onchange = ()=>{ populateAlunos(); drawAlunoChart(); };
