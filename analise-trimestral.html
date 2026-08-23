@@ -645,7 +645,7 @@ function renderSidebar(){
   document.getElementById('turmaCountLbl').textContent = 'Turmas ('+names.length+')';
   const prevValue = select.value;
   select.innerHTML = '<option value="">— selecionar turma —</option>' +
-    names.map(name=>`<option value="${name.replace(/"/g,'&quot;')}">${name} · ${currentClasses[name].students.length} alunos</option>`).join('');
+    names.map(name=>`<option value="${name.replace(/"/g,'&quot;')}" title="${name.replace(/"/g,'&quot;')}">${shortTurmaLabel(name)} · ${currentClasses[name].students.length} alunos</option>`).join('');
   // mantém a turma ativa selecionada no dropdown (se ainda existir)
   select.value = names.includes(activeClass) ? activeClass : (names.includes(prevValue) ? prevValue : '');
   select.onchange = ()=>{
@@ -665,6 +665,21 @@ function renderSidebar(){
   };
 }
 
+// Converte o código completo da turma (ex.: "FRCAA1TA - FUNDAMENTAL - REGULAR - 3° CICLO - 1° ANO")
+// no formato usado no dia a dia (ex.: "7ºA"). Regra: dígito antes do "T" indica o ano —
+// 1T = 7º ano, 2T = 8º ano, 3T = 6º ano — e a letra logo após identifica a turma (A, B, C...).
+// Se o padrão não for reconhecido, mantém o nome original como fallback.
+const GRADE_BY_T_DIGIT = { '1':'7º', '2':'8º', '3':'6º' };
+function shortTurmaLabel(name){
+  if(!name) return name;
+  const code = name.split(' - ')[0].trim();
+  const m = code.match(/([1-3])T([A-Za-z])$/i);
+  if(m){
+    const grade = GRADE_BY_T_DIGIT[m[1]];
+    if(grade) return grade + m[2].toUpperCase();
+  }
+  return name;
+}
 function pct(a,b){ return b>0 ? Math.round((a/b)*100) : null; }
 function statusClass(p){ if(p===null) return 'na'; if(p>=70) return 'ok'; if(p>=40) return 'mid'; return 'bad'; }
 
@@ -878,7 +893,7 @@ function renderDashboard(){
     <div class="section-title">Rendimento individual por trimestre</div>
     <div class="chart-card">
       <div class="dash-controls">
-        <select id="dashTurmaSelect">${names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('')}</select>
+        <select id="dashTurmaSelect">${names.map(n=>`<option value="${n.replace(/"/g,'&quot;')}" title="${n.replace(/"/g,'&quot;')}">${shortTurmaLabel(n)}</option>`).join('')}</select>
         <select id="dashAlunoSelect"></select>
       </div>
       <canvas id="chartAluno"></canvas>
@@ -894,18 +909,19 @@ function renderDashboard(){
   const ctxT = document.getElementById('chartTurmas').getContext('2d');
   dashCharts['chartTurmas'] = new Chart(ctxT, {
     type:'bar',
-    data:{ labels: names, datasets:[{ label:'% aprovação (Total Anual)', data: turmaValues, backgroundColor:'#2F6F63', borderRadius:4 }] },
+    data:{ labels: names.map(shortTurmaLabel), datasets:[{ label:'% aprovação (Total Anual)', data: turmaValues, backgroundColor:'#2F6F63', borderRadius:4 }] },
     options:{
       responsive:true,
-      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:(c)=>c.parsed.y+'%'}} },
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{ title:(items)=> names[items[0].dataIndex], label:(c)=>c.parsed.y+'%' }} },
       scales:{ y:{ beginAtZero:true, max:100, ticks:{callback:v=>v+'%'} } }
     }
   });
 
-  // --- Gráfico 2: rendimento individual do aluno, por disciplina, ao longo dos trimestres ---
+  // --- Gráfico 2: rendimento individual do aluno — cada disciplina no eixo X,
+  // com 3 barras (1º/2º/3º trimestre) mostrando o % de aproveitamento da nota final do trimestre ---
   const turmaSel = document.getElementById('dashTurmaSelect');
   const alunoSel = document.getElementById('dashAlunoSelect');
-  const CHART_COLORS = ['#2F6F63','#B4802A','#9C3E2C','#6E4A7E','#3B6E9C','#8A6D3B','#5A8F3B','#B4457A','#4A7E6E','#7E5A4A'];
+  const TRI_COLORS = ['#2F6F63','#B4802A','#6E4A7E']; // 1º, 2º, 3º trimestre
 
   function populateAlunos(){
     const cd = currentClasses[turmaSel.value];
@@ -917,11 +933,14 @@ function renderDashboard(){
     destroyChart('chartAluno');
     if(!st) return;
     const subjIdxs = cd.subjects.map((s,i)=>i).filter(i=>!isLiteratura(cd.subjects[i]));
-    const datasets = subjIdxs.map((i, di)=>{
-      const calc = subjectCalc(st.subjects[i]);
-      const data = calc.tris.map(t=> t.filled ? Math.round((t.total/t.max)*100) : null);
-      const color = CHART_COLORS[di % CHART_COLORS.length];
-      return { label: cd.subjects[i], data, borderColor: color, backgroundColor: color, tension:.25, spanGaps:false };
+    const subjLabels = subjIdxs.map(i=>cd.subjects[i]);
+    const calcs = subjIdxs.map(i=> subjectCalc(st.subjects[i]));
+    const datasets = [0,1,2].map(triIdx=>{
+      const data = calcs.map(calc=>{
+        const t = calc.tris[triIdx];
+        return t.filled ? Math.round((t.total/t.max)*100) : null;
+      });
+      return { label:(triIdx+1)+'º Trimestre', data, backgroundColor: TRI_COLORS[triIdx], borderRadius:4 };
     });
     const anyData = datasets.some(d=> d.data.some(v=>v!==null));
     document.getElementById('chartAlunoEmpty').style.display = anyData ? 'none' : 'block';
@@ -929,8 +948,8 @@ function renderDashboard(){
     if(!anyData) return;
     const ctxA = document.getElementById('chartAluno').getContext('2d');
     dashCharts['chartAluno'] = new Chart(ctxA, {
-      type:'line',
-      data:{ labels:['1º Trimestre','2º Trimestre','3º Trimestre'], datasets },
+      type:'bar',
+      data:{ labels: subjLabels, datasets },
       options:{
         responsive:true,
         plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:(c)=> c.dataset.label+': '+(c.raw??'—')+'%'}} },
