@@ -1543,7 +1543,7 @@
     <div class="nav-group">
       <button onclick="requestProtectedAccess('advertencia.html', 'Gerar Advertência')">📝 Gerar Advertência</button>
       <button onclick="requestProtectedAccess('registro-reunioes.html', 'Gerar ATA Reunião')">🗒️ Gerar ATA Reunião</button>
-      <button onclick="openExternal('https://drive.google.com/drive/folders/1QkIRyVx-HXTXnJZFtU7YU78ZT7fi4gUF?usp=drive_link', 'Advertências Realizadas', 'Acesso via conta Google autorizada (Google Drive).')">📁 Advertências Realizadas</button>
+      <button onclick="openExternal('https://docs.google.com/spreadsheets/d/1vTvzKzOiYRaRomK4fzwLCQSrBw-4IOiHm7ecgHbayzQ/edit?usp=sharing', 'Advertências Realizadas', 'Acesso via conta Google autorizada (Google Sheets).')">📁 Advertências Realizadas</button>
     </div>
 
     <button class="nav-group-toggle" onclick="toggleNavGroup(this)">🎉 Eventos <span class="nav-arrow">▾</span></button>
@@ -3564,8 +3564,8 @@ const USERS = [
 const PERFIL_ACCESS = {
   wander:   ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','gestao','mecano','mapeamento','linktree','advertencia','adv_realizadas','reunioes'],
   cristina: ['dashboard','professores','turmas','disciplinas','substituicoes','calendario','mecano','mapeamento','linktree','advertencia','adv_realizadas','reunioes'],
-  gabriela: ['dashboard','professores','turmas','acepat','calendario','mecano','linktree','advertencia','adv_realizadas'],
-  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','calendario','mecano','advertencia','adv_realizadas']
+  gabriela: ['dashboard','professores','turmas','acepat','calendario','quadro','mecano','linktree','advertencia','adv_realizadas'],
+  cgdir:    ['dashboard','professores','turmas','disciplinas','acepat','calendario','quadro','mecano','advertencia','adv_realizadas']
 };
 
 let currentUser = null;
@@ -3650,6 +3650,7 @@ function applyAccess() {
     { tab: 'substituicoes', idx: 5 },
     { tab: 'acepat',        idx: 6 },
     { tab: 'calendario',    idx: 7 },
+    { tab: 'quadro',        idx: 8 },
     { tab: 'greve',         idx: 9 },
     { tab: 'ocorrencias',   idx: 11 },
     { tab: 'analise',       idx: 12 },
