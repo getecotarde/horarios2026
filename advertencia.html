@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Comunicação aos Responsáveis – EMGTC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500;700&family=Alex+Brush&family=Petit+Formal+Script&display=swap" rel="stylesheet">
 <style>
   :root {
     --azul: #1a3a6b;
@@ -931,14 +934,54 @@
       <option value="">Selecione o(a) professor(a) ou coordenador(a)</option>
     </select>
 
-    <label style="font-size:0.72rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block;">
-      Desenhe a assinatura abaixo (dedo, caneta ou mouse)
-    </label>
-    <canvas id="canvas-assinatura" width="500" height="180"
-      style="width:100%;height:180px;border:1.5px dashed #bbb;border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;display:block;"></canvas>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <button type="button" id="btn-modo-desenhar" onclick="trocarModoAssinatura('desenho')"
+        style="flex:1;padding:8px 10px;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--azul);background:var(--azul);color:#fff;">🖊️ Desenhar</button>
+      <button type="button" id="btn-modo-digitar" onclick="trocarModoAssinatura('texto')"
+        style="flex:1;padding:8px 10px;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--azul);background:#fff;color:var(--azul);">⌨️ Digitar</button>
+    </div>
+
+    <!-- MODO DESENHO -->
+    <div id="bloco-assinatura-desenho">
+      <label style="font-size:0.72rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block;">
+        Desenhe a assinatura abaixo (dedo, caneta ou mouse)
+      </label>
+      <canvas id="canvas-assinatura" width="500" height="180"
+        style="width:100%;height:180px;border:1.5px dashed #bbb;border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;display:block;"></canvas>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-secondary" type="button" onclick="limparCanvasAssinatura()">🗑️ Limpar</button>
+      </div>
+    </div>
+
+    <!-- MODO TEXTO (assinatura digitada) -->
+    <div id="bloco-assinatura-texto" style="display:none;">
+      <label style="font-size:0.72rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block;">
+        Digite o nome como quer que apareça
+      </label>
+      <input type="text" id="assinatura-texto-input" placeholder="Ex: Maria da Silva" oninput="atualizarPreviewAssinaturaTexto()"
+        style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;font-family:Arial, sans-serif;outline:none;margin-bottom:12px;">
+
+      <label style="font-size:0.72rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block;">
+        Estilo da assinatura
+      </label>
+      <select id="assinatura-fonte" onchange="atualizarPreviewAssinaturaTexto()"
+        style="width:100%;border:1.5px solid #d0d5de;border-radius:6px;padding:8px 10px;font-size:0.92rem;font-family:Arial, sans-serif;outline:none;margin-bottom:12px;background:#fff;">
+        <option value="Dancing Script" selected>Estilo 1 — Dancing Script</option>
+        <option value="Caveat">Estilo 2 — Caveat</option>
+        <option value="Alex Brush">Estilo 3 — Alex Brush</option>
+        <option value="Petit Formal Script">Estilo 4 — Petit Formal Script</option>
+      </select>
+
+      <label style="font-size:0.72rem;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:block;">
+        Pré-visualização
+      </label>
+      <div id="assinatura-texto-preview"
+        style="width:100%;height:180px;border:1.5px dashed #bbb;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0 10px;color:#1a1a1a;text-align:center;word-break:break-word;">
+        <span style="color:#bbb;font-family:Arial, sans-serif;font-size:0.85rem;">A assinatura aparecerá aqui</span>
+      </div>
+    </div>
 
     <div class="btn-row" style="margin-top:10px;">
-      <button class="btn btn-secondary" type="button" onclick="limparCanvasAssinatura()">🗑️ Limpar</button>
       <button class="btn btn-primary" type="button" onclick="salvarAssinatura()">✓ Salvar Assinatura</button>
     </div>
 
@@ -1602,16 +1645,94 @@ function canvasEstaVazio() {
   return true;
 }
 
-function salvarAssinatura() {
+// 'desenho' = assinatura feita à mão no canvas; 'texto' = assinatura digitada num estilo cursivo
+let modoAssinatura = 'desenho';
+
+function trocarModoAssinatura(modo) {
+  modoAssinatura = modo;
+  const blocoDesenho = document.getElementById('bloco-assinatura-desenho');
+  const blocoTexto = document.getElementById('bloco-assinatura-texto');
+  const btnDesenhar = document.getElementById('btn-modo-desenhar');
+  const btnDigitar = document.getElementById('btn-modo-digitar');
+
+  const ativo = 'background:var(--azul);color:#fff;';
+  const inativo = 'background:#fff;color:var(--azul);';
+  const baseCss = 'flex:1;padding:8px 10px;border-radius:6px;font-size:0.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--azul);';
+
+  if (modo === 'desenho') {
+    blocoDesenho.style.display = 'block';
+    blocoTexto.style.display = 'none';
+    btnDesenhar.style.cssText = baseCss + ativo;
+    btnDigitar.style.cssText = baseCss + inativo;
+    if (!assinaturaModalInicializado) inicializarCanvasAssinatura();
+  } else {
+    blocoDesenho.style.display = 'none';
+    blocoTexto.style.display = 'block';
+    btnDesenhar.style.cssText = baseCss + inativo;
+    btnDigitar.style.cssText = baseCss + ativo;
+    atualizarPreviewAssinaturaTexto();
+  }
+}
+
+function atualizarPreviewAssinaturaTexto() {
+  const texto = document.getElementById('assinatura-texto-input').value.trim();
+  const fonte = document.getElementById('assinatura-fonte').value;
+  const preview = document.getElementById('assinatura-texto-preview');
+  if (!texto) {
+    preview.innerHTML = '<span style="color:#bbb;font-family:Arial, sans-serif;font-size:0.85rem;">A assinatura aparecerá aqui</span>';
+    return;
+  }
+  preview.innerHTML = `<span style="font-family:'${fonte}', cursive;font-size:2.6rem;line-height:1.2;white-space:nowrap;">${texto.replace(/</g,'&lt;')}</span>`;
+}
+
+// Desenha o texto digitado num canvas usando a fonte cursiva escolhida,
+// reduzindo o tamanho automaticamente até caber, e devolve o PNG (data URL).
+async function gerarDataUrlAssinaturaTexto(texto, fonteCss) {
+  const familia = `"${fonteCss}", cursive`;
+  try { await document.fonts.load(`80px ${familia}`); } catch(e) {}
+  try { await document.fonts.ready; } catch(e) {}
+
+  const canvas = document.createElement('canvas');
+  canvas.width = 500; canvas.height = 180;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const larguraMax = canvas.width - 40;
+  let tamanho = 80;
+  ctx.font = `${tamanho}px ${familia}`;
+  while (ctx.measureText(texto).width > larguraMax && tamanho > 20) {
+    tamanho -= 2;
+    ctx.font = `${tamanho}px ${familia}`;
+  }
+  ctx.fillText(texto, canvas.width / 2, canvas.height / 2 + tamanho * 0.05);
+  return canvas.toDataURL('image/png');
+}
+
+async function salvarAssinatura() {
   const nome = document.getElementById('assinatura-nome').value.trim();
   if (!nome) { alert('Selecione o(a) professor(a) ou coordenador(a) emissor(a).'); return; }
-  if (canvasEstaVazio()) { alert('Desenhe a assinatura no quadro antes de salvar.'); return; }
-  const canvas = document.getElementById('canvas-assinatura');
-  const dataUrl = canvas.toDataURL('image/png');
+
+  let dataUrl;
+  if (modoAssinatura === 'texto') {
+    const texto = document.getElementById('assinatura-texto-input').value.trim();
+    if (!texto) { alert('Digite o nome da assinatura antes de salvar.'); return; }
+    const fonte = document.getElementById('assinatura-fonte').value;
+    dataUrl = await gerarDataUrlAssinaturaTexto(texto, fonte);
+  } else {
+    if (canvasEstaVazio()) { alert('Desenhe a assinatura no quadro antes de salvar.'); return; }
+    const canvas = document.getElementById('canvas-assinatura');
+    dataUrl = canvas.toDataURL('image/png');
+  }
+
   assinaturasSalvas[normalizar(nome)] = { nome, dataUrl };
   salvarAssinaturasStorage();
   document.getElementById('assinatura-nome').value = '';
+  document.getElementById('assinatura-texto-input').value = '';
   limparCanvasAssinatura();
+  atualizarPreviewAssinaturaTexto();
   renderizarListaAssinaturas();
 }
 
@@ -1662,6 +1783,8 @@ function abrirGerenciarAssinaturas() {
   document.getElementById('modal-assinaturas').style.display = 'block';
   if (!assinaturaModalInicializado) inicializarCanvasAssinatura();
   else limparCanvasAssinatura();
+  document.getElementById('assinatura-texto-input').value = '';
+  trocarModoAssinatura('desenho');
   popularSelectAssinaturaNome();
   renderizarListaAssinaturas();
 }
