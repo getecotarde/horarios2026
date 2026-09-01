@@ -168,6 +168,18 @@
   .btn-secondary:hover { background: var(--azul-claro); }
   .btn-danger { background: #c0392b; color: #fff; }
   .btn-danger:hover { opacity: .9; }
+  .btn-salvo {
+    background: var(--verde) !important;
+    color: #fff !important;
+    border-color: var(--verde) !important;
+    cursor: default !important;
+    opacity: 1 !important;
+  }
+  @keyframes destacarSalvar {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(46,125,50,.55); }
+    50% { box-shadow: 0 0 0 8px rgba(46,125,50,0); }
+  }
+  .btn-destaque { animation: destacarSalvar 0.9s ease-in-out 2; }
 
   @page { size: A4; margin: 0; }
 
@@ -810,8 +822,8 @@
     <div class="no-print" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <h2 style="color:var(--azul);font-size:1rem;">📄 Prévia da Comunicação</h2>
       <div class="btn-row" style="margin:0;">
-        <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
-        <button class="btn btn-secondary" id="btn-compartilhar" onclick="compartilharPDF()">📤 Compartilhar</button>
+        <button class="btn btn-primary" onclick="tentarImprimir()">🖨️ Imprimir</button>
+        <button class="btn btn-secondary" id="btn-compartilhar" onclick="tentarCompartilhar()">📤 Compartilhar</button>
         <button class="btn btn-secondary" id="btn-salvar-planilha" onclick="salvarOcorrenciaNaPlanilha()">💾 Salvar Ocorrência</button>
         <button class="btn btn-secondary" onclick="voltarForm()">✏️ Editar</button>
       </div>
@@ -2374,10 +2386,59 @@ function gerarPrevia() {
   document.getElementById('form-section').style.display = 'none';
   document.getElementById('preview-section').classList.add('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Toda vez que uma prévia é (re)gerada, é uma ocorrência "nova" (ainda em edição),
+  // então o status de salvo precisa ser reiniciado.
+  resetarStatusSalvo();
+}
+
+// Controla se a ocorrência atualmente na prévia já foi salva na planilha.
+// Evita salvamentos duplicados e bloqueia impressão/compartilhamento antes de salvar.
+window.ocorrenciaSalva = false;
+
+function resetarStatusSalvo() {
+  window.ocorrenciaSalva = false;
+  const btn = document.getElementById('btn-salvar-planilha');
+  if (btn) {
+    btn.disabled = false;
+    btn.classList.remove('btn-salvo', 'btn-destaque');
+    btn.innerHTML = '💾 Salvar Ocorrência';
+  }
+}
+
+function destacarBotaoSalvar() {
+  const btn = document.getElementById('btn-salvar-planilha');
+  if (!btn) return;
+  btn.classList.remove('btn-destaque');
+  // força reflow para poder reiniciar a animação caso já tenha sido aplicada antes
+  void btn.offsetWidth;
+  btn.classList.add('btn-destaque');
+}
+
+function tentarImprimir() {
+  if (!window.ocorrenciaSalva) {
+    alert('⚠️ Salve a ocorrência antes de imprimir.');
+    destacarBotaoSalvar();
+    return;
+  }
+  window.print();
+}
+
+function tentarCompartilhar() {
+  if (!window.ocorrenciaSalva) {
+    alert('⚠️ Salve a ocorrência antes de compartilhar.');
+    destacarBotaoSalvar();
+    return;
+  }
+  compartilharPDF();
 }
 
 async function salvarOcorrenciaNaPlanilha() {
   const btn = document.getElementById('btn-salvar-planilha');
+
+  // Já foi salva: não permite salvar de novo (evita duplicar a mesma ocorrência).
+  if (window.ocorrenciaSalva) return;
+
   const registros = window.dadosOcorrenciasAtual || [];
 
   if (URL_GOOGLE_SHEETS === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT' || !URL_GOOGLE_SHEETS) {
@@ -2406,8 +2467,12 @@ async function salvarOcorrenciaNaPlanilha() {
         })
       });
     }
-    btn.innerHTML = '✅ Salvo!';
-    setTimeout(() => { btn.innerHTML = textoOriginal; btn.disabled = false; }, 2000);
+    // Marca esta ocorrência como salva e mantém o botão assim até que uma nova
+    // prévia seja gerada (nova ocorrência ou edição), liberando então imprimir/compartilhar.
+    window.ocorrenciaSalva = true;
+    btn.innerHTML = '✅ Salvo';
+    btn.classList.add('btn-salvo');
+    btn.disabled = true;
   } catch (err) {
     console.error(err);
     alert('Não foi possível salvar na planilha. Verifique sua conexão e a URL configurada.');
