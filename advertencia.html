@@ -537,7 +537,7 @@
             <label>Coordenador(a) de Turno</label>
             <select id="coord_turno_nome">
               <option value="">Selecione</option>
-              <option value="Wander Lúcio">Wander Lúcio</option>
+              <option value="João Teixeira de Araújo">João Teixeira de Araújo</option>
               <option value="Cristina Sant' Ana">Cristina Sant' Ana</option>
             </select>
           </div>
@@ -630,7 +630,7 @@
           <label>Coordenador(a) de Turno</label>
           <select id="coord_turno_nome_lote">
             <option value="">Selecione</option>
-            <option value="Wander Lúcio">Wander Lúcio</option>
+            <option value="João Teixeira de Araújo">João Teixeira de Araújo</option>
             <option value="Cristina Sant' Ana">Cristina Sant' Ana</option>
           </select>
         </div>
@@ -760,6 +760,17 @@
       </div>
 
       <div class="opcao-item" onclick="toggleOpcao(this, event)">
+        <input type="checkbox" id="op9">
+        <div class="opcao-label">
+          Elogio:
+          <div class="opcao-extra">
+            <label>Motivo</label>
+            <input type="text" id="elogio_desc" placeholder="Descreva o motivo do elogio" onclick="stopProp(event)">
+          </div>
+        </div>
+      </div>
+
+      <div class="opcao-item" onclick="toggleOpcao(this, event)">
         <input type="checkbox" id="op8">
         <div class="opcao-label">
           Outros:
@@ -801,6 +812,7 @@
       <div class="btn-row" style="margin:0;">
         <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
         <button class="btn btn-secondary" id="btn-compartilhar" onclick="compartilharPDF()">📤 Compartilhar</button>
+        <button class="btn btn-secondary" id="btn-salvar-planilha" onclick="salvarOcorrenciaNaPlanilha()">💾 Salvar Ocorrência</button>
         <button class="btn btn-secondary" onclick="voltarForm()">✏️ Editar</button>
       </div>
     </div>
@@ -1289,6 +1301,15 @@ function carregarAlunos() {
 function salvarAlunos() {
   try { localStorage.setItem('emgtc_alunos', JSON.stringify(listaAlunos)); } catch(e){}
 }
+// ── SALVAMENTO NO GOOGLE SHEETS ────────────────────────────────────────────
+// Cole aqui a URL de implantação (Web App) do seu Google Apps Script.
+// Instruções completas no final da conversa / arquivo de instruções.
+const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbysFsJRg5VMeRXnz6QnmevudvIRwg0M3to9KdlsYv9PAlddc96Qwe47axsVa3KtfXYf9g/exec"
+;
+
+// Guarda os registros gerados na última prévia, para poder salvá-los depois.
+window.dadosOcorrenciasAtual = [];
+
 let listaAlunos = carregarAlunos();
 listaAlunos.sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
 
@@ -1610,7 +1631,7 @@ function renderizarListaAssinaturas() {
   cont.innerHTML = html;
 }
 
-const COORDENADORES_FIXOS = ['Everton Correa Alves', 'Wander Lúcio', "Cristina Sant' Ana"];
+const COORDENADORES_FIXOS = ['Everton Correa Alves', 'João Teixeira de Araújo', "Cristina Sant' Ana"];
 
 function popularSelectAssinaturaNome() {
   const select = document.getElementById('assinatura-nome');
@@ -2161,6 +2182,10 @@ function gerarBlocoHTML(dados) {
       const desc = document.getElementById('outros_desc').value || '_______________________________________________________________';
       return `Outros: <span class="campo-sublinhado" style="min-width:90mm">${desc}</span>`;
     }},
+    { id:'op9', texto: () => {
+      const desc = document.getElementById('elogio_desc').value || '_______________________________________________________________';
+      return `Elogio: <span class="campo-sublinhado" style="min-width:90mm">${desc}</span>`;
+    }},
   ];
 
   let opcoesHTML = '';
@@ -2215,12 +2240,52 @@ function sanitizarNomeArquivo(str) {
     .replace(/\s+/g, '_');
 }
 
+function coletarAtitudesMarcadas() {
+  // Reaproveita o mesmo texto que aparece no papel, mas em versão simples (sem HTML).
+  const linhasOpcoes = [
+    { id:'op1', texto: () => `"Matou" aula de: ${document.getElementById('matou_aula_desc').value || ''}` },
+    { id:'op2', texto: 'Prejudicou as atividades da sala com brincadeiras e/ou conversa.' },
+    { id:'op3', texto: 'Usou celular para fins não pedagógicos na sala de aula.' },
+    { id:'op4', texto: () => {
+      const disc = document.getElementById('aula_disciplina').value || '';
+      const hor = document.getElementById('aula_horario').value || '';
+      return `Chegou atrasado(a) para a aula de ${disc}, no ${hor} horário.`;
+    }},
+    { id:'op5', texto: () => {
+      const itens = [];
+      if (document.getElementById('unif_calca').checked) itens.push('Calça');
+      if (document.getElementById('unif_tenis').checked) itens.push('Tênis');
+      if (document.getElementById('unif_blusa').checked) itens.push('Blusa');
+      return `Apresentou-se sem uniforme: ${itens.join(', ')}`;
+    }},
+    { id:'op6', texto: () => {
+      const itens = [];
+      if (document.getElementById('col_fisicamente').checked) itens.push('Fisicamente');
+      if (document.getElementById('col_verbalmente').checked) itens.push('Verbalmente');
+      return `Agrediu o(a) colega: ${itens.join(', ')}`;
+    }},
+    { id:'op7', texto: () => {
+      const itens = [];
+      if (document.getElementById('prof_fisicamente').checked) itens.push('Fisicamente');
+      if (document.getElementById('prof_verbalmente').checked) itens.push('Verbalmente');
+      return `Agrediu o(a) professor(a) ou funcionário(a): ${itens.join(', ')}`;
+    }},
+    { id:'op8', texto: () => `Outros: ${document.getElementById('outros_desc').value || ''}` },
+    { id:'op9', texto: () => `Elogio: ${document.getElementById('elogio_desc').value || ''}` },
+  ];
+  return linhasOpcoes
+    .filter(op => document.getElementById(op.id).checked)
+    .map(op => typeof op.texto === 'function' ? op.texto() : op.texto);
+}
+
 function gerarPrevia() {
-  const algumMarcado = ['op1','op2','op3','op4','op5','op6','op7','op8'].some(id => document.getElementById(id).checked);
+  const algumMarcado = ['op1','op2','op3','op4','op5','op6','op7','op8','op9'].some(id => document.getElementById(id).checked);
   if (!algumMarcado) { alert('Por favor, selecione ao menos uma atitude apresentada.'); return; }
 
   const vias = parseInt(document.querySelector('input[name=vias]:checked').value);
   const observacoes = document.getElementById('observacoes').value.trim();
+  const atitudesMarcadas = coletarAtitudesMarcadas();
+  window.dadosOcorrenciasAtual = [];
   let html = '';
 
   if (modoAtual === 'individual') {
@@ -2241,6 +2306,13 @@ function gerarPrevia() {
     if (!nome) { alert('Por favor, informe o nome do(a) aluno(a).'); return; }
     const dados = { nome, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
     for (let i = 0; i < vias; i++) html += gerarBlocoHTML(dados);
+    window.dadosOcorrenciasAtual.push({
+      nome, turma, turno, data,
+      emissor: tipoEmissor === 'professor' ? professor : nomeEmissor,
+      tipoEmissor, disciplina,
+      atitudes: atitudesMarcadas.join(' | '),
+      observacoes
+    });
 
     const dataArquivo = formatarData(data).replace(/\//g, '-');
     window.nomeArquivoAtual = `${sanitizarNomeArquivo(nome)}_${dataArquivo}`;
@@ -2272,6 +2344,13 @@ function gerarPrevia() {
       if (!turma) semTurma.push(nomeItem);
       const dados = { nome: nomeItem, turma, turno, data, professor, disciplina, observacoes, tipoEmissor, nomeEmissor };
       for (let i = 0; i < vias; i++) blocos.push(gerarBlocoHTML(dados));
+      window.dadosOcorrenciasAtual.push({
+        nome: nomeItem, turma, turno, data,
+        emissor: tipoEmissor === 'professor' ? professor : nomeEmissor,
+        tipoEmissor, disciplina,
+        atitudes: atitudesMarcadas.join(' | '),
+        observacoes
+      });
     }
     if (semTurma.length > 0) {
       alert('Os seguintes nomes não estão cadastrados e não têm turma definida (selecione a "Turma reserva" ou cadastre o(a) aluno(a)):\n\n' + semTurma.join('\n'));
@@ -2295,6 +2374,46 @@ function gerarPrevia() {
   document.getElementById('form-section').style.display = 'none';
   document.getElementById('preview-section').classList.add('visible');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function salvarOcorrenciaNaPlanilha() {
+  const btn = document.getElementById('btn-salvar-planilha');
+  const registros = window.dadosOcorrenciasAtual || [];
+
+  if (URL_GOOGLE_SHEETS === 'COLE_AQUI_A_URL_DO_APPS_SCRIPT' || !URL_GOOGLE_SHEETS) {
+    alert('A URL do Google Apps Script ainda não foi configurada no arquivo (variável URL_GOOGLE_SHEETS).');
+    return;
+  }
+  if (registros.length === 0) {
+    alert('Nenhuma ocorrência para salvar. Gere a prévia primeiro.');
+    return;
+  }
+
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Salvando...';
+
+  try {
+    // Envia um registro por vez (cada aluno vira uma linha na planilha).
+    for (const registro of registros) {
+      await fetch(URL_GOOGLE_SHEETS, {
+        method: 'POST',
+        mode: 'no-cors', // Apps Script não retorna cabeçalhos CORS por padrão
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          timestamp: new Date().toLocaleString('pt-BR'),
+          ...registro
+        })
+      });
+    }
+    btn.innerHTML = '✅ Salvo!';
+    setTimeout(() => { btn.innerHTML = textoOriginal; btn.disabled = false; }, 2000);
+  } catch (err) {
+    console.error(err);
+    alert('Não foi possível salvar na planilha. Verifique sua conexão e a URL configurada.');
+    btn.innerHTML = textoOriginal;
+    btn.disabled = false;
+  }
 }
 
 async function compartilharPDF() {
