@@ -171,6 +171,20 @@ body{
 .val.ok{color:var(--accent);}
 .val.mid{color:var(--warn);}
 .val.bad{color:var(--danger);}
+.risk-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:14px;}
+.risk-card{
+  background:#fff; border:1px solid var(--danger); border-radius:12px; padding:14px 16px;
+}
+.risk-card h4{margin:0 0 4px; font-family:'Fraunces',serif; font-size:15px;}
+.risk-card .risk-count{font-size:11px; color:var(--danger); font-weight:600; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;}
+.risk-card{min-width:0; overflow:hidden;}
+.risk-subj-row{display:flex; flex-direction:column; align-items:flex-start; gap:2px; font-size:12.5px; padding:6px 0; border-top:1px dashed var(--line); min-width:0;}
+.risk-subj-row:first-of-type{border-top:none;}
+.risk-subj-row .risk-subj-name{color:var(--ink); font-weight:600;}
+.risk-subj-row .risk-ast-note{font-size:11px; color:var(--warn); font-weight:600; line-height:1.3;}
+.risk-legend{font-size:12px; color:var(--warn); font-weight:600; margin:6px 0 10px;}
+.risk-subj-row .risk-subj-val{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12px; color:var(--danger); white-space:normal; overflow-wrap:anywhere; margin-left:0;}
+.risk-empty{color:var(--ink-soft); font-size:12.5px; padding:6px 0;}
 .detail-panel{
   margin-top:20px; background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px 22px;
 }
@@ -209,11 +223,17 @@ body{
 }
 .print-btn:hover{background:var(--ink); color:var(--paper);}
 .hdr-actions{display:flex; align-items:center; gap:14px;}
+.tri-filter-bar{display:flex; align-items:center; gap:12px; margin:22px 0 -14px; font-family:'Inter',sans-serif; font-size:13px; color:var(--ink);}
+.tri-select{font-family:'Inter',sans-serif; font-size:13px; padding:5px 9px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink);}
+.tri-filter-hint{font-size:11.5px; color:var(--ink-soft);}
 .hdr-sub{color:var(--ink-soft); font-size:13px; margin-top:2px;}
 .hdr-info{display:flex; gap:16px; margin-top:9px; flex-wrap:wrap;}
 .hdr-info label{font-size:11px; color:var(--ink-soft); display:flex; align-items:center; gap:5px;}
 .meta-input{font-family:'Inter',sans-serif; font-size:12px; padding:4px 7px; border:1px solid var(--line); border-radius:6px; width:150px; background:#fff; color:var(--ink);}
 .print-footer{display:none;}
+.print-subject-doc, .print-cards-doc, .print-oer-cards-doc, .print-oer-table-doc{ display:none; }
+.risk-actions{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 14px;}
+@page oertable{ size:A4 landscape; margin:8mm; }
 
 /* ================= PRINT (economia de tinta / clareza em P&B / 1 folha) ================= */
 @media print{
@@ -222,7 +242,7 @@ body{
   html, body{ background:#fff !important; color:#000 !important; font-size:11px; height:auto !important; }
   .app{ display:block; }
   .sidebar, .print-btn, .status-line, #uploadBox, .upload-box, .overview-btn,
-  .class-item .del, .review-box, .detail-panel{ display:none !important; }
+  .class-item .del, .review-box, .detail-panel, .risk-section, .tri-filter-bar{ display:none !important; }
   .main{ padding:0; max-width:100%; }
 
   .hdr{ display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1.3px solid #000; padding-bottom:3px; margin-bottom:5px; }
@@ -285,6 +305,54 @@ body{
     margin-top:4px; padding-top:3px; border-top:1px solid #000; font-size:9.5px; color:#000;
   }
   .print-footer strong{ font-weight:800; }
+
+  /* Impressões dedicadas: listagem por disciplina (para professores) e cards de
+     risco de todas as turmas. Cada uma some por padrão e só aparece quando o
+     JS marca o <body> com a classe correspondente antes de chamar print(). */
+  body.print-mode-subjects .app{ display:none !important; }
+  body.print-mode-subjects .print-subject-doc{ display:block !important; }
+  body.print-mode-cards .app{ display:none !important; }
+  body.print-mode-cards .print-cards-doc{ display:block !important; }
+
+  .print-page{ page-break-after:always; }
+  .print-page:last-child{ page-break-after:auto; }
+  .print-page-hdr{ display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1.3px solid #000; padding-bottom:4px; margin-bottom:12px; }
+  .print-page-hdr h1{ font-family:'Fraunces',serif; font-size:16px; margin:0; color:#000; }
+  .print-page-sub{ font-size:10.5px; color:#333; margin-top:2px; }
+  .print-page-teacher{ font-size:10.5px; color:#000; white-space:nowrap; }
+  .print-subj-table{ width:100%; border-collapse:collapse; font-size:11px; }
+  .print-subj-table th, .print-subj-table td{ border:1px solid #000; padding:4px 7px; text-align:left; color:#000; }
+  .print-subj-table th{ background:#fff; text-transform:uppercase; font-size:9.5px; }
+  .print-risk-grid{ margin-top:6px; }
+  .print-cards-doc .risk-card{ border:1px solid #000; break-inside:avoid; page-break-inside:avoid; }
+  .print-cards-doc .risk-card .risk-count{ color:#000; }
+  .print-cards-doc .risk-subj-row .risk-subj-val{ color:#000; }
+  .print-cards-doc .risk-subj-row .risk-ast-note{ color:#000; font-weight:400; }
+
+  /* O.E.R: cards para entrega ao aluno e tabela por turma (disciplinas em colunas) */
+  body.print-mode-oer-cards .app, body.print-mode-oer-table .app{ display:none !important; }
+  body.print-mode-oer-cards .print-oer-cards-doc{ display:block !important; }
+  body.print-mode-oer-table .print-oer-table-doc{ display:block !important; page:oertable; }
+  .oer-cards-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .oer-card{ border:1.2px solid #000; border-radius:4px; padding:7px 9px; break-inside:avoid; page-break-inside:avoid; color:#000; background:#fff; font-size:10.5px; line-height:1.3; }
+  .oer-card-school{ font-size:10px; text-transform:uppercase; letter-spacing:.03em; }
+  .oer-card-title{ font-family:'Fraunces',serif; font-size:12.5px; font-weight:700; margin:1px 0 4px; }
+  .oer-card-name{ font-size:12px; font-weight:800; }
+  .oer-card-sub{ font-size:10.5px; margin-bottom:5px; }
+  .oer-card table{ width:100%; border-collapse:collapse; font-size:10.5px; }
+  .oer-card th, .oer-card td{ border:1px solid #000; padding:2px 4px; text-align:center; color:#000; }
+  .oer-card th{ font-size:10px; font-weight:700; background:#fff; }
+  .oer-card td.l, .oer-card th.l{ text-align:left; }
+  .oer-card td.need{ font-weight:800; }
+  .oer-card-note{ margin:5px 0 4px; font-size:10px; }
+  .oer-card-sign{ margin-top:8px; font-size:10.5px; }
+  .oer-table{ width:100%; border-collapse:collapse; font-size:10.5px; }
+  .oer-table th, .oer-table td{ border:1px solid #000; padding:3px 4px; text-align:center; color:#000; vertical-align:middle; }
+  .oer-table th{ background:#fff; font-size:9.5px; text-transform:uppercase; }
+  .oer-table td.l, .oer-table th.l{ text-align:left; }
+  .oer-table td.risk{ font-weight:800; background:#e6e6e6; }
+  .oer-table td.risk small{ font-weight:400; font-size:9.5px; }
+  .oer-legend{ margin-top:6px; font-size:10.5px; }
 }
 
 /* Notas metodológicas dos gráficos do Dashboard */
@@ -328,6 +396,10 @@ body{
       <div class="lbl">＋ Enviar PDF da turma</div>
       <div class="sub">Quadro síntese de pontuação</div>
     </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);margin:6px 2px 0;cursor:pointer">
+      <input type="checkbox" id="pularRevisaoChk" style="margin:0">
+      Salvar tudo automaticamente (sem revisar turma por turma)
+    </label>
     <div class="status-line" id="statusLine"></div>
     <div class="nav-row">
       <div class="overview-btn" id="overviewBtn">📋 Visão geral — todas as turmas</div>
@@ -339,6 +411,7 @@ body{
         <select class="turma-select" id="classSelect"><option value="">— selecionar turma —</option></select>
         <button class="turma-del-btn" id="classDelBtn" title="Remover turma selecionada">✕</button>
       </div>
+      <button class="turma-del-btn" id="classDelAllBtn" title="Remover todas as turmas" style="width:100%;margin-top:6px;font-size:11px;padding:5px 0">✕ Excluir todas as turmas</button>
     </div>
   </div>
   <div class="main" id="main">
@@ -348,6 +421,10 @@ body{
     </div>
   </div>
 </div>
+<div id="printSubjectDoc" class="print-subject-doc"></div>
+<div id="printCardsDoc" class="print-cards-doc"></div>
+<div id="printOerCardsDoc" class="print-oer-cards-doc"></div>
+<div id="printOerTableDoc" class="print-oer-table-doc"></div>
 
 <script>
 // Worker do pdf.js embutido localmente (base64) para nao depender de nenhum CDN externo.
@@ -366,7 +443,65 @@ const TRI_MAX  = [30, 30, 40];
 const TRI_PASS = [18, 18, 24];
 const CUM_MAX  = [30, 60, 100]; // acumulado após 1, 2 ou 3 trimestres lançados
 const CUM_PASS = [18, 36, 60];  // 60% do acumulado
+// Risco de O.E.R (Oportunidade Especial de Recuperação): por disciplina. Se o 1º e o 2º
+// estão lançados, vale a somatória completa. Se falta a nota de UM dos dois, a soma considera
+// só a nota existente e o aluno entra COM ASTERISCO (parcial=true), pois a nota ausente, somada
+// à presente, pode afastar o risco. Sem nenhuma das duas notas, não há o que avaliar. Para fechar o ano o aluno precisa de 60
+// pontos; se a somatória do 1º+2º (cada trimestre já com a recuperação) deixa uma demanda
+// SUPERIOR a 24 pontos (a média do 3º, que vale 40) no 3º trimestre, ele entra no risco
+// — ou seja, somatória do 1º+2º abaixo de 36.
+const OER_TOTAL  = 60;
+const OER_LIMITE = 24;
+function oerInfo(calc){
+  const t1 = calc.tris[0], t2 = calc.tris[1];
+  if(!t1.filled && !t2.filled) return null;
+  const parcial = !(t1.filled && t2.filled);
+  const faltaTri = !t1.filled ? 1 : (!t2.filled ? 2 : null);
+  const soma = (t1.filled ? t1.total : 0) + (t2.filled ? t2.total : 0);
+  const somaMax = (t1.filled ? t1.max : 0) + (t2.filled ? t2.max : 0);
+  const precisa = OER_TOTAL - soma;
+  if(precisa <= OER_LIMITE) return null;
+  return { t1: t1.filled ? t1.total : null, t2: t2.filled ? t2.total : null, soma, precisa, falta: precisa, ta: soma, taMax: somaMax, pct: pct(soma, somaMax), parcial, faltaTri };
+}
+// Apoio à sinalização de nota ausente (asterisco + observação) na tela e nas impressões.
+const oerV   = v => (v===null||v===undefined) ? '—' : v;
+const oerAst = s => s.parcial ? '*' : '';
+const oerTemParcial = list => list.some(x => x.parcial);
+const OER_ASTERISCO_TXT = '* Falta lançar a nota do 1º ou do 2º trimestre: a soma considera só a nota existente. Quando a nota ausente for lançada, o aluno pode deixar de estar em risco de O.E.R.';
+function oerRowNote(s){
+  return s.parcial ? `<span class="risk-ast-note">* sem nota no ${s.faltaTri}º trim. — o risco pode deixar de existir quando for lançada</span>` : '';
+}
+function oerLegendHtml(list, extra){
+  return oerTemParcial(list) ? `<div class="oer-legend">${OER_ASTERISCO_TXT}${extra||''}</div>` : '';
+}
+function oerCardObs(st){
+  const p = st.subjects.filter(x=>x.parcial);
+  if(!p.length) return '';
+  return `<div class="oer-card-note">* ${p.map(x=>`${x.name} (sem nota no ${x.faltaTri}º trim.)`).join('; ')}. A soma considera só a nota lançada; quando a nota ausente for lançada, o risco de O.E.R pode deixar de existir.</div>`;
+}
 const DIRECT='direct', RECOVERED='recovered', NOTREC='notrec', NA='na';
+
+// ---------- SUPABASE (sincronização das notas trimestrais) ----------
+// Mesmo projeto/anon key usado no monitoramento-pedagogico (index.html), para que
+// o Perfil Individual do aluno leia os mesmos dados gravados aqui.
+const SUPABASE_URL = 'https://jmlxtczcrraefymjxqim.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImptbHh0Y3pjcnJhZWZ5bWp4cWltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyOTc0MzcsImV4cCI6MjA5NDg3MzQzN30._4YX7xxHnprG_kI01TwPkFkKE9Wtwaz5E3DgEOdwOJ8';
+function sbHeaders(){
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=minimal'
+  };
+}
+const STATUS_LABELS = { [DIRECT]:'direta', [RECOVERED]:'recuperada', [NOTREC]:'nao_recuperada' };
+// Normaliza a matrícula para "só dígitos" — evita falha de cruzamento com o
+// cadastro de estudantes por causa de hífen, zero à esquerda, espaços etc.
+function soDigitos(v){
+  if(v==null) return null;
+  const d = String(v).replace(/\D/g,'');
+  return d || null;
+}
 
 const SUBJECT_DICT = [
   'EDUCAÇÃO FÍSICA','LÍNGUA PORTUGUESA','LÍNGUA ESTRANGEIRA','ENSINO RELIGIOSO',
@@ -399,6 +534,19 @@ let currentClasses = {}; // name -> data
 let pendingParse = null; // {rawLines, name, tokensPerSubjDetected, studentsRaw}
 let activeClass = null; // 'OVERVIEW' or class name
 let reviewQueue = []; // turmas detectadas aguardando confirmação
+// Filtro de trimestre por turma (só em memória): 0,1,2 = 1º/2º/3º trimestre, 'ALL' = acumulado.
+// Sem valor definido => abre no trimestre mais recente que tenha notas lançadas.
+const triFilter = {};
+function triHasData(cd, idx){
+  return cd.students.some(st=> st.subjects.some((s,i)=>
+    !isLiteratura(cd.subjects[i]) && !isEmpty(s['n'+(idx+1)])));
+}
+function availableTris(cd){ return [0,1,2].filter(i=>triHasData(cd,i)); }
+function getTriFilter(name, cd){
+  if(triFilter[name]!==undefined) return triFilter[name];
+  const av = availableTris(cd);
+  return av.length ? av[av.length-1] : 'ALL';
+}
 
 function findSavedClassKey(name){
   const norm = name.trim().toLowerCase();
@@ -521,7 +669,11 @@ function parseClassPDF(lines, fallbackSubjects){
     if(!tail.every(t=>/^-$|^[SX]$|^\d+$/.test(t))) continue;
     const name = tokens.slice(3, tokens.length-scoreTailLen).join(' ');
     if(!name || !/[A-ZÀ-Ÿ]{2,}/.test(name)) continue;
-    const rme = tokens[2];
+    // O código RME vem em duas partes na mesma linha do quadro síntese (ex.:
+    // "2021 24532" — ano + número). Antes só se pegava a segunda parte
+    // (tokens[2]), perdendo o "2021" e gravando a matrícula incompleta no
+    // Supabase. Junta as duas partes pra manter o código RME completo.
+    const rme = tokens[1] + ' ' + tokens[2];
     const subjData = [];
     for(let i=0;i<nSubj;i++){
       const g = tail.slice(i*7,(i*7)+7); // n1 r1 n2 r2 n3 r3 TA(bruto, não usado no cálculo)
@@ -566,12 +718,28 @@ function subjectCalc(s){
   return {tris, ta, taMax, taPass, taStatus: ta>=taPass ? 'ok':'bad', filledCount: filled.length};
 }
 
-function computeStats(classData){
+// tri: 0/1/2 filtra só aquele trimestre; omitido/'ALL' mantém a visão acumulada (Total Anual).
+function computeStats(classData, tri){
   const {subjects, students} = classData;
+  const byTri = (tri===0 || tri===1 || tri===2);
+  // proporção atingida (0–1) na disciplina, no recorte escolhido; null = nada lançado
+  const ratioOf = (calc)=>{
+    if(byTri){ const t = calc.tris[tri]; return t.filled ? t.total/t.max : null; }
+    return calc.filledCount>0 ? calc.ta/calc.taMax : null;
+  };
   const stats = subjects.map((name,idx)=>{
     let direct=0, recovered=0, notrec=0, taPass=0, taTotal=0, n=0;
     for(const st of students){
       const calc = subjectCalc(st.subjects[idx]);
+      if(byTri){
+        const t = calc.tris[tri];
+        if(t.filled){
+          n++; taTotal++;
+          if(t.status===DIRECT) direct++; else if(t.status===RECOVERED) recovered++; else notrec++;
+          if(t.status!==NOTREC) taPass++;
+        }
+        continue;
+      }
       const filled = calc.tris.filter(t=>t.filled);
       if(filled.length){
         n++;
@@ -590,6 +758,7 @@ function computeStats(classData){
     const lowSubjects = subjects.filter((subjName,idx)=>{
       if(isLiteratura(subjName)) return false;
       const calc = subjectCalc(st.subjects[idx]);
+      if(byTri) return calc.tris[tri].filled && calc.tris[tri].status===NOTREC;
       return calc.filledCount>0 && calc.taStatus==='bad';
     });
     return {name: st.name, count: lowSubjects.length, lowSubjects};
@@ -600,10 +769,10 @@ function computeStats(classData){
     let hasAny=false;
     return st.subjects.every((s,idx)=>{
       if(isLiteratura(subjects[idx])) return true;
-      const calc = subjectCalc(s);
-      if(calc.filledCount===0) return true;
+      const r = ratioOf(subjectCalc(s));
+      if(r===null) return true;
       hasAny=true;
-      return (calc.ta/calc.taMax) >= 0.7;
+      return r >= 0.7;
     }) && hasAny;
   });
 
@@ -614,14 +783,212 @@ function computeStats(classData){
   const idxMat = subjIndexOf('MATEM');
   const destaquesPort = idxPort>=0 ? students.filter(st=>{
     const calc = subjectCalc(st.subjects[idxPort]);
-    return calc.filledCount>0 && (calc.ta/calc.taMax)>=0.9;
+    const r = ratioOf(calc);
+    return r!==null && r>=0.9;
   }) : [];
   const destaquesMat = idxMat>=0 ? students.filter(st=>{
     const calc = subjectCalc(st.subjects[idxMat]);
-    return calc.filledCount>0 && (calc.ta/calc.taMax)>=0.9;
+    const r = ratioOf(calc);
+    return r!==null && r>=0.9;
   }) : [];
 
   return {stats, destaques70, destaquesPort, destaquesMat, atencao};
+}
+
+// Alunos com risco de O.E.R: para CADA disciplina com 1º e 2º trimestres lançados em que
+// 60 - (1º+2º) > 24, monta um card individual do aluno listando a(s) disciplina(s) em
+// risco, a somatória do 1º+2º e quantos pontos ele precisa no 3º trimestre.
+// Diferente de "atencao" (que só sinaliza quem está mal em 2+ disciplinas),
+// aqui entra qualquer aluno com pelo menos 1 disciplina em risco de O.E.R.
+function computeRetentionRisk(classData){
+  const {subjects, students} = classData;
+  const risk = students.map(st=>{
+    const lowSubjects = [];
+    subjects.forEach((subjName,idx)=>{
+      if(isLiteratura(subjName)) return;
+      const calc = subjectCalc(st.subjects[idx]);
+      const oer = oerInfo(calc);
+      if(oer){
+        lowSubjects.push({ name: subjName, ...oer });
+      }
+    });
+    return {name: st.name, subjects: lowSubjects, parcial: lowSubjects.some(x=>x.parcial)};
+  }).filter(st=> st.subjects.length>0)
+    .sort((a,b)=> b.subjects.length - a.subjects.length || a.name.localeCompare(b.name));
+  return risk;
+}
+
+function riskCards(list){
+  if(!list.length){
+    return `<div class="risk-empty">Nenhum aluno com risco de O.E.R (somatória do 1º+2º trimestres abaixo de 36, precisando de mais de 24 pontos no 3º) em alguma disciplina.</div>`;
+  }
+  return list.map(st=>{
+    const rows = st.subjects.map(s=>
+      `<div class="risk-subj-row"><span class="risk-subj-name">${s.name}</span><span class="risk-subj-val">1º+2º: ${s.soma}${oerAst(s)}/60 · precisa de ${s.precisa}${oerAst(s)} pt${s.precisa===1?'':'s'} no 3º</span>${oerRowNote(s)}</div>`
+    ).join('');
+    return `<div class="risk-card">
+      <h4>${st.name}</h4>
+      <div class="risk-count">${st.subjects.length} disciplina${st.subjects.length>1?'s':''} em risco de O.E.R</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+// Mesma base de "risco de O.E.R", mas organizada por DISCIPLINA em vez de por
+// aluno — pensada para impressão e entrega individual a cada professor(a), já
+// que cada um só precisa ver os alunos da sua própria disciplina.
+function computeRetentionRiskBySubject(classData){
+  const {subjects, students} = classData;
+  const bySubject = [];
+  subjects.forEach((subjName, idx)=>{
+    if(isLiteratura(subjName)) return;
+    const atRisk = students.map(st=>{
+      const calc = subjectCalc(st.subjects[idx]);
+      const oer = oerInfo(calc);
+      if(oer){
+        return { name: st.name, ...oer };
+      }
+      return null;
+    }).filter(Boolean).sort((a,b)=> b.falta - a.falta || a.name.localeCompare(b.name));
+    if(atRisk.length) bySubject.push({subject: subjName, students: atRisk});
+  });
+  return bySubject;
+}
+
+// Monta e imprime, uma folha por disciplina, a lista de alunos em risco daquela
+// disciplina — pronta para ser destacada e entregue ao professor(a) responsável.
+function printRiskBySubject(className){
+  const cd = currentClasses[className];
+  if(!cd) return;
+  const bySubject = computeRetentionRiskBySubject(cd);
+  const cfg = loadGlobalConfig();
+  cd.meta = cd.meta || {};
+  let html;
+  if(bySubject.length===0){
+    html = `<div class="print-page">
+      <div class="print-page-hdr"><div><h1>${className}</h1><div class="print-page-sub">${(cfg.escola||'')} · ${(cd.meta.mesAno||'')}</div></div></div>
+      <p>Nenhum aluno com risco de O.E.R (somatória do 1º+2º trimestres abaixo de 36, precisando de mais de 24 pontos no 3º) em nenhuma disciplina.</p>
+    </div>`;
+  } else {
+    html = bySubject.map(sec => `
+      <div class="print-page">
+        <div class="print-page-hdr">
+          <div>
+            <h1>${className} — ${sec.subject}</h1>
+            <div class="print-page-sub">${(cfg.escola||'')} · ${(cd.meta.mesAno||'')}</div>
+          </div>
+          <div class="print-page-teacher">Professor(a): ______________________________</div>
+        </div>
+        <table class="print-subj-table">
+          <thead><tr><th>Aluno</th><th>1º Trim.</th><th>2º Trim.</th><th>Soma 1º+2º (máx. 60)</th><th>Precisa no 3º (máx. 40)</th><th>Obs.</th></tr></thead>
+          <tbody>
+            ${sec.students.map(s=>`<tr><td>${s.name}</td><td>${oerV(s.t1)}</td><td>${oerV(s.t2)}</td><td>${s.soma}${oerAst(s)}</td><td>${s.precisa}${oerAst(s)}</td><td>${s.parcial ? '* sem nota no '+s.faltaTri+'º trim.' : ''}</td></tr>`).join('')}
+          </tbody>
+        </table>${oerLegendHtml(sec.students)}
+      </div>`).join('');
+  }
+  document.getElementById('printSubjectDoc').innerHTML = html;
+  document.body.classList.add('print-mode-subjects');
+  window.print();
+  setTimeout(()=>{ document.body.classList.remove('print-mode-subjects'); }, 300);
+}
+
+// Imprime, em folhas separadas (uma por turma), o conjunto de cards de risco de
+// O.E.R já usados na tela — útil para levar o conjunto completo de turmas
+// numa única impressão em papel, sem precisar abrir turma por turma.
+function printRiskCardsAllClasses(){
+  const names = Object.keys(currentClasses).sort();
+  if(names.length===0) return;
+  const html = names.map(name=>{
+    const cd = currentClasses[name];
+    const risk = computeRetentionRisk(cd);
+    return `<div class="print-page">
+      <div class="print-page-hdr"><div><h1>${name}</h1><div class="print-page-sub">${cd.students.length} alunos</div></div></div>
+      <div class="risk-grid print-risk-grid">${riskCards(risk)}</div>${oerLegendHtml(risk)}
+    </div>`;
+  }).join('');
+  document.getElementById('printCardsDoc').innerHTML = html;
+  document.body.classList.add('print-mode-cards');
+  window.print();
+  setTimeout(()=>{ document.body.classList.remove('print-mode-cards'); }, 300);
+}
+
+// ---------- IMPRESSÕES DE O.E.R (por turma) ----------
+function oerPrintMeta(className){
+  const cd = currentClasses[className];
+  const cfg = loadGlobalConfig();
+  cd.meta = cd.meta || {};
+  return {
+    cd,
+    turma: shortTurmaLabel(className),
+    escola: cfg.escola || 'ESCOLA MUNICIPAL GERALDO TEIXEIRA DA COSTA',
+    mesAno: cd.meta.mesAno || '',
+    prof: cd.meta.professor || ''
+  };
+}
+function runPrintMode(docId, html, mode){
+  document.getElementById(docId).innerHTML = html;
+  document.body.classList.add(mode);
+  window.print();
+  setTimeout(()=>{ document.body.classList.remove(mode); }, 300);
+}
+
+// Cards individuais (um por aluno em risco) para recortar e entregar ao aluno/responsável.
+function printOerCards(className){
+  if(!currentClasses[className]) return;
+  const m = oerPrintMeta(className);
+  const risk = computeRetentionRisk(m.cd).slice().sort((a,b)=> a.name.localeCompare(b.name));
+  if(!risk.length){ alert('Nenhum aluno desta turma com risco de O.E.R.'); return; }
+  const cards = risk.map(st=>{
+    const rows = st.subjects.map(s=>
+      `<tr><td class="l">${s.name}</td><td>${oerV(s.t1)}</td><td>${oerV(s.t2)}</td><td>${s.soma}${oerAst(s)}</td><td class="need">${s.precisa}${oerAst(s)}</td></tr>`
+    ).join('');
+    return `<div class="oer-card">
+      <div class="oer-card-school">${m.escola}</div>
+      <div class="oer-card-title">Aviso: risco de O.E.R</div>
+      <div class="oer-card-name">${st.name}</div>
+      <div class="oer-card-sub">Turma ${m.turma}${m.mesAno ? ' · '+m.mesAno : ''}</div>
+      <table>
+        <thead><tr><th class="l">Disciplina</th><th>1º Trim.</th><th>2º Trim.</th><th>Soma (máx. 60)</th><th>Precisa no 3º (máx. 40)</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="oer-card-note">Para ser aprovado, o aluno precisa de 60 pontos no ano. Nas disciplinas acima, a demanda de pontos no 3º trimestre é maior que a média (24 de 40), por isso há risco de O.E.R (Oportunidade Especial de Recuperação).</div>${oerCardObs(st)}
+      <div class="oer-card-sign">Ciente do responsável: ______________________________</div>
+    </div>`;
+  }).join('');
+  const html = `<div class="print-page">
+    <div class="print-page-hdr"><div><h1>${m.turma} — Cards de risco de O.E.R</h1><div class="print-page-sub">${m.escola}${m.mesAno ? ' · '+m.mesAno : ''} · ${risk.length} aluno${risk.length>1?'s':''}</div></div></div>
+    <div class="oer-cards-grid">${cards}</div>
+  </div>`;
+  runPrintMode('printOerCardsDoc', html, 'print-mode-oer-cards');
+}
+
+// Tabela da turma: uma linha por aluno em risco, uma coluna por disciplina; a célula traz
+// os pontos necessários no 3º trimestre (e, entre parênteses, a soma do 1º+2º) quando em risco.
+function printOerTable(className){
+  if(!currentClasses[className]) return;
+  const m = oerPrintMeta(className);
+  const risk = computeRetentionRisk(m.cd).slice().sort((a,b)=> a.name.localeCompare(b.name));
+  if(!risk.length){ alert('Nenhum aluno desta turma com risco de O.E.R.'); return; }
+  const subjects = m.cd.subjects.filter(s=>!isLiteratura(s));
+  const head = subjects.map(s=>`<th>${s}</th>`).join('');
+  const body = risk.map((st,i)=>{
+    const by = {}; st.subjects.forEach(s=>{ by[s.name] = s; });
+    const cells = subjects.map(sn=>{
+      const s = by[sn];
+      return s ? `<td class="risk">${s.precisa}${oerAst(s)} <small>(${s.soma}${s.parcial ? '; s/'+s.faltaTri+'º' : ''})</small></td>` : `<td>–</td>`;
+    }).join('');
+    return `<tr><td>${i+1}</td><td class="l">${st.name}</td>${cells}<td><strong>${st.subjects.length}</strong></td></tr>`;
+  }).join('');
+  const html = `<div class="print-page">
+    <div class="print-page-hdr"><div><h1>${m.turma} — Alunos com risco de O.E.R</h1><div class="print-page-sub">${m.escola}${m.mesAno ? ' · '+m.mesAno : ''}${m.prof ? ' · Prof. de referência: '+m.prof : ''} · ${risk.length} aluno${risk.length>1?'s':''} de ${m.cd.students.length}</div></div></div>
+    <table class="oer-table">
+      <thead><tr><th>Nº</th><th class="l">Aluno</th>${head}<th>Disc. em risco</th></tr></thead>
+      <tbody>${body}</tbody>
+    </table>
+    <div class="oer-legend">Valor na célula = pontos que o aluno precisa no 3º trimestre (máx. 40; média 24). Entre parênteses: somatória do 1º+2º trimestres (máx. 60). "–" = sem risco na disciplina.</div>${oerLegendHtml(risk.flatMap(x=>x.subjects), ' Na célula, "s/1º" = sem a nota do 1º trimestre e "s/2º" = sem a nota do 2º.')}
+  </div>`;
+  runPrintMode('printOerTableDoc', html, 'print-mode-oer-table');
 }
 
 // ---------- STORAGE ----------
@@ -641,7 +1008,100 @@ async function saveClass(name, data){
   }catch(e){
     throw new Error('Falha ao salvar a turma no navegador: '+e.message);
   }
+  // Sincroniza as notas trimestrais com o Supabase, para que o Perfil Individual
+  // do aluno (index.html) possa exibir o gráfico de rendimento sem depender do
+  // localStorage deste navegador. Falha na sincronização não bloqueia o salvamento
+  // local — só é registrada no console para não travar o fluxo de importação.
+  try{
+    await syncNotasTrimestraisSupabase(name, data);
+  }catch(e){
+    console.error('Falha ao sincronizar notas trimestrais no Supabase:', e);
+  }
   return true;
+}
+
+// Envia para o Supabase o resultado calculado de cada aluno/disciplina/trimestre
+// desta turma (notas brutas + total/percentual/status já calculados). Antes de
+// gravar, remove as linhas antigas dessa turma para evitar duplicidade quando
+// o mesmo PDF é reimportado (ex.: correção de nota).
+//
+// IMPORTANTE: a coluna "turma" é gravada no formato curto (ex.: "7ºE"), via
+// shortTurmaLabel(className), e NÃO no código completo do boletim (ex.:
+// "FRCAA1TE - FUNDAMENTAL - REGULAR - 3º CICLO - 1º ANO"). É esse formato
+// curto que o Perfil Individual (index.html) usa para cruzar as notas com o
+// aluno certo (via nome + turma, já que a matrícula do boletim — "RME" — é
+// um código próprio do quadro síntese e não bate com a matrícula oficial
+// cadastrada no restante do sistema). Se essa conversão não for feita aqui,
+// o gráfico/tabela de Rendimento Trimestral fica sempre vazio no Perfil
+// Individual, mesmo com os dados corretamente importados.
+// Remove do Supabase todas as linhas de notas_trimestrais pertencentes a esta
+// turma. Limpa tanto o formato curto (ex.: "7ºE", já usado nas gravações
+// atuais) quanto o código completo do boletim (caso restem linhas de uma
+// sincronização antiga, de antes da conversão para o formato curto), pra
+// nunca deixar duplicidade nem lixo órfão lá.
+async function deleteNotasTrimestraisSupabase(className){
+  const turmaLabel = shortTurmaLabel(className) || className;
+  const delUrls = [
+    `${SUPABASE_URL}/rest/v1/notas_trimestrais?turma=eq.${encodeURIComponent(turmaLabel)}`,
+    ...(turmaLabel !== className ? [`${SUPABASE_URL}/rest/v1/notas_trimestrais?turma=eq.${encodeURIComponent(className)}`] : [])
+  ];
+  for(const delUrl of delUrls){
+    const delResp = await fetch(delUrl, { method:'DELETE', headers: sbHeaders() });
+    if(!delResp.ok){
+      throw new Error('Falha ao limpar notas da turma no Supabase ('+delResp.status+')');
+    }
+  }
+}
+async function syncNotasTrimestraisSupabase(className, data){
+  const {subjects, students} = data;
+  const turmaLabel = shortTurmaLabel(className) || className;
+
+  // Antes de gravar, remove as linhas antigas dessa turma para evitar
+  // duplicidade quando o mesmo PDF é reimportado (ex.: correção de nota).
+  await deleteNotasTrimestraisSupabase(className);
+
+  const rows = [];
+  students.forEach(st=>{
+    subjects.forEach((discName, idx)=>{
+      const s = st.subjects[idx];
+      if(!s) return;
+      [0,1,2].forEach(triIdx=>{
+        const notaRaw = triIdx===0 ? s.n1 : triIdx===1 ? s.n2 : s.n3;
+        const recRaw  = triIdx===0 ? s.r1 : triIdx===1 ? s.r2 : s.r3;
+        if(isEmpty(notaRaw)) return; // nada lançado nesse trimestre — não grava linha vazia
+        const calc = trimestreCalc(notaRaw, recRaw, triIdx);
+        rows.push({
+          matricula: soDigitos(st.rme),
+          aluno_nome: st.name,
+          turma: turmaLabel,
+          disciplina: discName,
+          trimestre: triIdx+1,
+          nota: String(notaRaw),
+          recuperacao: isEmpty(recRaw) ? null : String(recRaw),
+          nota_total: calc.total,
+          nota_maxima: calc.max,
+          percentual: calc.total!=null ? Math.round((calc.total/calc.max)*100) : null,
+          status: STATUS_LABELS[calc.status] || null
+        });
+      });
+    });
+  });
+  if(rows.length===0) return;
+
+  // Envia em lotes para não estourar o limite de tamanho de requisição.
+  const CHUNK = 500;
+  for(let i=0; i<rows.length; i+=CHUNK){
+    const chunk = rows.slice(i, i+CHUNK);
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/notas_trimestrais`, {
+      method:'POST',
+      headers: sbHeaders(),
+      body: JSON.stringify(chunk)
+    });
+    if(!resp.ok){
+      const errText = await resp.text().catch(()=>'');
+      throw new Error('Falha ao gravar notas no Supabase ('+resp.status+'): '+errText);
+    }
+  }
 }
 async function loadAllClasses(){
   const out = {};
@@ -659,6 +1119,10 @@ async function loadAllClasses(){
 async function deleteClass(name){
   try{ localStorage.removeItem(slugKey(name)); }
   catch(e){ console.error('erro ao remover', e); }
+  // Também remove as notas trimestrais desta turma no Supabase, que é de lá
+  // que o Perfil Individual (index.html) lê os dados — sem isso, a turma
+  // some da lista aqui mas as notas continuam aparecendo lá.
+  await deleteNotasTrimestraisSupabase(name);
 }
 function loadGlobalConfig(){
   try{ return JSON.parse(localStorage.getItem('config:global')||'{}'); }
@@ -685,13 +1149,36 @@ function renderSidebar(){
     renderSidebar(); renderMain();
   };
   const delBtn = document.getElementById('classDelBtn');
-  delBtn.onclick = ()=>{
+  delBtn.onclick = async ()=>{
     const name = select.value;
     if(!name){ alert('Selecione uma turma para remover.'); return; }
-    if(confirm('Remover a turma "'+name+'"?')){
-      deleteClass(name); delete currentClasses[name];
+    if(confirm('Remover a turma "'+name+'"? Isso também apaga as notas trimestrais dela no Supabase (usadas no Perfil Individual).')){
+      delBtn.disabled = true;
+      let erro = null;
+      try{ await deleteClass(name); }
+      catch(e){ erro = e; console.error('Falha ao remover notas no Supabase:', e); }
+      delete currentClasses[name];
       if(activeClass===name) activeClass=null;
+      delBtn.disabled = false;
       renderSidebar(); renderMain();
+      if(erro){ alert('A turma foi removida aqui, mas houve falha ao limpar as notas no Supabase: '+erro.message); }
+    }
+  };
+  const delAllBtn = document.getElementById('classDelAllBtn');
+  delAllBtn.onclick = async ()=>{
+    if(!names.length){ alert('Não há nenhuma turma carregada para remover.'); return; }
+    if(confirm('Remover TODAS as '+names.length+' turma(s) carregada(s)? Isso também apaga as notas trimestrais delas no Supabase (usadas no Perfil Individual). Esta ação não pode ser desfeita.')){
+      delAllBtn.disabled = true;
+      const falhas = [];
+      for(const name of names){
+        try{ await deleteClass(name); }
+        catch(e){ falhas.push(name); console.error('Falha ao remover notas no Supabase para', name, e); }
+        delete currentClasses[name];
+      }
+      activeClass = null;
+      delAllBtn.disabled = false;
+      renderSidebar(); renderMain();
+      if(falhas.length){ alert('Turmas removidas aqui, mas houve falha ao limpar as notas no Supabase de: '+falhas.join(', ')); }
     }
   };
 }
@@ -723,7 +1210,11 @@ function renderMain(){
     return;
   }
   const cd = currentClasses[activeClass];
-  const {stats, destaques70, destaquesPort, destaquesMat, atencao} = computeStats(cd);
+  const tri = getTriFilter(activeClass, cd);
+  const byTri = (tri!=='ALL');
+  const triTxt = byTri ? (tri+1)+'º trimestre' : 'acumulado (Total Anual)';
+  const {stats, destaques70, destaquesPort, destaquesMat, atencao} = computeStats(cd, byTri ? tri : undefined);
+  const retentionRisk = computeRetentionRisk(cd);
   const cfg = loadGlobalConfig();
   if(!cfg.escola){ cfg.escola = 'ESCOLA MUNICIPAL GERALDO TEIXEIRA DA COSTA'; saveGlobalConfig(cfg); }
   cd.meta = cd.meta || {};
@@ -749,18 +1240,23 @@ function renderMain(){
     </div>
     <div class="hdr-actions">
       <button class="print-btn" onclick="window.print()">🖶 Imprimir quadro resumo</button>
+      <button class="print-btn" onclick="printRiskBySubject('${activeClass.replace(/'/g,"\\'")}')">🖶 Imprimir por disciplina (professores)</button>
+      <button class="print-btn" onclick="printRiskCardsAllClasses()">🖶 Imprimir cards de risco — todas as turmas</button>
       <div class="stamp">${activeClass.slice(0,6)}</div>
     </div>
   </div>`;
 
-  html += `<div class="section-title">Destaques e acompanhamento da turma</div><div class="highlight-row">`;
+  const triOpts = availableTris(cd).map(i=>`<option value="${i}" ${tri===i?'selected':''}>${i+1}º trimestre</option>`).join('')
+    + `<option value="ALL" ${tri==='ALL'?'selected':''}>Acumulado (Total Anual)</option>`;
+  html += `<div class="tri-filter-bar"><label>Trimestre: <select id="triSelect" class="tri-select">${triOpts}</select></label><span class="tri-filter-hint">Vale para "Destaques e acompanhamento" e "Análise por disciplina"</span></div>`;
+  html += `<div class="section-title">Destaques e acompanhamento da turma — ${triTxt}</div><div class="highlight-row">`;
   html += hlCard('Destaques gerais (≥70% em todas as disciplinas)', destaques70, 'plum');
   html += hlCard('Destaques em Língua Portuguesa (≥90%)', destaquesPort, 'acc');
   html += hlCard('Destaques em Matemática (≥90%)', destaquesMat, 'acc');
   html += attentionCard(atencao);
   html += `</div>`;
 
-  html += `<div class="section-title">Análise por disciplina</div><div class="subject-grid">`;
+  html += `<div class="section-title">Análise por disciplina — ${triTxt}</div><div class="subject-grid">`;
   stats.forEach((s,i)=>{
     if(isLiteratura(s.name)) return;
     const wDirect = s.n? (s.direct/s.n*100):0;
@@ -779,10 +1275,20 @@ function renderMain(){
         <span><i class="dot" style="background:var(--warn)"></i>Recuperou ${pct(s.recovered,s.needRec)??'–'}% <span style="color:#999">(de ${s.needRec})</span></span>
         <span><i class="dot" style="background:var(--danger)"></i>Não recuperou ${pct(s.notrec,s.needRec)??'–'}%</span>
       </div>
-      <div class="final-row"><span class="lbl">Aprovação final (nota total)</span><span class="val ${statusClass(taP)==='ok'?'ok':statusClass(taP)==='mid'?'mid':'bad'}">${taP??'–'}%</span></div>
+      <div class="final-row"><span class="lbl">${byTri ? 'Aprovação no trimestre' : 'Aprovação final (nota total)'}</span><span class="val ${statusClass(taP)==='ok'?'ok':statusClass(taP)==='mid'?'mid':'bad'}">${taP??'–'}%</span></div>
     </div>`;
   });
   html += `</div>`;
+
+  html += `<div class="risk-section">
+    <div class="section-title">Alunos com risco de O.E.R — Oportunidade Especial de Recuperação (1º+2º trimestres abaixo de 36 pontos: precisam de mais de 24 no 3º, por disciplina)</div>
+    <div class="risk-actions">
+      <button class="print-btn" onclick="printOerCards('${activeClass.replace(/'/g,"\\'")}')">🖶 Cards de O.E.R para entrega ao aluno (esta turma)</button>
+      <button class="print-btn" onclick="printOerTable('${activeClass.replace(/'/g,"\\'")}')">🖶 Tabela de alunos em risco de O.E.R (esta turma)</button>
+    </div>
+    ${oerTemParcial(retentionRisk) ? `<div class="risk-legend">${OER_ASTERISCO_TXT}</div>` : ''}<div class="risk-grid">${riskCards(retentionRisk)}</div>
+  </div>`;
+
   html += `<div class="print-footer">
     <div>Coordenador(a) Pedagógico(a): <strong>Prof. Everton Correa</strong></div>
     <div>Coordenadora Geral: <strong>Leila Cardoso</strong></div>
@@ -794,6 +1300,11 @@ function renderMain(){
     card.onclick = ()=> renderDetail(cd, Number(card.dataset.idx));
   });
 
+  document.getElementById('triSelect').onchange = (e)=>{
+    const v = e.target.value;
+    triFilter[activeClass] = (v==='ALL') ? 'ALL' : Number(v);
+    renderMain();
+  };
   document.getElementById('metaEscola').onchange = (e)=>{
     const c = loadGlobalConfig(); c.escola = e.target.value; saveGlobalConfig(c);
   };
@@ -856,7 +1367,7 @@ function renderOverview(){
   }
   const allSubjects = new Set();
   names.forEach(n=> currentClasses[n].subjects.forEach(s=>{ if(!isLiteratura(s)) allSubjects.add(s); }));
-  let html = `<div class="hdr"><h1>Visão geral — todas as turmas</h1><button class="print-btn" onclick="window.print()">🖶 Imprimir visão geral</button></div>`;
+  let html = `<div class="hdr"><h1>Visão geral — todas as turmas</h1><div class="hdr-actions"><button class="print-btn" onclick="window.print()">🖶 Imprimir visão geral</button><button class="print-btn" onclick="printRiskCardsAllClasses()">🖶 Imprimir cards de risco — todas as turmas</button></div></div>`;
   html += `<div class="section-title">Aprovação final (%) por turma e disciplina</div>`;
   html += `<table class="overview-table"><thead><tr><th>Turma</th>${[...allSubjects].map(s=>`<th>${s}</th>`).join('')}</tr></thead><tbody>`;
   for(const n of names){
@@ -1237,9 +1748,47 @@ document.getElementById('fileInput').addEventListener('change', async (e)=>{
     statusMsg((updates)+' turma(s) já existente(s) serão atualizada(s) com os novos dados.'+(queued>updates?' '+(queued-updates)+' nova(s) para revisar.':''));
   }
   if(reviewQueue.length){
-    processNextInQueue();
+    const pularRevisao = document.getElementById('pularRevisaoChk')?.checked;
+    if(pularRevisao) salvarTudoAutomaticamente();
+    else processNextInQueue();
   }
 });
+
+// Salva todas as turmas da fila de uma vez, sem passar pela tela de revisão
+// individual — usa as disciplinas e o nome de turma exatamente como foram
+// detectados no PDF (sem chance de ajuste manual). Turmas que já existiam são
+// atualizadas (mesma lógica do fluxo com revisão); mostra um resumo ao final,
+// e não interrompe a fila em caso de erro num PDF específico — ele fica
+// registrado no resumo, e as demais turmas continuam sendo salvas normalmente.
+async function salvarTudoAutomaticamente(){
+  const total = reviewQueue.length;
+  let salvas = 0, atualizadas = 0;
+  const erros = [];
+  statusMsg('Salvando '+total+' turma(s) automaticamente…');
+  while(reviewQueue.length){
+    const parsed = reviewQueue.shift();
+    const existingKey = findSavedClassKey(parsed.className);
+    const data = existingKey
+      ? {...currentClasses[existingKey], className: existingKey, subjects: parsed.subjects, students: parsed.students}
+      : {className: parsed.className, subjects: parsed.subjects, students: parsed.students};
+    try{
+      await saveClass(data.className, data);
+      currentClasses[data.className] = data;
+      delete triFilter[data.className]; // reabre no trimestre mais recente
+      activeClass = data.className;
+      existingKey ? atualizadas++ : salvas++;
+    }catch(err){
+      console.error(err);
+      erros.push(parsed.className+': '+err.message);
+    }
+  }
+  renderSidebar();
+  renderMain();
+  let resumo = salvas+' turma(s) nova(s) salva(s)';
+  if(atualizadas>0) resumo += ', '+atualizadas+' atualizada(s)';
+  if(erros.length) resumo += '. '+erros.length+' com erro: '+erros.join(' · ');
+  statusMsg(resumo+'.');
+}
 
 function processNextInQueue(){
   if(reviewQueue.length===0){ renderMain(); return; }
@@ -1280,6 +1829,7 @@ function showReview(parsed){
     try{
       await saveClass(data.className, data);
       currentClasses[data.className] = data;
+      delete triFilter[data.className]; // reabre no trimestre mais recente
       activeClass = data.className;
       statusMsg('Turma "'+data.className+'" '+(existingKey ? 'atualizada' : 'salva')+'.');
       renderSidebar();
