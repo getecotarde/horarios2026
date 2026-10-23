@@ -437,9 +437,9 @@
     <div id="uploadContent" style="display:none;">
       <div id="dropzone">
         <div class="icon">📊</div>
-        <div class="main-txt">Arraste o arquivo .xlsx aqui ou clique para escolher</div>
-        <div class="sub-txt">Aceita a planilha exportada do formulário (ex.: "Avaliação da gincana (respostas)")</div>
-        <input type="file" id="fileInput" accept=".xlsx,.xls">
+        <div class="main-txt">Arraste a planilha aqui ou clique para escolher</div>
+        <div class="sub-txt">Aceita Excel (.xlsx), LibreOffice (.ods) ou CSV (.csv) — ex.: "Avaliação da gincana (respostas)"</div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.ods,.csv,text/csv">
       </div>
       <div id="fileStatus">Nenhum arquivo carregado ainda.</div>
     </div>
@@ -597,12 +597,14 @@
     const reader = new FileReader();
     reader.onload = function(evt){
       try{
-        const data = new Uint8Array(evt.target.result);
-        const wb = XLSX.read(data, {type:"array", cellDates:true});
-        const sheetName = wb.SheetNames[0];
-        const sheet = wb.Sheets[sheetName];
+        const buf = evt.target.result;
+        const ext = (file.name.split(".").pop() || "").toLowerCase();
+        const isCsv = ext === "csv" || ext === "txt" || file.type === "text/csv";
+        const wb = isCsv ? readCsv(buf) : XLSX.read(new Uint8Array(buf), {type:"array", cellDates:true});
+        const sheet = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, {header:1, defval:null, raw:true});
         parseRows(rows);
+        if (!rawRows.length) throw new Error("Nenhuma avaliação encontrada");
         fileStatus.className = "ok";
         fileStatus.textContent = "✓ " + file.name + " carregado — " + rawRows.length + " avaliações reconhecidas.";
         btnPrint.disabled = false;
@@ -611,7 +613,7 @@
       }catch(err){
         console.error(err);
         fileStatus.className = "error";
-        fileStatus.textContent = "Não foi possível ler o arquivo. Confirme que é a planilha exportada do formulário (.xlsx).";
+        fileStatus.textContent = "Não foi possível ler o arquivo. Confirme que é a planilha exportada do formulário (.xlsx, .ods ou .csv).";
       }
     };
     reader.onerror = function(){
@@ -619,6 +621,36 @@
       fileStatus.textContent = "Erro ao ler o arquivo.";
     };
     reader.readAsArrayBuffer(file);
+  }
+
+  // CSV: detecta codificação (UTF-8 ou Windows-1252) e separador (; , ou tab)
+  function readCsv(buf){
+    const bytes = new Uint8Array(buf);
+    let text;
+    try { text = new TextDecoder("utf-8", {fatal:true}).decode(bytes); }
+    catch(e){ text = new TextDecoder("windows-1252").decode(bytes); }
+    text = text.replace(/^\uFEFF/, "");
+    const firstLine = text.split(/\r?\n/, 1)[0] || "";
+    const count = ch => (firstLine.match(new RegExp(ch === "\t" ? "\t" : "\\" + ch, "g")) || []).length;
+    const cands = [";", ",", "\t"];
+    let FS = cands[0], best = -1;
+    cands.forEach(c => { const n = count(c); if (n > best) { best = n; FS = c; } });
+    // raw:true mantém tudo como texto; datas e números são tratados em parseRows
+    return XLSX.read(text, {type:"string", raw:true, FS});
+  }
+
+  // Converte carimbo de data/hora (Date, serial do Excel, "dd/mm/aaaa hh:mm:ss" ou ISO)
+  function parseTimestamp(t){
+    if (t instanceof Date) return t;
+    if (typeof t === "number"){
+      const o = XLSX.SSF.parse_date_code(t);
+      return o ? new Date(o.y, o.m - 1, o.d, o.H, o.M, Math.floor(o.S)) : null;
+    }
+    const str = String(t).trim();
+    const m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T,]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+    if (m) return new Date(+m[3], +m[2] - 1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
+    const d = new Date(str);
+    return isNaN(d) ? null : d;
   }
 
   function parseRows(rows){
@@ -650,7 +682,7 @@
             const s = stripAccents(val).toLowerCase();
             if (s.includes("nenhuma infracao")) { /* 0 */ }
             else {
-              const n = parseFloat(val);
+              const n = parseFloat(String(val).replace(",", "."));
               if (!isNaN(n)) deducao += n;
             }
           }
@@ -665,8 +697,7 @@
 
       let ts = null;
       if (idxTimestamp !== -1 && row[idxTimestamp]) {
-        const t = row[idxTimestamp];
-        ts = (t instanceof Date) ? t : new Date(t);
+        ts = parseTimestamp(row[idxTimestamp]);
       }
 
       rawRows.push({turmaKey, verde, amarelo, vermelho, deducao, ts});
