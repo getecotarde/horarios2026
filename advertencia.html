@@ -6,7 +6,7 @@
 <title>Comunicação aos Responsáveis – EMGTC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500;700&family=Alex+Brush&family=Petit+Formal+Script&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500;700&family=Inter:wght@400;500;600;700;800&family=Alex+Brush&family=Petit+Formal+Script&display=swap" rel="stylesheet">
 <style>
   :root {
     --azul: #1a3a6b;
@@ -418,14 +418,69 @@
     .folha { width: 100%; padding: 8mm; }
     .cabecalho-bloco { grid-template-columns: 30mm 1fr 30mm; }
   }
+
+  /* ══ TEMA MODERNO (sobrepõe o visual anterior; a folha de impressão não muda) ══ */
+  :root { --azul:#3a3fb8; --azul-claro:#eef0ff; --cinza:#5b6078; --linha:#dfe2f0; --verde:#059669; --perigo:#e11d48; }
+  body { font-family:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif; background:radial-gradient(1200px 400px at 50% -100px,#dfe3ff 0%,transparent 70%),#f5f6fb; color:#1f2340; padding:20px 14px 40px; }
+  .container { max-width:900px; }
+  .hero { display:flex; align-items:center; gap:16px; padding:20px 24px; margin-bottom:20px; border-radius:18px; color:#fff;
+    background:linear-gradient(135deg,#3a3fb8 0%,#5b4fd6 55%,#7c5ce6 100%); box-shadow:0 10px 30px rgba(58,63,184,.28); }
+  .hero-ico { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,.18); display:grid; place-items:center; font-size:1.6rem; flex-shrink:0; }
+  .hero h1 { text-align:left; color:#fff; font-size:1.35rem; font-weight:800; margin:0 0 2px; letter-spacing:-.01em; }
+  .hero .subtitle { text-align:left; color:rgba(255,255,255,.85); font-size:.82rem; margin:0; }
+
+  #form-section { counter-reset:passo; }
+  .card { background:#fff; border:1px solid #e6e8f4; border-radius:18px; box-shadow:0 4px 18px rgba(40,44,110,.07); padding:24px 28px; margin-bottom:18px; }
+  #form-section > .card > h2 { counter-increment:passo; display:flex; align-items:center; gap:10px; border:none; padding:0; margin-bottom:18px; font-size:1.05rem; font-weight:800; color:#1f2340; }
+  #form-section > .card > h2::before { content:counter(passo); width:28px; height:28px; border-radius:50%; background:var(--azul); color:#fff; font-size:.82rem; font-weight:700; display:grid; place-items:center; flex-shrink:0; }
+  label { color:#4a4f6b; font-size:.7rem; letter-spacing:.06em; }
+  input[type=text], input[type=date], select, textarea { border:1.5px solid #dcdff0; border-radius:10px; padding:10px 12px; background:#fbfbfe; font-family:inherit; }
+  input:focus, select:focus, textarea:focus { background:#fff; border-color:var(--azul); box-shadow:0 0 0 4px rgba(58,63,184,.14); }
+  .section-title { color:var(--azul); font-weight:800; margin:22px 0 10px; padding-top:14px; border-top:1px dashed #dfe2f0; }
+
+  /* atalhos de gerenciamento (listagens) como "chips" */
+  button[onclick^="abrirGerenciar"] { border-radius:999px !important; padding:6px 14px !important; border:1.5px solid #cfd3f2 !important; background:#f3f4ff !important; color:var(--azul) !important; font-weight:600 !important; transition:all .15s; }
+  button[onclick^="abrirGerenciar"]:hover { background:var(--azul) !important; color:#fff !important; border-color:var(--azul) !important; }
+  /* alternância Individual / Lote como controle segmentado */
+  #modos-btn { background:#ecedf8; padding:5px; border-radius:14px; gap:4px !important; }
+  #modos-btn button { border:none !important; border-radius:10px !important; padding:11px 16px !important; font-family:inherit; transition:all .15s; }
+
+  .opcao-item { border:1.5px solid #e6e8f4; border-radius:12px; padding:11px 14px; margin-bottom:8px; background:#fff; }
+  .opcao-item:hover { background:#f6f7ff; border-color:#c9cdf0; }
+  .opcao-item.selecionado { background:var(--azul-claro); border-color:var(--azul); box-shadow:0 0 0 3px rgba(58,63,184,.1); }
+  .opcao-item input[type=checkbox], input[type=radio] { accent-color:var(--azul); }
+
+  .btn { border-radius:12px; padding:12px 24px; font-family:inherit; font-weight:700; letter-spacing:.01em; transition:all .15s; }
+  .btn-primary { background:linear-gradient(135deg,#3a3fb8,#6048d8); box-shadow:0 6px 16px rgba(58,63,184,.3); }
+  .btn-primary:hover { opacity:1; transform:translateY(-1px); box-shadow:0 8px 20px rgba(58,63,184,.38); }
+  .btn-secondary { border:1.5px solid #cfd3f2; background:#fff; }
+  .btn-danger { background:#fff; color:var(--perigo); border:1.5px solid #fbc9d4; }
+  .btn-danger:hover { background:#fff1f4; opacity:1; }
+  /* barra de ações fixa no rodapé: "Visualizar Prévia" sempre à mão */
+  #form-section > .btn-row { position:sticky; bottom:12px; z-index:30; margin-top:6px; padding:12px 14px; justify-content:flex-end;
+    background:rgba(255,255,255,.88); backdrop-filter:blur(10px); border:1px solid #e1e4f5; border-radius:16px; box-shadow:0 10px 30px rgba(40,44,110,.18); }
+  #preview-section > div:first-child { background:#fff; border:1px solid #e6e8f4; border-radius:16px; padding:14px 18px; box-shadow:0 4px 18px rgba(40,44,110,.07); }
+  .folha { border-radius:6px; box-shadow:0 8px 30px rgba(40,44,110,.18); }
+  #lote-editor { border-radius:12px !important; }
+
+  @media (max-width:600px) {
+    .hero { padding:16px; } .hero h1 { font-size:1.1rem; } .card { padding:18px 16px; }
+    #form-section > .btn-row .btn { flex:1; justify-content:center; padding:12px 10px; }
+  }
+  @media print { .hero { display:none !important; } }
 </style>
 </head>
 <body>
 
 <div class="container">
 
-  <h1>📋 Comunicação aos Responsáveis</h1>
-  <p class="subtitle">Escola Municipal Geraldo Teixeira da Costa — Prefeitura de Belo Horizonte</p>
+  <header class="hero no-print">
+    <div class="hero-ico">📋</div>
+    <div>
+      <h1>Comunicação aos Responsáveis</h1>
+      <p class="subtitle">Escola Municipal Geraldo Teixeira da Costa · Prefeitura de Belo Horizonte</p>
+    </div>
+  </header>
 
   <!-- FORMULÁRIO -->
   <div id="form-section">
@@ -464,7 +519,7 @@
         </div>
         <div>
           <label>Turma *</label>
-          <select id="turma">
+          <select id="turma" onchange="turmaIndividualMudou()">
             <option value="">Selecione</option>
             <optgroup label="6º Ano">
               <option>6ºA</option>
@@ -1006,35 +1061,34 @@ function stopProp(e) { e.stopPropagation(); }
 // ── DADOS DOS ALUNOS ─────────────────────────────────────────────────────────
 const ALUNOS_BASE = [
   {nome:"Agata Santos Teixeira Silva",turma:"6ºA"},
-  {nome:"Aleph Andrade Simões",turma:"6ºA"},
+  {nome:"Aleph Andrade Simoes",turma:"6ºA"},
   {nome:"Alice Manuella de Oliveira Felix Lima",turma:"6ºA"},
   {nome:"Ana Julia Souza Oliveira",turma:"6ºA"},
   {nome:"Andre Xavier da Silva Bispo",turma:"6ºA"},
-  {nome:"Bernardo Martins Emídio de Sousa",turma:"6ºA"},
+  {nome:"Bernardo Martins Emigdio de Sousa",turma:"6ºA"},
   {nome:"Bryan Felipe de Caria Teixeira",turma:"6ºA"},
   {nome:"Catarina Penido de Souza",turma:"6ºA"},
   {nome:"Christopher Ferreira Campos",turma:"6ºA"},
   {nome:"Clara Alves Scaramelo Cupertino",turma:"6ºA"},
-  {nome:"Davi Nathan Silva Nascimento",turma:"6ºA"},
+  {nome:"Daniel Sergio Lobo",turma:"6ºA"},
   {nome:"Diulia Victoria Lima da Cruz",turma:"6ºA"},
   {nome:"Elizabeth Cristina Ferreira Barbosa",turma:"6ºA"},
-  {nome:"Eloa Rubi Mendes de Souza",turma:"6ºA"},
   {nome:"Esther Almeida Brito",turma:"6ºA"},
-  {nome:"Esther Soares Alcântara",turma:"6ºA"},
+  {nome:"Esther Soares Alcantara",turma:"6ºA"},
   {nome:"Heloisa Caroline Rodrigues Moreira",turma:"6ºA"},
-  {nome:"Jhulia Ketellyn Moreira da Cunha",turma:"6ºA"},
   {nome:"Kaique Eduardo de Souza Lopes",turma:"6ºA"},
-  {nome:"Kauã Castro Oliveira",turma:"6ºA"},
+  {nome:"Kaua Castro Oliveira",turma:"6ºA"},
   {nome:"Kaua Victor Nunes Silva",turma:"6ºA"},
-  {nome:"Kaum Robson Moreira Costa da Silva",turma:"6ºA"},
+  {nome:"Kauam Robson Moreira Costa da Silva",turma:"6ºA"},
   {nome:"Lorenzo Santos Dias Castro",turma:"6ºA"},
   {nome:"Luara Valentina Barbosa Pinto Camilo",turma:"6ºA"},
-  {nome:"Lucas Damian Barbosa Gonçalves",turma:"6ºA"},
+  {nome:"Lucas Damian Barbosa Goncalves",turma:"6ºA"},
   {nome:"Maria Eduarda de Jesus Souza",turma:"6ºA"},
-  {nome:"Miguel Gonçalves Freitas",turma:"6ºA"},
+  {nome:"Miguel Goncalves Freitas",turma:"6ºA"},
   {nome:"Pedro Tiago Pinheiro",turma:"6ºA"},
-  {nome:"Rayissa de Oliveira Damasceno",turma:"6ºA"},
+  {nome:"Rayssa de Oliveira Damasceno",turma:"6ºA"},
   {nome:"Sarah Alves dos Santos",turma:"6ºA"},
+  {nome:"Talita Vieira Lopes",turma:"6ºA"},
   {nome:"Vitor Miguel Oliveira da Silva",turma:"6ºA"},
   {nome:"Alice Perenne de Oliveira",turma:"6ºB"},
   {nome:"Alice Pimenta Campos Rodrigues",turma:"6ºB"},
@@ -1042,18 +1096,19 @@ const ALUNOS_BASE = [
   {nome:"Anna Victoria Nedes Vieira",turma:"6ºB"},
   {nome:"Arthur Oliveira de Freitas",turma:"6ºB"},
   {nome:"Barbara Victoria Quinonez Ramos",turma:"6ºB"},
-  {nome:"Beatriz Eduarda do Nascimento Amara",turma:"6ºB"},
+  {nome:"Beatriz Eduarda do Nascimento Amaral",turma:"6ºB"},
   {nome:"Bernard Alves Parreiras Peroni",turma:"6ºB"},
   {nome:"Bernardo Alves de Souza",turma:"6ºB"},
   {nome:"Christopher Alejandro Alves de Oliveira",turma:"6ºB"},
-  {nome:"Clara Inês Frias",turma:"6ºB"},
+  {nome:"Clara Rios Frias",turma:"6ºB"},
   {nome:"Davi Vilas Boas Morais",turma:"6ºB"},
   {nome:"Estêvão Miguel Alves dos Santos",turma:"6ºB"},
-  {nome:"Esther Brasileira Wacha",turma:"6ºB"},
+  {nome:"Esther Brasileiro Wacha",turma:"6ºB"},
   {nome:"Heitor Vitor Silva Santos",turma:"6ºB"},
-  {nome:"Isabella Vitória Moraes Rodrigues",turma:"6ºB"},
+  {nome:"Isabella Vitoria Moraes Rodrigues",turma:"6ºB"},
   {nome:"Isabelly Gabriely Freire Souza",turma:"6ºB"},
-  {nome:"Kaillany Evillyn Florençoo Laboure da Cruz",turma:"6ºB"},
+  {nome:"Kaillany Evillyn Florenço Laboure da Silva",turma:"6ºB"},
+  {nome:"Kauany Cristina Lopes Nascimento",turma:"6ºB"},
   {nome:"Lara Gularte Duarte",turma:"6ºB"},
   {nome:"Lauane Ester Silva Martins Rosa",turma:"6ºB"},
   {nome:"Lorenzo de Paula Santos de Almeida",turma:"6ºB"},
@@ -1065,171 +1120,171 @@ const ALUNOS_BASE = [
   {nome:"Sofia Ester Almeida de Menezes",turma:"6ºB"},
   {nome:"Sophia Oliveira Viana",turma:"6ºB"},
   {nome:"Thauany Ester Rodrigues Silva",turma:"6ºB"},
-  {nome:"Valentina Almeida Macalhaes",turma:"6ºB"},
+  {nome:"Valentina Almeida Magalhaes",turma:"6ºB"},
   {nome:"Agatha Rafaelly Vieira de Souza",turma:"6ºC"},
   {nome:"Alice Yasmin Martins Silva",turma:"6ºC"},
   {nome:"Alvaro Gabriel Silva Fernandes",turma:"6ºC"},
-  {nome:"Ana Beatriz Castro Apostolu",turma:"6ºC"},
+  {nome:"Ana Beatriz Castro Apostolo",turma:"6ºC"},
   {nome:"Arthur Ventura da Silva Araujo",turma:"6ºC"},
   {nome:"Arthur Vinicius Oliveira de Paiva",turma:"6ºC"},
   {nome:"Bernardo Bragança do Nascimento",turma:"6ºC"},
   {nome:"Bruno William Silva da Costa",turma:"6ºC"},
   {nome:"Davi Carvalho de Oliveira",turma:"6ºC"},
-  {nome:"Davi Victor Dias Duques",turma:"6ºC"},
+  {nome:"Davi Pietro Silva Santos",turma:"6ºC"},
   {nome:"Emanuelle Bittencourt Soares",turma:"6ºC"},
-  {nome:"Emanuelly Vitória Pereira Feliciano",turma:"6ºC"},
+  {nome:"Emanuelly Vitoria Pereira Feliciano",turma:"6ºC"},
   {nome:"Enzo Neves de Souza",turma:"6ºC"},
   {nome:"Ester Luiza Felix de Oliveira",turma:"6ºC"},
   {nome:"Esther Lopes Rocha de Abreu",turma:"6ºC"},
   {nome:"Gabrielle Rodrigues da Silva",turma:"6ºC"},
   {nome:"Giovana Ventura Silva",turma:"6ºC"},
   {nome:"Gustavo Felipe Caetano Miranda",turma:"6ºC"},
-  {nome:"Gustavo Gabriel Silva Fernandes",turma:"6ºC"},
   {nome:"Julia Vitalino de Carvalho",turma:"6ºC"},
   {nome:"Kaua Felipe de Oliveira Alvarenga",turma:"6ºC"},
-  {nome:"Lara Sofia Almeida Vieira",turma:"6ºC"},
   {nome:"Lucca Campos Saldanha",turma:"6ºC"},
   {nome:"Luis Miguel Pinheiro Moreira",turma:"6ºC"},
   {nome:"Luiz Cláudio Silva Cunha Pereira",turma:"6ºC"},
   {nome:"Luiza Vitória Fernandes Santos",turma:"6ºC"},
-  {nome:"Pérola Maria Pires Santana",turma:"6ºC"},
+  {nome:"Perola Maria Pires Santana",turma:"6ºC"},
   {nome:"Sofia Pereira de Carvalho",turma:"6ºC"},
   {nome:"Sophia Almeida Pereira da Cruz",turma:"6ºC"},
-  {nome:"Victor Gabriel Moreira Mota",turma:"6ºC"},
-  {nome:"Yuri Cândida Medeiros",turma:"6ºC"},
+  {nome:"Yuri Candida Medeiros",turma:"6ºC"},
   {nome:"Zion Roberto Bandeira",turma:"6ºC"},
   {nome:"Andre Miguel de Oliveira da Silva",turma:"6ºD"},
   {nome:"Bryan Filipe Pires",turma:"6ºD"},
   {nome:"Cecilia de Oliveira Tavares",turma:"6ºD"},
   {nome:"Daniel Caetano da Cunha",turma:"6ºD"},
   {nome:"Davi Gregio Maciel Rosa",turma:"6ºD"},
-  {nome:"Davi Kenedy do Espírito Santo Azevedo",turma:"6ºD"},
+  {nome:"Davi Kenedy do Espirito Santo Azevedo",turma:"6ºD"},
   {nome:"Eduardo Augusto Soares Silva",turma:"6ºD"},
-  {nome:"Gabrielly Corrêa Lima",turma:"6ºD"},
+  {nome:"Gabrielly Correa Lima",turma:"6ºD"},
   {nome:"Giulia Nunes da Silva Macedo",turma:"6ºD"},
   {nome:"Gustavo Junio da Silva Pereira",turma:"6ºD"},
   {nome:"Heitor Alves Medeiros",turma:"6ºD"},
-  {nome:"Jennifer Vitória da Cruz Aguiar",turma:"6ºD"},
+  {nome:"Jennifer Vitoria da Cruz Aguiar",turma:"6ºD"},
   {nome:"Leticia Emanuelly Pereira de Souza",turma:"6ºD"},
   {nome:"Levi Benjamin Costa",turma:"6ºD"},
   {nome:"Lucas Eduardo Lima Rocha",turma:"6ºD"},
-  {nome:"Marco Antonio Gonçalves Lima",turma:"6ºD"},
+  {nome:"Marco Antonio Goncalves Lima",turma:"6ºD"},
   {nome:"Maria Alice Barbosa de Souza",turma:"6ºD"},
   {nome:"Maria Eduarda Batista de Souza",turma:"6ºD"},
-  {nome:"Matheus Ribsinds Santos",turma:"6ºD"},
+  {nome:"Matheus Resende Santos",turma:"6ºD"},
   {nome:"Miguel Reis Romulo de Oliveira",turma:"6ºD"},
   {nome:"Milena Carolina Antunes Esteves",turma:"6ºD"},
   {nome:"Nicolas Martins Gomes",turma:"6ºD"},
-  {nome:"Pyetro Junio Souza de Oliveira",turma:"6ºD"},
+  {nome:"Pietra Oliveira Ramos",turma:"6ºD"},
   {nome:"Quezia Danielly Moura da Silva",turma:"6ºD"},
-  {nome:"Raul Soares Costa",turma:"6ºD"},
+  {nome:"Raul Sales Costa",turma:"6ºD"},
+  {nome:"Samuel Garcia Noronha",turma:"6ºD"},
   {nome:"Sophia Barbosa dos Santos",turma:"6ºD"},
   {nome:"Sophia Stefani Campos Ferreira",turma:"6ºD"},
   {nome:"Valentina Amaral Sales Bispo",turma:"6ºD"},
-  {nome:"Vitória Regina da Silva Veiga",turma:"6ºD"},
-  {nome:"Yasmin Vitória Ribeiro Gonçalves",turma:"6ºD"},
+  {nome:"Yasmin Vitoria Ribeiro Goncalves",turma:"6ºD"},
   {nome:"Alice Mendes Alves",turma:"6ºE"},
   {nome:"Ana Beatriz Moura Costa",turma:"6ºE"},
   {nome:"Arthur Gomes Cabral Silva",turma:"6ºE"},
-  {nome:"Bryan Thales Simões de Assumpção",turma:"6ºE"},
+  {nome:"Bryan Thales Simoes de Assumpcao",turma:"6ºE"},
   {nome:"Carlos Eduardo Martins de Freitas",turma:"6ºE"},
-  {nome:"Cecília Silva Soares",turma:"6ºE"},
-  {nome:"Clariesse de Almeida Carvalho",turma:"6ºE"},
-  {nome:"Davi de Alcântara Andrade",turma:"6ºE"},
+  {nome:"Cecilia Silva Soares",turma:"6ºE"},
+  {nome:"Clarisse de Almeida Carvalho",turma:"6ºE"},
+  {nome:"Davi de Alcantara Andrade",turma:"6ºE"},
   {nome:"Davi Leonardo de Sousa Magalhaes",turma:"6ºE"},
   {nome:"Davi Lucas Almeida Fonseca",turma:"6ºE"},
   {nome:"Enzo Gabriel Freitas",turma:"6ºE"},
   {nome:"Ester Luiza dos Santos",turma:"6ºE"},
-  {nome:"Gabriela Vitória dos Santos",turma:"6ºE"},
+  {nome:"Gabriela Vitoria Nascimento de Miranda",turma:"6ºE"},
   {nome:"Guilherme Oliveira Melo",turma:"6ºE"},
   {nome:"Helena Lopes Antunes",turma:"6ºE"},
   {nome:"Henrique da Silva Jardim",turma:"6ºE"},
   {nome:"Isaac Augusto Moreira Deziderio",turma:"6ºE"},
-  {nome:"Kallen William Gonçalves Rossi",turma:"6ºE"},
+  {nome:"Kalleb Willian Goncalves Rossi",turma:"6ºE"},
   {nome:"Lara Sara Alves Ciriaco",turma:"6ºE"},
-  {nome:"Leonardo Henrique Queiroga Rocha",turma:"6ºE"},
+  {nome:"Leonardo Henrique Queiroga Rocha dos Santos",turma:"6ºE"},
   {nome:"Lucas Alberto Ferreira de Oliveira",turma:"6ºE"},
   {nome:"Lucas Gabriel de Oliveira Campos",turma:"6ºE"},
-  {nome:"Ludmyla Aguiar Fonseca",turma:"6ºE"},
   {nome:"Maria Clara Alves Costa",turma:"6ºE"},
+  {nome:"Maria Clara de Jesus Alves",turma:"6ºE"},
   {nome:"Maria Eduarda de Oliveira Teixeira",turma:"6ºE"},
   {nome:"Maria Eduarda Silva Pereira",turma:"6ºE"},
   {nome:"Pedro Lucas Rodrigues dos Reis",turma:"6ºE"},
-  {nome:"Raul Henrique Araújo Teixeira de Faria",turma:"6ºE"},
+  {nome:"Raul Henrique Araujo Teixeira de Faria",turma:"6ºE"},
   {nome:"Sophia Victoria Santos do Nascimento",turma:"6ºE"},
   {nome:"Tiago Ruan Silveira Mendes",turma:"6ºE"},
   {nome:"Anna Clara Silva de Oliveira",turma:"6ºF"},
   {nome:"Anny Marie Victoria de Souza Oliveira",turma:"6ºF"},
-  {nome:"Arthur Guimarães Gomes Ferreira",turma:"6ºF"},
-  {nome:"Cecília Amaral Tomaz",turma:"6ºF"},
+  {nome:"Arthur Guimaraes Gomes Ferreira",turma:"6ºF"},
+  {nome:"Cecilia Amaral Tomaz",turma:"6ºF"},
   {nome:"Claudio Calixto Fernandes Junior",turma:"6ºF"},
   {nome:"Davi Lucca Coutinho Lopes",turma:"6ºF"},
   {nome:"Gabriel Rodrigues de Caldas",turma:"6ºF"},
   {nome:"Gabriela Silva Soares",turma:"6ºF"},
   {nome:"Giovanna Aparecida do Carmo Batista",turma:"6ºF"},
   {nome:"Isabelly de Souza Xavier",turma:"6ºF"},
-  {nome:"Isadora Luíza de Brito Soares",turma:"6ºF"},
+  {nome:"Isadora Luiza de Brito Soares",turma:"6ºF"},
   {nome:"Isaque Emanuel Medina de Souza",turma:"6ºF"},
   {nome:"Izabelle Alice dos Santos Gandra",turma:"6ºF"},
-  {nome:"João Guilherme Sales Rodrigues",turma:"6ºF"},
+  {nome:"Joao Guilherme Sales Rodrigues",turma:"6ºF"},
   {nome:"Julia Maria Silva de Jesus",turma:"6ºF"},
+  {nome:"Ketully Gabriella Ramalho Gomes",turma:"6ºF"},
   {nome:"Leandro Lessa Resende",turma:"6ºF"},
   {nome:"Lucas Cardoso dos Santos",turma:"6ºF"},
-  {nome:"Luiz Philipe Valle Teixura",turma:"6ºF"},
-  {nome:"Maria Clara de Jesus Alves",turma:"6ºF"},
+  {nome:"Ludmyla Aguiar Fonseca",turma:"6ºF"},
+  {nome:"Luiz Philipe Vale Teixeira",turma:"6ºF"},
   {nome:"Maria Fernanda da Silveira Santos",turma:"6ºF"},
   {nome:"Maria Luiza Lopes da Silva",turma:"6ºF"},
   {nome:"Maria Luiza Nunes Flor de Lima",turma:"6ºF"},
   {nome:"Miguel da Silva Gomes",turma:"6ºF"},
   {nome:"Miguel Martins de Almeida",turma:"6ºF"},
-  {nome:"Pedro Garil da Silva Marques",turma:"6ºF"},
+  {nome:"Pedro Gael da Silva Marques",turma:"6ºF"},
   {nome:"Pietra Julia Jesus Franca",turma:"6ºF"},
   {nome:"Rafael Soares de Oliveira",turma:"6ºF"},
-  {nome:"Ritha Gabrielly Gonçalves da Silva",turma:"6ºF"},
+  {nome:"Ritha Gabrielly Goncalves da Silva",turma:"6ºF"},
   {nome:"Samuel Lucca de Sousa Pereira",turma:"6ºF"},
-  {nome:"Alice Cosso Guimarães de Souza Simão",turma:"7ºA"},
+  {nome:"Alice Cosso Guimarães de Souza Simões",turma:"7ºA"},
   {nome:"Alice Rodrigues Amorim",turma:"7ºA"},
   {nome:"Allyce Yevina Martins dos Santos",turma:"7ºA"},
+  {nome:"Ana Sophie Mendes da Rocha",turma:"7ºA"},
   {nome:"Anna Clara Sousa Costa",turma:"7ºA"},
   {nome:"Antonelly Alves Marcolino de Souza",turma:"7ºA"},
   {nome:"Clara Maria Rodrigues dos Santos",turma:"7ºA"},
+  {nome:"Davi Lucca da Silva Soares",turma:"7ºA"},
   {nome:"Enzo Damasceno Salvador",turma:"7ºA"},
   {nome:"Gabriel de Assis Furtado Brandão",turma:"7ºA"},
   {nome:"Gabriel Rodrigo Ferreira de Aquino",turma:"7ºA"},
   {nome:"Gabrielly Ferreira de Carvalho",turma:"7ºA"},
   {nome:"Giovana Layla Gomes da Costa Correia",turma:"7ºA"},
   {nome:"Heitor Vitor de Almeida Valadares",turma:"7ºA"},
-  {nome:"Isaque Antônio Vieira Dias",turma:"7ºA"},
-  {nome:"Jéssica Nicolly da Cunha de Souza",turma:"7ºA"},
-  {nome:"Luan Jesus França",turma:"7ºA"},
+  {nome:"Isabella Vitoria Vieira Lopes",turma:"7ºA"},
+  {nome:"Isaquy Antônio Vieira Dias",turma:"7ºA"},
+  {nome:"Luan Jesus Franca",turma:"7ºA"},
+  {nome:"Maria Rita Rodrigues Braz de Sousa",turma:"7ºA"},
   {nome:"Mayara Oliveira Souza",turma:"7ºA"},
   {nome:"Miguel Gonçalves de Oliveira",turma:"7ºA"},
   {nome:"Miguel Ítalo Monteiro Amaral",turma:"7ºA"},
-  {nome:"Nicolly Maria Teixeira da Silva Viana",turma:"7ºA"},
-  {nome:"Nikolas Matheus Nunes Curvelo",turma:"7ºA"},
+  {nome:"Nicolly Maira Teixeira da Silva Viana",turma:"7ºA"},
+  {nome:"Nikolas Matheus Nunes Curvelano",turma:"7ºA"},
   {nome:"Pedro Henrique Alves Bueno",turma:"7ºA"},
   {nome:"Pietro de Andrade Pereira Amaral",turma:"7ºA"},
-  {nome:"Rabisa Gomes Dias dos Santos",turma:"7ºA"},
-  {nome:"Samuel de Araújo Magalhães",turma:"7ºA"},
+  {nome:"Raissa Gomes Dias dos Santos",turma:"7ºA"},
+  {nome:"Samuel de Araujo Magalhaes",turma:"7ºA"},
   {nome:"Samuel Lucas Costa de Aguiar",turma:"7ºA"},
   {nome:"Sophia Gabriele Pereira dos Santos",turma:"7ºA"},
-  {nome:"Stephanie Katlen de Almeida Lapa",turma:"7ºA"},
-  {nome:"Vitória Hanna Castro Apostolo",turma:"7ºA"},
-  {nome:"Yasmin Gonçalves da Silva",turma:"7ºA"},
+  {nome:"Sthephany Katlen de Almeida Lapa",turma:"7ºA"},
+  {nome:"Vitoria Hanna Castro Apostolo",turma:"7ºA"},
+  {nome:"Vivian Ferreira Fernandes",turma:"7ºA"},
   {nome:"Ana Clara Vitorino Santos Carvalho",turma:"7ºB"},
   {nome:"Arthur Pietro Veloso Conrado",turma:"7ºB"},
-  {nome:"Ayla Oliveira Rodrigues",turma:"7ºB"},
   {nome:"Bernardo Diniz de Souza",turma:"7ºB"},
   {nome:"Bruna Fragoso Queiroz",turma:"7ºB"},
   {nome:"Carolina Freire Borges",turma:"7ºB"},
   {nome:"Daniel de Araujo Silva",turma:"7ºB"},
   {nome:"Davi Alves Resende",turma:"7ºB"},
   {nome:"Davi Phillip Pereira da Silva",turma:"7ºB"},
-  {nome:"Debick Alejandro dos Santos",turma:"7ºB"},
-  {nome:"Eduardo Augusto Silva da Anunciação",turma:"7ºB"},
+  {nome:"Derick Alejandro dos Santos",turma:"7ºB"},
+  {nome:"Eduardo Augusto Silva da Anunciacao",turma:"7ºB"},
   {nome:"Eduardo Goncalves Fernandes",turma:"7ºB"},
-  {nome:"Giovana Juliane Anzio Santos",turma:"7ºB"},
-  {nome:"Jose Gabriel Menezes Guenha",turma:"7ºB"},
+  {nome:"Giovana Juliane Anizio Santos",turma:"7ºB"},
+  {nome:"Jose Gabriel Menezes Guerra",turma:"7ºB"},
   {nome:"Júlia de Carvalho Soares",turma:"7ºB"},
   {nome:"Julia Maria Crispim Santana",turma:"7ºB"},
   {nome:"Kayo Cristiano Rodrigues Silva",turma:"7ºB"},
@@ -1240,14 +1295,14 @@ const ALUNOS_BASE = [
   {nome:"Maria Rita Nunes Silva",turma:"7ºB"},
   {nome:"Miguel Coelho Dias",turma:"7ºB"},
   {nome:"Nicolas Damasceno Salvador",turma:"7ºB"},
-  {nome:"Nicolle Ester de Oliveira Guimarães",turma:"7ºB"},
-  {nome:"Olivia Adriana Araújo Mendonça",turma:"7ºB"},
+  {nome:"Nicolle Ester de Oliveira Guimaraes",turma:"7ºB"},
+  {nome:"Oliver Adriane Araújo Mendonça",turma:"7ºB"},
   {nome:"Pietra Mendes Alves",turma:"7ºB"},
   {nome:"Raphael da Silva Lobo",turma:"7ºB"},
-  {nome:"Sara Nicácio Nicolau",turma:"7ºB"},
+  {nome:"Sara Nicacio Nicolau",turma:"7ºB"},
   {nome:"Sarah Emanuelly Gonçalves de Deus",turma:"7ºB"},
   {nome:"Sophya Gabrielly Vieira Souza",turma:"7ºB"},
-  {nome:"Agatha Amáda da Silva",turma:"7ºC"},
+  {nome:"Agatha Amaral da Silva",turma:"7ºC"},
   {nome:"Alice Gonçalves Lamas",turma:"7ºC"},
   {nome:"Anna Laura Ferreira de Morais",turma:"7ºC"},
   {nome:"Arthur Angelo Fernandes Cabral",turma:"7ºC"},
@@ -1257,25 +1312,24 @@ const ALUNOS_BASE = [
   {nome:"Bernardo Miguel Silva Pereira",turma:"7ºC"},
   {nome:"Emanuelle Gonçalves da Silva",turma:"7ºC"},
   {nome:"Enzo Reis Paulino",turma:"7ºC"},
-  {nome:"Esther Marinna Alves Costa",turma:"7ºC"},
   {nome:"Esther Silva Diniz",turma:"7ºC"},
   {nome:"Fabio Batista Santos",turma:"7ºC"},
-  {nome:"Gabrielle Stéfanny Santana Costa",turma:"7ºC"},
-  {nome:"Hadassa Gabrielle Alves de Araújo",turma:"7ºC"},
-  {nome:"João Lucas Soares Alves",turma:"7ºC"},
-  {nome:"Julia Vitória Timóteo de Paula",turma:"7ºC"},
+  {nome:"Gabrielle Stefanny Santana Costa",turma:"7ºC"},
+  {nome:"Hadassa Gabrielle Alves de Araujo",turma:"7ºC"},
+  {nome:"Joao Lucas Soares Alves",turma:"7ºC"},
+  {nome:"Julia Vitoria Timoteo de Paula",turma:"7ºC"},
   {nome:"Kauan Henrique Marinho Souza",turma:"7ºC"},
   {nome:"Lara Oliveira de Souza",turma:"7ºC"},
-  {nome:"Laura Gomes Guimarães",turma:"7ºC"},
+  {nome:"Laura Gomes Guimaraes",turma:"7ºC"},
   {nome:"Lorenzo Gabriel Silva Lopes",turma:"7ºC"},
-  {nome:"Lucca Felicio Porto",turma:"7ºC"},
-  {nome:"Manuela Vitônia Diniz Lourenço",turma:"7ºC"},
+  {nome:"Manuela Vitória Diniz Lourenço",turma:"7ºC"},
   {nome:"Marcella Sophia Rosa Avelar Lima",turma:"7ºC"},
   {nome:"Melyssa Rosa Gomes Moreira",turma:"7ºC"},
   {nome:"Pietro Francisco Andrade de Paula",turma:"7ºC"},
   {nome:"Samuel Dias Fidelis Rosa",turma:"7ºC"},
-  {nome:"Sofia Cosso Guimarães de Souza Simões",turma:"7ºC"},
-  {nome:"Thalita Emanuele de Souza Lima",turma:"7ºC"},
+  {nome:"Sidney Roberto Miranda Fernandes",turma:"7ºC"},
+  {nome:"Sofia Cosso Guimaraes de Souza Simoes",turma:"7ºC"},
+  {nome:"Thalita Emanuelle Souza Lima",turma:"7ºC"},
   {nome:"Victor Lucas Cardoso Mendes",turma:"7ºC"},
   {nome:"Alana Larissa Pereira de Sa Silva",turma:"7ºD"},
   {nome:"Arthur Gonçalves Ferreira",turma:"7ºD"},
@@ -1290,9 +1344,9 @@ const ALUNOS_BASE = [
   {nome:"Hitalo Henrique da Silva Vieira",turma:"7ºD"},
   {nome:"Isabela Rocha Ferreira",turma:"7ºD"},
   {nome:"Juan Guilherme Pereira da Silva",turma:"7ºD"},
-  {nome:"Kamilly Gomes Silva Leite",turma:"7ºD"},
+  {nome:"Kamily Gomes Silva Leite",turma:"7ºD"},
   {nome:"Laura Manuela Bracarense Avila de Sa",turma:"7ºD"},
-  {nome:"Lhauanny Gabrielle Queiroz",turma:"7ºD"},
+  {nome:"Lhuanny Gabrielle Queiroz",turma:"7ºD"},
   {nome:"Lucas Junio Vieira Assis",turma:"7ºD"},
   {nome:"Lucas Rafael Bragança do Nascimento",turma:"7ºD"},
   {nome:"Marcello Henrique Fortes Costa",turma:"7ºD"},
@@ -1300,10 +1354,10 @@ const ALUNOS_BASE = [
   {nome:"Maria Julia de Souza Azevedo",turma:"7ºD"},
   {nome:"Nicolas Rodrigues Vieira",turma:"7ºD"},
   {nome:"Pietro Augusto de Souza Ribeiro",turma:"7ºD"},
-  {nome:"Ryan Rafael Guimarães da Silva",turma:"7ºD"},
+  {nome:"Ryan Rafael Guimaraes da Silva",turma:"7ºD"},
   {nome:"Samuel Silva Nunes Santos Rocha",turma:"7ºD"},
   {nome:"Skarlett Gabrielly de Almeida Lapa",turma:"7ºD"},
-  {nome:"Thiago Magalhães da Silva",turma:"7ºD"},
+  {nome:"Thiago Magalhaes da Silva",turma:"7ºD"},
   {nome:"Valentina Santana Torres",turma:"7ºD"},
   {nome:"Wallace Brayan dos Santos Alves",turma:"7ºD"},
   {nome:"Yasmin Magalhães Keler Dias",turma:"7ºD"},
@@ -1313,16 +1367,16 @@ const ALUNOS_BASE = [
   {nome:"Bernardo Miguel de Almeida",turma:"7ºE"},
   {nome:"Caio Bitencorte Diniz",turma:"7ºE"},
   {nome:"Emanuelle Beatriz Guimarães Reis",turma:"7ºE"},
-  {nome:"Emanuelly Vitória Gomes de Paula",turma:"7ºE"},
+  {nome:"Emanuelly Vitoria Gomes de Paula",turma:"7ºE"},
   {nome:"Fernanda Lima Aparecida de Souza",turma:"7ºE"},
   {nome:"Gabriel Xisto de Jesus Oliveira",turma:"7ºE"},
-  {nome:"Gabrielly Vitória Ferreira Pinto",turma:"7ºE"},
-  {nome:"Geovana Rodrigues Alves",turma:"7ºE"},
-  {nome:"Giovana Sousa Duarte",turma:"7ºE"},
-  {nome:"Giovanna Vitória Rodrigues de Freitas",turma:"7ºE"},
+  {nome:"Gabrielly Vitoria Ferreira Pinto",turma:"7ºE"},
+  {nome:"Giovanna Souza Duarte",turma:"7ºE"},
+  {nome:"Giovanna Vitoria Rodrigues de Freitas",turma:"7ºE"},
   {nome:"Isaac Emmanuel Sabino Fernandes",turma:"7ºE"},
   {nome:"Isabella Lima de Souza",turma:"7ºE"},
   {nome:"Izabel Rocha Paglioni",turma:"7ºE"},
+  {nome:"Izadora Emanuelly de Moura Andrade",turma:"7ºE"},
   {nome:"Kaique Campos Andrade",turma:"7ºE"},
   {nome:"Laura Luísa Freitas Santos",turma:"7ºE"},
   {nome:"Lorenzo Fonseca Alves",turma:"7ºE"},
@@ -1332,29 +1386,33 @@ const ALUNOS_BASE = [
   {nome:"Maria Julia Ribeiro Vasconcelos",turma:"7ºE"},
   {nome:"Melissa Santarelli Santos",turma:"7ºE"},
   {nome:"Pedro Henrique de Paula Pereira",turma:"7ºE"},
-  {nome:"Rebeca Vitória Cangussu de Miranda",turma:"7ºE"},
-  {nome:"Robert Taylor dos Santos Monteiro Primo",turma:"7ºE"},
+  {nome:"Rebeca Vitoria Cangussu de Miranda",turma:"7ºE"},
+  {nome:"Robert Taylor dos Santos Monteiro Pinto",turma:"7ºE"},
   {nome:"Sarah Maria Barbosa Santos",turma:"7ºE"},
   {nome:"Talles Arthur de Lima Reis",turma:"7ºE"},
+  {nome:"Vitor Junio Martins de Oliveira",turma:"7ºE"},
   {nome:"Arthur Dias dos Santos",turma:"8ºX"},
-  {nome:"Guilherme Junio Oliveira Cruz",turma:"8ºX"},
+  {nome:"Guilherme Júnio Oliveira Cruz",turma:"8ºX"},
   {nome:"Kaua Henrique Rios Silva",turma:"8ºX"},
   {nome:"Maria Eduarda Gonçalves Ramos",turma:"8ºX"},
   {nome:"Richard Flávio de Oliveira Faria",turma:"8ºX"},
-  {nome:"Taylor Eduardo Ferreira da Lima",turma:"8ºX"},
+  {nome:"Taylor Eduardo Ferreira da Silva",turma:"8ºX"},
+  {nome:"Thiago Gabriel Miguel Alves",turma:"8ºX"},
   {nome:"Yuri Ezequiel Magalhaes de Lima",turma:"8ºX"},
 ];
 
 // Carrega lista do localStorage ou usa base
+// Versão da lista base: ao mudar, a lista salva no navegador é substituída pela nova base
+const ALUNOS_VERSAO = '2026-11';
 function carregarAlunos() {
   try {
     const salvo = localStorage.getItem('emgtc_alunos');
-    if (salvo) return JSON.parse(salvo);
+    if (salvo && localStorage.getItem('emgtc_alunos_versao') === ALUNOS_VERSAO) return JSON.parse(salvo);
   } catch(e){}
   return ALUNOS_BASE.map(a => ({...a}));
 }
 function salvarAlunos() {
-  try { localStorage.setItem('emgtc_alunos', JSON.stringify(listaAlunos)); } catch(e){}
+  try { localStorage.setItem('emgtc_alunos', JSON.stringify(listaAlunos)); localStorage.setItem('emgtc_alunos_versao', ALUNOS_VERSAO); } catch(e){}
 }
 // ── SALVAMENTO NO GOOGLE SHEETS ────────────────────────────────────────────
 // Cole aqui a URL de implantação (Web App) do seu Google Apps Script.
@@ -1378,29 +1436,63 @@ function normalizar(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 }
 
+function adicionarAlunoRapido(nome, turma) {
+  nome = nome.trim();
+  if (!nome || !turma) return null;
+  const ja = listaAlunos.find(a => normalizar(a.nome) === normalizar(nome) && a.turma === turma);
+  if (!ja) {
+    listaAlunos.push({nome, turma});
+    listaAlunos.sort((a,b) => a.nome.localeCompare(b.nome,'pt'));
+    salvarAlunos();
+    atualizarContador();
+  }
+  return nome;
+}
+
+function adicionarEselecionarAluno(nome, turma) {
+  adicionarAlunoRapido(nome, turma);
+  document.getElementById('nome_aluno').value = nome.trim();
+  fecharDropdown();
+}
+
+function turmaIndividualMudou() {
+  const inp = document.getElementById('nome_aluno');
+  if (document.activeElement === inp) filtrarAlunos(inp.value);
+}
+
 function filtrarAlunos(q) {
   const dd = document.getElementById('dropdown-alunos');
   if (!dd) return;
+  const turmaSel = document.getElementById('turma').value;
   const nq = normalizar(q.trim());
-  let resultados = listaAlunos;
+  // Com turma selecionada: só alunos daquela turma, mostrando apenas o nome
+  let base = turmaSel ? listaAlunos.filter(a => a.turma === turmaSel) : listaAlunos;
+  let resultados = base;
   if (nq.length > 0) {
-    resultados = listaAlunos.filter(a => normalizar(a.nome).includes(nq) || normalizar(a.turma).includes(nq));
-  }
-  if (resultados.length === 0) {
-    dd.innerHTML = '<div style="padding:10px 14px;color:#888;font-size:0.85rem;">Nenhum aluno encontrado.</div>';
-    dd.style.display = 'block';
-    return;
+    resultados = base.filter(a => normalizar(a.nome).includes(nq) || (!turmaSel && normalizar(a.turma).includes(nq)));
   }
   const max = 12;
   let html = '';
   resultados.slice(0, max).forEach(a => {
+    const badge = turmaSel ? '' : `<span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span>`;
     html += `<div onclick="selecionarAluno('${a.nome.replace(/'/g,"\\'")}','${a.turma}')"
       style="padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f0f0f0;font-size:0.88rem;"
       onmouseover="this.style.background='#e8edf5'" onmouseout="this.style.background=''"
-    ><span>${a.nome}</span><span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span></div>`;
+    ><span>${a.nome}</span>${badge}</div>`;
   });
   if (resultados.length > max) {
     html += `<div style="padding:7px 14px;color:#888;font-size:0.78rem;text-align:center;">...e mais ${resultados.length - max} resultados. Continue digitando para refinar.</div>`;
+  }
+  // Permite adicionar um nome novo à turma selecionada
+  const digitado = q.trim();
+  const exato = digitado && base.some(a => normalizar(a.nome) === nq);
+  if (turmaSel && digitado && !exato) {
+    html += `<div onmousedown="event.preventDefault();adicionarEselecionarAluno(${JSON.stringify(digitado).replace(/"/g,'&quot;')},'${turmaSel}')"
+      style="padding:9px 14px;cursor:pointer;font-size:0.85rem;color:var(--azul);font-weight:700;background:#f5f8fc;"
+    >➕ Adicionar "${digitado.replace(/</g,'&lt;')}" à turma ${turmaSel}</div>`;
+  }
+  if (!html) {
+    html = '<div style="padding:10px 14px;color:#888;font-size:0.85rem;">' + (turmaSel ? 'Nenhum aluno nesta turma.' : 'Nenhum aluno encontrado.') + '</div>';
   }
   dd.innerHTML = html;
   dd.style.display = 'block';
@@ -2078,8 +2170,11 @@ function mostrarSugestoesLote(input, q) {
   const dd = document.getElementById('dropdown-lote');
   const nq = normalizar(q.trim());
   if (!nq) { dd.style.display = 'none'; return; }
-  const resultados = listaAlunos.filter(a => normalizar(a.nome).includes(nq)).slice(0, 10);
-  if (!resultados.length) { dd.style.display = 'none'; return; }
+  const turmaSel = (document.getElementById('turma_lote') || {}).value || '';
+  const base = turmaSel ? listaAlunos.filter(a => a.turma === turmaSel) : listaAlunos;
+  const resultados = base.filter(a => normalizar(a.nome).includes(nq)).slice(0, 10);
+  const podeAdd = turmaSel && !base.some(a => normalizar(a.nome) === nq);
+  if (!resultados.length && !podeAdd) { dd.style.display = 'none'; return; }
   // posiciona o dropdown sob o input ativo, relativo ao wrapper pai (position:relative)
   const wrapper = dd.parentElement; // div[style="position:relative"]
   const wrapperRect = wrapper.getBoundingClientRect();
@@ -2097,15 +2192,23 @@ function mostrarSugestoesLote(input, q) {
       onmouseover="this.classList.add('ativo')" onmouseout="this.classList.remove('ativo')"
       onmousedown="event.preventDefault();selecionarSugestaoLote('${a.nome.replace(/'/g,"\\'")}',${loteLinhaAtiva})">
       <span>${a.nome}</span>
-      <span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span>
+      ${turmaSel ? '' : `<span style="font-size:0.75rem;background:#e8edf5;color:var(--azul);border-radius:4px;padding:2px 7px;font-weight:700;">${a.turma}</span>`}
     </div>`
-  ).join('');
+  ).join('') + (podeAdd ? `<div class="dd-add" style="padding:9px 14px;cursor:pointer;font-size:0.85rem;color:var(--azul);font-weight:700;background:#f5f8fc;"
+      onmousedown="event.preventDefault();adicionarNomeLote(${loteLinhaAtiva},'${turmaSel}')">➕ Adicionar "${q.trim().replace(/</g,'&lt;')}" à turma ${turmaSel}</div>` : '');
   dd.style.display = 'block';
   // observador de classe para highlight
   dd.querySelectorAll('.dd-item').forEach(el => {
     const obs = new MutationObserver(() => { el.style.background = el.classList.contains('ativo') ? '#e8edf5' : ''; });
     obs.observe(el, {attributes:true, attributeFilter:['class']});
   });
+}
+
+function adicionarNomeLote(idx, turma) {
+  const nome = (loteLinhas[idx] || '').trim();
+  if (!nome) return;
+  adicionarAlunoRapido(nome, turma);
+  selecionarSugestaoLote(nome, idx);
 }
 
 function selecionarSugestaoLote(nome, idx) {
